@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Secrets & data
+.env
+.env.local
+.env.*.local
+data/inbox/*
+data/processed/*
+data/failed/*
+data/backup/*
+data/master/*.xlsx
+!data/.gitkeep
+!data/inbox/.gitkeep
+!data/processed/.gitkeep
+!data/failed/.gitkeep
+!data/backup/.gitkeep
+!data/master/.gitkeep
+
+# Excel thực tế (file tổng production)
+*.xlsx
+*.xls
+*.xlsm
+# nhưng giữ fixtures cho test
+!tests/fixtures/*.xlsx
+
+# Logs
+logs/*
+!logs/.gitkeep
+
+# IDE
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude session (giữ settings + commands, bỏ history)
+.claude/history/
+.claude/cache/

@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Auto-fill: install deps",
+      "type": "shell",
+      "command": ".venv\\Scripts\\pip install -r requirements.txt && .venv\\Scripts\\pip install -e .",
+      "problemMatcher": []
+    },
+    {
+      "label": "Auto-fill: run once (dry-run)",
+      "type": "shell",
+      "command": ".venv\\Scripts\\python -m auto_fill run --dry-run",
+      "problemMatcher": []
+    },
+    {
+      "label": "Auto-fill: run once",
+      "type": "shell",
+      "command": ".venv\\Scripts\\python -m auto_fill run",
+      "problemMatcher": []
+    },
+    {
+      "label": "Auto-fill: test",
+      "type": "shell",
+      "command": ".venv\\Scripts\\pytest -q",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Auto-fill: lint",
+      "type": "shell",
+      "command": ".venv\\Scripts\\ruff check src tests && .venv\\Scripts\\mypy src",
+      "problemMatcher": []
+    }
+  ]
+}

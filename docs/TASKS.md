@@ -1,0 +1,81 @@
+# TASKS.md — Active Task Log
+
+> Nhật ký trạng thái task hiện tại + open questions.
+> Claude update file này SAU KHI hoàn thành mỗi task trong TODO.md.
+
+---
+
+## Đang làm
+
+(Chưa có task nào in_progress — chờ user gõ `go` để bắt đầu task 0.4)
+
+---
+
+## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Phase 0 init
+- **Task:** 0.1, 0.2, 0.3 (scaffold + docs + CLAUDE.md)
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `CLAUDE.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODING_RULES.md`
+  - `docs/DATABASE.md`
+  - `docs/MAPPING.md`
+  - `docs/TECH_STACK.md`
+  - `docs/WORKFLOW.md`
+  - `docs/TODO.md`
+  - `docs/TASKS.md`
+  - `docs/DECISIONS.md`
+  - `docs/GLOSSARY.md`
+  - `src/auto_fill/` (skeleton dirs)
+- **Test:** N/A (docs only).
+- **Note:** File tổng đã được scan: 20 sheets. Schema 6 sheet ưu tiên đã ghi vào DATABASE.md.
+
+---
+
+## Open Questions (cần user trả lời trước khi auto tiếp)
+
+1. **Sender allowlist cho Outlook?**
+   Cần list email của đại lý / nguồn gửi phiếu cấp đơn để filter mail.
+   → Sẽ điền vào `.env` `SENDER_*`.
+
+2. **Subject pattern chuẩn?**
+   User có tiêu đề mail chuẩn không (vd `[Cấp đơn] Du lịch 14/05`)?
+   Nếu không, dùng keyword match như MAPPING §5.
+
+3. **File tổng path?**
+   Hiện đang là `Danh sách cấp đơn Offline PTI  (3).xlsx`. Có cần đổi tên cho gọn?
+   Đề xuất rename: `data/master/master.xlsx` (link symbolic / copy).
+
+4. **Outlook profile?**
+   Máy user dùng 1 profile Outlook hay nhiều? Folder Inbox nằm ở account nào?
+
+5. **Backup giữ bao lâu?**
+   Đề xuất: giữ 30 ngày trong `data/backup/`. Sau đó nén `.zip`.
+
+6. **Schema cụ thể của 14 sheet còn lại?**
+   MVP chỉ làm 6 sheet (Du lịch, Sức khỏe, Ô tô, Xe máy, BHYTBHXH, HSSV).
+   14 sheet còn lại (TEMPLATE, Hủy, Hoàn phí, Nhà, ...) sẽ đào sâu ở Phase 2.
+
+---
+
+## Blocker hiện tại
+
+(Không có)
+
+---
+
+## Format cho mỗi entry mới
+
+Copy template này khi log task mới:
+
+```
+### YYYY-MM-DD HH:MM — <Task ID> <Tên task>
+- **Trạng thái:** in_progress | done | blocked
+- **File thay đổi:** `path/to/file1.py`, `path/to/file2.py`
+- **Test:** `pytest tests/test_x.py` → pass/fail. Coverage X%.
+- **Commit:** <hash> "<message>"
+- **Note:** Ghi chú decision / vấn đề gặp phải.
+- **Subtask phát sinh:** (nếu có, đã add vào TODO.md mục X.Y)
+```

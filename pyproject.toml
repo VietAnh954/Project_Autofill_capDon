@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "auto-fill-capdon"
+version = "0.1.0"
+description = "Tự động hoá nhập liệu phiếu cấp đơn bảo hiểm từ Outlook vào file Excel tổng."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "VietAnh", email = "nguyenvietanh92tn@gmail.com" }
+]
+
+[project.scripts]
+auto-fill = "auto_fill.__main__:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "SIM", # simplify
+    "RUF",
+    "N",   # naming
+    "C90", # mccabe complexity
+]
+ignore = [
+    "E501",  # line length (black/ruff format sẽ tự lo)
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+show_error_codes = true
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "slow: marks tests as slow",
+    "outlook: requires Outlook running",
+]
