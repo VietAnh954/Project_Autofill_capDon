@@ -1,0 +1,108 @@
+site_name: Auto-fill Cấp Đơn
+site_description: Tự động hoá nhập liệu phiếu cấp đơn bảo hiểm từ Outlook vào file Excel tổng.
+site_url: https://vietanh954.github.io/Project_Autofill_capDon/
+site_author: VietAnh
+repo_url: https://github.com/VietAnh954/Project_Autofill_capDon
+repo_name: VietAnh954/Project_Autofill_capDon
+edit_uri: edit/main/site_docs/
+
+docs_dir: site_docs
+
+theme:
+  name: material
+  language: vi
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Chuyển sang dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Chuyển sang light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+  font:
+    text: Be Vietnam Pro
+    code: JetBrains Mono
+
+nav:
+  - Trang chủ: index.md
+  - Vấn đề & giải pháp:
+      - Bối cảnh: context.md
+      - Cách hoạt động: how-it-works.md
+  - Hướng dẫn:
+      - Cài đặt: installation.md
+      - Sử dụng hằng ngày: usage.md
+      - Khắc phục sự cố: troubleshoot.md
+  - Kỹ thuật:
+      - Kiến trúc: architecture.md
+      - Sản phẩm hỗ trợ: products.md
+      - Roadmap: roadmap.md
+  - Changelog: changelog.md
+
+plugins:
+  - search:
+      lang:
+        - vi
+        - en
+  - glightbox
+  - mermaid2
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid_custom
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/VietAnh954
+  generator: false
+
+copyright: >
+  © 2026 VietAnh — Internal project.
