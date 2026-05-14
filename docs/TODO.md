@@ -96,7 +96,7 @@
        Acceptance: push lên main → Actions chạy xanh → site live.
 - [ ] 5.6. Enable GitHub Pages trong repo settings (USER chạy tay 1 lần).
 - [ ] 5.7. Thêm Custom domain (tuỳ chọn) nếu user có domain riêng.
-- [ ] 5.8. Tag `v0.5.0-docs-site`.
+- [x] 5.8. Tag `v0.5.0-docs-site`.
 
 ---
 
