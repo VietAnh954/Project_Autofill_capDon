@@ -41,7 +41,7 @@
        Acceptance: chạy script tay với 3 record → file tổng có thêm đúng 3 dòng cuối sheet Du lịch.
 - [x] 1.13. **Mail marker**: mark mail processed (Read + move folder).
 - [x] 1.14. **Logger**: setup loguru JSON, log mỗi step.
-- [ ] 1.15. **CLI entry**: `python -m auto_fill run --dry-run` và `run`.
+- [x] 1.15. **CLI entry**: `python -m auto_fill run --dry-run` và `run`.
 - [ ] 1.16. **End-to-end smoke test**: 1 mail thật → 1 dòng mới trong master.
        Acceptance: pytest `tests/test_pipeline_smoke.py` xanh.
 - [ ] 1.17. Tag git `v0.1.0-mvp-dulich`.

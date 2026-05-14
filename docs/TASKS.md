@@ -7,11 +7,19 @@
 
 ## Đang làm
 
-(Task 1.15 in_progress — CLI entry)
+(Task 1.16 in_progress — End-to-end smoke test)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.15 (CLI entry)
+- **Task:** 1.15 CLI entry — `python -m auto_fill run --dry-run`
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/__main__.py` — cli group, run command (wired pipeline), rollback stub
+- **Test:** `python -m auto_fill --help` OK. `python -m auto_fill run --help` OK. Full suite passed.
+- **Note:** Pipeline wired: connect Outlook → backup → fetch → download → classify → read → normalize → validate → dedup → fill → mark. Dry-run: bỏ qua bước ghi/mark. Lỗi COM → sys.exit(1).
 
 ### 2026-05-14 — Task 1.14 (Logger)
 - **Task:** 1.14 Logger — loguru JSON + stdlib intercept
