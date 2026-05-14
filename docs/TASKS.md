@@ -7,11 +7,20 @@
 
 ## Đang làm
 
-(Task 1.13 in_progress — Mail marker)
+(Task 1.14 in_progress — Logger)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.13 (Mail marker)
+- **Task:** 1.13 Mail marker — Mark Read + move to Processed folder
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/mail/marker.py` — mark_processed(), _get_or_create_folder()
+  - `tests/test_marker.py` — 12 unit tests với MagicMock COM
+- **Test:** `pytest tests/test_marker.py -q` → 12 passed.
+- **Note:** Dùng olFolderInbox=6 để lấy Inbox. Tự tạo sub-folder "Processed" nếu chưa có. Lỗi COM → return False (không raise).
 
 ### 2026-05-14 — Task 1.12 (Excel filler)
 - **Task:** 1.12 Excel filler — append rows vào sheet Du lịch
