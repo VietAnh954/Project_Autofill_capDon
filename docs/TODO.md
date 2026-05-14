@@ -49,7 +49,7 @@
 ## Phase 2 — Mở rộng sang 6 sheet chính
 
 - [x] 2.1. Thêm classifier rule cho Sức khỏe, Ô tô, Xe máy, BHYTBHXH, HSSV.
-- [ ] 2.2. Viết mapping table cho từng sheet (đã có draft MAPPING §6).
+- [x] 2.2. Viết mapping table cho từng sheet (đã có draft MAPPING §6).
 - [ ] 2.3. Viết `aliases.yaml` đầy đủ cho mọi canonical field.
 - [ ] 2.4. PDF reader (`pdf_reader.py`) với `pdfplumber`.
 - [ ] 2.5. PDF OCR fallback (`pytesseract`) cho phiếu scan.
