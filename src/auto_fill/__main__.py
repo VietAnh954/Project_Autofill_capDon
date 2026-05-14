@@ -194,6 +194,20 @@ def _normalize_record(
 
 
 @cli.command()
+@click.option(
+    "--interval",
+    default=15,
+    show_default=True,
+    help="Khoang thoi gian poll (phut).",
+)
+def schedule(interval: int) -> None:
+    """Chay scheduler poll Outlook moi --interval phut."""
+    from auto_fill.scheduler import start_scheduler
+
+    start_scheduler(interval_minutes=interval)
+
+
+@cli.command()
 @click.option("--to", "to_file", required=True, type=click.Path(exists=True))
 def rollback(to_file: str) -> None:
     """Khoi phuc master file tu backup snapshot."""
