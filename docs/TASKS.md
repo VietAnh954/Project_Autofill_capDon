@@ -7,7 +7,23 @@
 
 ## Đang làm
 
-(Phase 3 complete — chờ user bắt đầu Phase 4)
+(Phase 4 in progress — task 4.1 done, tiếp theo 4.2)
+
+---
+
+## Session Summary — 2026-05-14 (Phase 4 task 4.1)
+
+**Task 4.1: Đóng gói Windows service (NSSM).**
+
+| Task | File chính | Tests | Commit |
+|------|-----------|-------|--------|
+| 4.1 Windows Service | `scripts/install_service.ps1`, `scripts/uninstall_service.ps1`, `src/auto_fill/windows_service.py` | 10 passed | — |
+
+### Chi tiết:
+- `scripts/install_service.ps1` — PowerShell script dùng NSSM cài service; cấu hình AppDirectory, log rotation, auto-start, description.
+- `scripts/uninstall_service.ps1` — dừng + xóa service, có confirm prompt.
+- `src/auto_fill/windows_service.py` — pywin32 native service wrapper; `_WIN32_AVAILABLE` guard cho phép test không cần admin; `SvcStop` signal stop event; `_run()` loop với WaitForSingleObject interval.
+- `tests/test_windows_service.py` — 10 tests: constants, main() exit khi no win32, main() dispatch với mock win32, class attributes, SvcStop behavior.
 
 ---
 
