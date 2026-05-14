@@ -7,7 +7,29 @@
 
 ## Đang làm
 
-(Phase 2 complete — chờ user bắt đầu Phase 3)
+(Phase 3 complete — chờ user bắt đầu Phase 4)
+
+---
+
+## Session Summary — 2026-05-14 (Phase 3 hoàn thành)
+
+**Session này hoàn thành toàn bộ Phase 3 Database (task 3.1 → 3.6).**
+
+### Tasks đã làm trong session này:
+
+| Task | File chính | Tests | Commit |
+|------|-----------|-------|--------|
+| 3.1 SQLite schema | `db/models.py`, `db/engine.py`, `settings.py` | 14 passed | `819d1d1` |
+| 3.2 Alembic init | `alembic/`, `alembic.ini`, `alembic/env.py` | migration verified | `728ceef` |
+| 3.3 Migration script | `tools/migrate_excel_to_sqlite.py` | 11 passed | `7cac572` |
+| 3.4 Dual-write pipeline | `db/repository.py`, `filler/db_exporter.py`, `__main__.py` | 14 passed | `d1fc3ae` |
+| 3.5 CLI export | `__main__.py` (export_cmd) | 4 passed | `6ee4d48` |
+| 3.6 Tag v0.3.0 | — | — | tag pushed |
+
+### Trạng thái repo:
+- Branch: `main`
+- Tag: `v0.3.0` (pushed)
+- Full test suite: 388 passed
 
 ---
 

@@ -65,7 +65,7 @@
 - [x] 3.3. Script `tools/migrate_excel_to_sqlite.py` 1-shot.
 - [x] 3.4. Refactor `filler/` → ghi DB trước, export Excel hàng ngày.
 - [x] 3.5. CLI `export --sheet <name> --to <path>`.
-- [ ] 3.6. Tag `v0.3.0`.
+- [x] 3.6. Tag `v0.3.0`.
 
 ## Phase 4 — Service / GUI / Cloud
 
