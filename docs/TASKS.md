@@ -7,11 +7,20 @@
 
 ## Đang làm
 
-(Task 1.14 in_progress — Logger)
+(Task 1.15 in_progress — CLI entry)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.14 (Logger)
+- **Task:** 1.14 Logger — loguru JSON + stdlib intercept
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/utils/logger.py` — setup_logging(), _InterceptHandler
+  - `tests/test_logger.py` — 9 unit tests
+- **Test:** `pytest tests/test_logger.py -q` → 9 passed.
+- **Note:** _InterceptHandler chuyển stdlib logging → loguru. setup_logging() gọi 1 lần tại CLI entry.
 
 ### 2026-05-14 — Task 1.13 (Mail marker)
 - **Task:** 1.13 Mail marker — Mark Read + move to Processed folder
