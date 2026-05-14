@@ -7,7 +7,32 @@
 
 ## Đang làm
 
-(Phase 1 complete — chờ user bắt đầu Phase 2)
+(Phase 2 complete — chờ user bắt đầu Phase 3)
+
+---
+
+## Session Summary — 2026-05-14 (Phase 2 hoàn thành)
+
+**Session này hoàn thành toàn bộ Phase 2 mở rộng 6 sheet (task 2.1 → 2.9).**
+
+### Tasks đã làm trong session này:
+
+| Task | File chính | Tests | Commit |
+|------|-----------|-------|--------|
+| 2.1 Classifier 6 sheets | `mapper/classifier.py`, `config/sheet_registry.py` | passed | — |
+| 2.2 Mapping table | `mapper/sheet_mapping.py` | passed | — |
+| 2.3 aliases.yaml đầy đủ | `mapper/aliases.yaml`, `aliases_loader.py` | passed | — |
+| 2.4 PDF reader | `reader/pdf_reader.py` | passed | — |
+| 2.5 PDF OCR fallback | `reader/ocr_reader.py` | passed | — |
+| 2.6 Report + Outlook sender | `reporter/daily_report.py`, `reporter/outlook_sender.py` | passed | — |
+| 2.7 Scheduler | `scheduler.py` | passed | — |
+| 2.8 CLI rollback + replay | `__main__.py`, `test_cli_rollback_replay.py` | 6 passed | `7982721` |
+| 2.9 Tag v0.2.0 | — | — | tag pushed |
+
+### Trạng thái repo:
+- Branch: `main`
+- Tag: `v0.2.0` (pushed)
+- Full test suite: all passed
 
 ---
 

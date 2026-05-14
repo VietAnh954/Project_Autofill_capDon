@@ -56,7 +56,7 @@
 - [x] 2.6. Report end-of-day: render `report_YYYY-MM-DD.md` + gửi qua Outlook.
 - [x] 2.7. Scheduler: `apscheduler` poll mỗi 15 phút.
 - [x] 2.8. CLI `rollback`, `replay`.
-- [ ] 2.9. Tag `v0.2.0`.
+- [x] 2.9. Tag `v0.2.0`.
 
 ## Phase 3 — Database
 
