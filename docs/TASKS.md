@@ -7,11 +7,16 @@
 
 ## Đang làm
 
-(Task 1.17 in_progress — Tag v0.1.0-mvp-dulich)
+(Phase 1 complete — chờ user bắt đầu Phase 2)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.17 (Tag v0.1.0-mvp-dulich)
+- **Task:** 1.17 Tag git v0.1.0-mvp-dulich
+- **Trạng thái:** ✅ Done
+- **Note:** Phase 1 MVP hoàn thành. Tag annotated tạo + push lên GitHub.
 
 ### 2026-05-14 — Task 1.16 (Smoke test)
 - **Task:** 1.16 End-to-end smoke test

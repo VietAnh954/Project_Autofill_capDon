@@ -44,7 +44,7 @@
 - [x] 1.15. **CLI entry**: `python -m auto_fill run --dry-run` và `run`.
 - [x] 1.16. **End-to-end smoke test**: 1 mail thật → 1 dòng mới trong master.
        Acceptance: pytest `tests/test_pipeline_smoke.py` xanh.
-- [ ] 1.17. Tag git `v0.1.0-mvp-dulich`.
+- [x] 1.17. Tag git `v0.1.0-mvp-dulich`.
 
 ## Phase 2 — Mở rộng sang 6 sheet chính
 
