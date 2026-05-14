@@ -117,6 +117,7 @@ def _process_file(
 
     Returns sheet alias neu ghi thanh cong, None neu khong co record nao.
     """
+    from auto_fill.db.repository import insert_record
     from auto_fill.filler.excel_filler import append_travel_rows
     from auto_fill.mapper.aliases_loader import load_aliases
     from auto_fill.mapper.classifier import classify
@@ -154,6 +155,15 @@ def _process_file(
             stats.add_duplicate()
             continue
         if not effective_dry_run:
+            # Ghi vao DB truoc (neu db_enabled)
+            if getattr(settings, "db_enabled", True):
+                insert_record(
+                    record,
+                    sheet_alias=sheet_info.alias,
+                    db_path=str(settings.db_path),
+                    source_attachment=file_path.name,
+                )
+            # Ghi vao Excel (backward compatible)
             append_travel_rows(
                 [record], settings.master_file_path, sheet_name=sheet_info.excel_name
             )

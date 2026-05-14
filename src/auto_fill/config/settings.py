@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     max_attachment_mb: int = 20
     retry_attempts: int = 3
     retry_delay_seconds: int = 10
+    db_enabled: bool = True  # ghi vao SQLite khi True
 
     # --- Logging ---
     log_level: str = "INFO"
