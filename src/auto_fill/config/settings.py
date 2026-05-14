@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     sender_allowlist: str = ""  # comma-separated, parse trong property
 
     # --- Subject filter ---
-    subject_pattern: str = r"(?i)c[aâ]p\s*[đd][oơ]n|phi[eế]u\s*c[aâ]p"
+    subject_pattern: str = r"(?i)c[aâấ]p\s*[đd][oơô]n|phi[eếề]u\s*c[aâấ]p"
 
     # --- Behavior ---
     dry_run: bool = False

@@ -7,11 +7,22 @@
 
 ## Đang làm
 
-(Task 1.3 in_progress — Mail fetcher + mock COM unit test)
+(Task 1.4 in_progress — Attachment downloader)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.3 (Mail fetcher)
+- **Task:** 1.3 Mail fetcher với mock COM unit test
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/mail/fetcher.py` — MailFetcher class: filter sender allowlist + subject regex
+  - `tests/test_mail_fetcher.py` — 16 unit tests với MagicMock COM
+  - `src/auto_fill/config/settings.py` — update default subject_pattern để match Vietnamese diacritics
+  - `.env.example` — update SUBJECT_PATTERN tương ứng
+- **Test:** `pytest tests/test_mail_fetcher.py -v` → 16 passed. Full suite: 19 passed.
+- **Note:** Pattern gốc `c[aâ]p` không match "Cấp" (ấ ≠ a,â). Đã update thành `c[aâấ]p` để hỗ trợ tone marks.
 
 ### 2026-05-14 — Tasks 1.1, 1.2 (config + OutlookClient)
 - **Task:** 1.1 Config layer, 1.2 OutlookClient

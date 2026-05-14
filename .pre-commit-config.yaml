@@ -14,6 +14,7 @@ repos:
           - pydantic>=2.5.0
           - pydantic-settings>=2.1.0
           - click>=8.1
+          - pytest>=7.4
           - types-PyYAML
 
   - repo: local

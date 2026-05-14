@@ -24,7 +24,7 @@
        Acceptance: `python -c "from auto_fill.config import settings; print(settings.master_file_path)"` chạy OK.
 - [x] 1.2. **OutlookClient**: kết nối Outlook qua pywin32, list inbox.
        Acceptance: `python -m auto_fill.mail.outlook_client list` in ra 5 mail mới nhất.
-- [ ] 1.3. **Mail fetcher**: filter by sender allowlist + subject pattern, trả về iterator `MailMessage`.
+- [x] 1.3. **Mail fetcher**: filter by sender allowlist + subject pattern, trả về iterator `MailMessage`.
        Acceptance: unit test mock COM, fetch trả đúng số mail match.
 - [ ] 1.4. **Attachment downloader**: save file vào `data/inbox/`.
        Acceptance: chạy thực tế trên 1 mail test → file xuất hiện trong inbox/.
