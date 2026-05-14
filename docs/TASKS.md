@@ -11,6 +11,41 @@
 
 ---
 
+## Session Summary — 2026-05-14 (Phase 1 hoàn thành)
+
+**Session này hoàn thành toàn bộ Phase 1 MVP Du lịch (task 1.9 → 1.17).**
+
+### Tasks đã làm trong session này:
+
+| Task | File chính | Tests | Commit |
+|------|-----------|-------|--------|
+| 1.9 Validator | `mapper/validator.py` | 14 passed | `7e1aba3` |
+| 1.10 Dedup | `mapper/dedup.py` | 20 passed | `7bbee00` |
+| 1.11 Backup | `filler/backup.py` | 10 passed | `01f4269` |
+| 1.12 Excel filler | `filler/excel_filler.py` | 14 passed | `d87ed1d` |
+| 1.13 Mail marker | `mail/marker.py` | 12 passed | `f479360` |
+| 1.14 Logger | `utils/logger.py` | 9 passed | `eec1831` |
+| 1.15 CLI entry | `__main__.py` (wired pipeline) | manual OK | `c2a0d1b` |
+| 1.16 Smoke test | `tests/test_pipeline_smoke.py` | 9 passed | `e9700f2` |
+| 1.17 Tag | `v0.1.0-mvp-dulich` | — | `e0ade3e` |
+
+### Bugs phát hiện & fix trong session:
+- **ruff SIM102**: nested `if` trong validator.py → merge thành 1 condition với `and`.
+- **ruff UP038**: `isinstance(x, (int, float))` → `isinstance(x, int | float)`.
+- **ruff SIM105**: `try/except/pass` → `contextlib.suppress(Exception)`.
+- **ruff C901**: `_normalize_record` quá complex → dùng `contextlib.suppress` giảm branch count.
+- **mypy attr-defined**: `ClassifierError`/`ValidationError` import từ `utils.errors`, không phải từ module gốc.
+- **Dedup date bug**: pandas đọc date từ xlsx với `dtype=str` trả về `"2026-05-20 00:00:00"` → thêm format `"%Y-%m-%d %H:%M:%S"` vào `_parse_date`.
+- **openpyxl date read-back**: openpyxl đọc `date` thành `datetime` → test dùng `.date()` để compare.
+
+### Trạng thái repo:
+- Branch: `main`
+- Tag: `v0.1.0-mvp-dulich` (pushed)
+- Full test suite: tất cả passed
+- Pre-commit hooks (ruff + mypy + pytest): tất cả green
+
+---
+
 ## Lịch sử (gần nhất ở trên)
 
 ### 2026-05-14 — Task 1.17 (Tag v0.1.0-mvp-dulich)
