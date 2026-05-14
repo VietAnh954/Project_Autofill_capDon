@@ -53,6 +53,11 @@ class Settings(BaseSettings):
     retry_delay_seconds: int = 10
     db_enabled: bool = True  # ghi vao SQLite khi True
 
+    # --- Cloud / Postgres (tuy chon) ---
+    # Khi set, DATABASE_URL ghi de db_path cho toan bo SQLAlchemy.
+    # Format: postgresql+psycopg2://user:pass@host:5432/dbname
+    database_url: str | None = None
+
     # --- Logging ---
     log_level: str = "INFO"
     log_json_path: Path = Field(default=_PROJECT_ROOT / "logs" / "app.jsonl")

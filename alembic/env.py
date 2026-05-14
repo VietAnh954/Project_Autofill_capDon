@@ -7,9 +7,9 @@ from pathlib import Path
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-# Ensure src/ is on sys.path so auto_fill can be imported
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from auto_fill.db.engine import get_db_url_from_settings  # noqa: E402
 from auto_fill.db.models import Base  # noqa: E402
 
 config = context.config
@@ -18,6 +18,9 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
+
+# Override sqlalchemy.url with the value from settings / DATABASE_URL env var.
+config.set_main_option("sqlalchemy.url", get_db_url_from_settings())
 
 
 def run_migrations_offline() -> None:

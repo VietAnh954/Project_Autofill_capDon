@@ -7,7 +7,7 @@
 
 ## Đang làm
 
-(Phase 4 in progress — task 4.1+4.2 done, tiếp theo 4.3)
+(Phase 4 in progress — task 4.1–4.3 done, tiếp theo 4.4)
 
 ---
 
@@ -18,7 +18,8 @@
 | Task | File chính | Tests | Commit |
 |------|-----------|-------|--------|
 | 4.1 Windows Service | `scripts/install_service.ps1`, `scripts/uninstall_service.ps1`, `src/auto_fill/windows_service.py` | 10 passed | `ecac87f` |
-| 4.2 GUI Tkinter | `src/auto_fill/gui.py`, `__main__.py` (gui command) | 10 passed | — |
+| 4.2 GUI Tkinter | `src/auto_fill/gui.py`, `__main__.py` (gui command) | 10 passed | `030f05a` |
+| 4.3 Postgres/cloud | `db/engine.py`, `config/settings.py`, `alembic/env.py`, `tools/push_to_postgres.py` | 6 passed | — |
 
 ### Chi tiết:
 - `scripts/install_service.ps1` — PowerShell script dùng NSSM cài service; cấu hình AppDirectory, log rotation, auto-start, description.

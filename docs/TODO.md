@@ -71,7 +71,7 @@
 
 - [x] 4.1. Đóng gói Windows service (NSSM).
 - [x] 4.2. GUI Tkinter / PyQt cho non-tech user.
-- [ ] 4.3. Đẩy DB lên Postgres / cloud.
+- [x] 4.3. Đẩy DB lên Postgres / cloud.
 - [ ] 4.4. API FastAPI cho query / export remote.
 
 ## Phase 5 — Documentation Website (GitHub Pages)
