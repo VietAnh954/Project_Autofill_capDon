@@ -314,5 +314,71 @@ def replay(ctx: click.Context, folder: str | None, dry_run: bool) -> None:
         click.echo(f"[report] {report_path}")
 
 
+@cli.command("export")
+@click.option(
+    "--sheet",
+    default=None,
+    help="Ten alias sheet can xuat (travel/auto/motorbike/health/bhyt_bhxh/student). Mac dinh: tat ca.",
+)
+@click.option(
+    "--to",
+    "out_path",
+    default=None,
+    type=click.Path(),
+    help="Duong dan file Excel dau ra. Mac dinh: data/exports/export_<date>.xlsx.",
+)
+@click.pass_context
+def export_cmd(ctx: click.Context, sheet: str | None, out_path: str | None) -> None:
+    """Xuat du lieu tu SQLite ra file Excel snapshot.
+
+    Vi du: python -m auto_fill export --sheet travel --to data/exports/travel.xlsx
+    """
+    from datetime import date
+    from pathlib import Path
+
+    from auto_fill.config.settings import Settings
+    from auto_fill.filler.db_exporter import export_daily_snapshot
+
+    settings: Settings = ctx.obj["settings"]
+    db_path = str(settings.db_path)
+
+    if out_path:
+        dest = Path(out_path)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        output_dir = dest.parent
+    else:
+        output_dir = settings.data_root / "exports"
+
+    if sheet:
+        click.echo(f"[export] sheet={sheet}  db={db_path}")
+        _export_single_sheet(
+            sheet, db_path, out_path or str(output_dir / f"export_{sheet}_{date.today()}.xlsx")
+        )
+    else:
+        result = export_daily_snapshot(db_path=db_path, output_dir=output_dir)
+        click.echo(f"[export] {result}")
+
+
+def _export_single_sheet(sheet_alias: str, db_path: str, out_path: str) -> None:
+    """Xuat 1 sheet ra file Excel doc lap."""
+    import pandas as pd
+    from sqlalchemy.orm import Session
+
+    from auto_fill.db.engine import get_engine
+    from auto_fill.db.repository import _ALIAS_TO_FIELDS, _ALIAS_TO_MODEL
+
+    model_cls = _ALIAS_TO_MODEL[sheet_alias]
+    columns = sorted(_ALIAS_TO_FIELDS[sheet_alias])
+
+    engine = get_engine(db_path)
+    with Session(engine) as s:
+        rows = s.query(model_cls).all()
+
+    data = [{col: getattr(r, col, None) for col in columns} for r in rows]
+    df = pd.DataFrame(data, columns=columns)
+    df.to_excel(out_path, index=False, sheet_name=sheet_alias)
+    click.echo(f"[export] {len(df)} rows -> {out_path}")
+
+
 if __name__ == "__main__":
     cli()
