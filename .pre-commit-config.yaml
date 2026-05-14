@@ -16,6 +16,8 @@ repos:
           - click>=8.1
           - pytest>=7.4
           - types-PyYAML
+          - sqlalchemy>=2.0
+          - alembic>=1.13
 
   - repo: local
     hooks:

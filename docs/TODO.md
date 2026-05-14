@@ -60,7 +60,7 @@
 
 ## Phase 3 — Database
 
-- [ ] 3.1. Thiết kế schema SQLite (DATABASE §5).
+- [x] 3.1. Thiết kế schema SQLite (DATABASE §5).
 - [ ] 3.2. `alembic init`, viết migration cho 6 sheet đầu.
 - [ ] 3.3. Script `tools/migrate_excel_to_sqlite.py` 1-shot.
 - [ ] 3.4. Refactor `filler/` → ghi DB trước, export Excel hàng ngày.

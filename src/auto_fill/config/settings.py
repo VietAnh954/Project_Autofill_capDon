@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     master_file_path: Path = Field(default=_PROJECT_ROOT / "data" / "master" / "master.xlsx")
     data_root: Path = Field(default=_PROJECT_ROOT / "data")
     log_dir: Path = Field(default=_PROJECT_ROOT / "logs")
+    db_path: Path = Field(default=_PROJECT_ROOT / "data" / "db" / "autofill.db")
 
     # --- Outlook ---
     outlook_profile: str = "Outlook"
