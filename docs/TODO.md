@@ -119,7 +119,7 @@
 
 ### 6C — Wrap up
 - [x] 6.11. Update `requirements.txt` + docs.
-- [ ] 6.12. Tag `v0.6.0`.
+- [x] 6.12. Tag `v0.6.0`.
 
 ---
 

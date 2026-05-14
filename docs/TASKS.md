@@ -7,7 +7,7 @@
 
 ## Đang làm
 
-(Phase 6 in progress — 6.1–6.11 done, chờ tag 6.12)
+(Phase 6 hoàn thành — 6.1–6.12 done, tag v0.6.0 pushed)
 
 ---
 
