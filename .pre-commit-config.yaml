@@ -12,6 +12,8 @@ repos:
       - id: mypy
         additional_dependencies:
           - pydantic>=2.5.0
+          - pydantic-settings>=2.1.0
+          - click>=8.1
           - types-PyYAML
 
   - repo: local

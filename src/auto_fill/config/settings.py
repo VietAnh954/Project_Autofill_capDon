@@ -29,9 +29,7 @@ class Settings(BaseSettings):
     )
 
     # --- Paths (có default để import không fail khi chưa có .env) ---
-    master_file_path: Path = Field(
-        default=_PROJECT_ROOT / "data" / "master" / "master.xlsx"
-    )
+    master_file_path: Path = Field(default=_PROJECT_ROOT / "data" / "master" / "master.xlsx")
     data_root: Path = Field(default=_PROJECT_ROOT / "data")
     log_dir: Path = Field(default=_PROJECT_ROOT / "logs")
 
@@ -64,4 +62,4 @@ class Settings(BaseSettings):
 
 
 # Singleton — import: `from auto_fill.config.settings import settings`
-settings = Settings()  # type: ignore[call-arg]
+settings = Settings()

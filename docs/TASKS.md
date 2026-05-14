@@ -7,11 +7,20 @@
 
 ## Đang làm
 
-(Chuyển sang task 1.1 — Config layer với pydantic-settings)
+(Task 1.3 in_progress — Mail fetcher + mock COM unit test)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Tasks 1.1, 1.2 (config + OutlookClient)
+- **Task:** 1.1 Config layer, 1.2 OutlookClient
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/config/settings.py` — đã tồn tại từ prior session, verify OK
+  - `src/auto_fill/mail/outlook_client.py` — mới tạo: OutlookClient + MailMessage dataclass + CLI
+- **Test:** `pytest -v` → 3 passed. Import OK. Acceptance 1.1 (print settings path) OK với UTF-8 encoding.
+- **Note:** Acceptance 1.2 (`python -m auto_fill.mail.outlook_client list`) cần Outlook Desktop đang chạy — user cần chạy tay để verify. Code đúng, import sạch.
 
 ### 2026-05-14 — Phase 0 complete (0.4–0.7)
 - **Task:** 0.4, 0.5, 0.6, 0.7 (project config files + venv + pre-commit + git)

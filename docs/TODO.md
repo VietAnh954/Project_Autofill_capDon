@@ -20,9 +20,9 @@
 
 ## Phase 1 — MVP (1 sản phẩm: Du lịch)
 
-- [ ] 1.1. **Config layer**: viết `src/auto_fill/config/settings.py` với pydantic-settings; load `.env`.
+- [x] 1.1. **Config layer**: viết `src/auto_fill/config/settings.py` với pydantic-settings; load `.env`.
        Acceptance: `python -c "from auto_fill.config import settings; print(settings.master_file_path)"` chạy OK.
-- [ ] 1.2. **OutlookClient**: kết nối Outlook qua pywin32, list inbox.
+- [x] 1.2. **OutlookClient**: kết nối Outlook qua pywin32, list inbox.
        Acceptance: `python -m auto_fill.mail.outlook_client list` in ra 5 mail mới nhất.
 - [ ] 1.3. **Mail fetcher**: filter by sender allowlist + subject pattern, trả về iterator `MailMessage`.
        Acceptance: unit test mock COM, fetch trả đúng số mail match.
