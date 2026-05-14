@@ -16,7 +16,7 @@ pdfplumber>=0.10.3
 # pypdf>=3.17.0
 pytesseract>=0.3.10
 Pillow>=10.1.0
-# jinja2>=3.1.2
+jinja2>=3.1.2
 apscheduler>=3.10.4
 
 # ============ Phase 3 ============
@@ -28,6 +28,12 @@ alembic>=1.13.0
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
 httpx>=0.27.0
+python-multipart>=0.0.9
+
+# ============ Phase 6 (Gmail) ============
+google-api-python-client>=2.100.0
+google-auth-httplib2>=0.2.0
+google-auth-oauthlib>=1.1.0
 
 # ============ Dev ============
 pytest>=7.4.3

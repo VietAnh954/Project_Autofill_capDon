@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Hồ sơ — AutoFill Cấp Đơn{% endblock %}
+
+{% block content %}
+<div x-data="recordsBrowser()" x-init="init()" x-cloak>
+
+  <!-- ── Filter Bar ────────────────────────────────────────── -->
+  <div class="card bg-base-100 shadow mb-4">
+    <div class="card-body p-4">
+      <div class="flex flex-wrap gap-3 items-end">
+
+        <!-- Sheet selector -->
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">Sheet</span></label>
+          <select class="select select-sm select-bordered" x-model="filter.sheet" @change="filter.skip=0; load()">
+            <template x-for="s in sheetList" :key="s.key">
+              <option :value="s.key" x-text="s.label"></option>
+            </template>
+          </select>
+        </div>
+
+        <!-- Date from -->
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">Từ ngày</span></label>
+          <input type="date" class="input input-sm input-bordered" x-model="filter.date_from" @change="filter.skip=0; load()" />
+        </div>
+
+        <!-- Date to -->
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">Đến ngày</span></label>
+          <input type="date" class="input input-sm input-bordered" x-model="filter.date_to" @change="filter.skip=0; load()" />
+        </div>
+
+        <!-- Name search -->
+        <div class="form-control flex-1 min-w-[180px]">
+          <label class="label py-0"><span class="label-text text-xs">Tìm tên</span></label>
+          <input type="text" class="input input-sm input-bordered w-full" placeholder="Nguyễn Văn A…"
+            x-model="filter.insured_name"
+            @input.debounce.400ms="filter.skip=0; load()" />
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2">
+          <button class="btn btn-primary btn-sm" @click="filter.skip=0; load()">🔍 Tìm</button>
+          <button class="btn btn-ghost btn-sm" @click="resetFilter()">↺ Đặt lại</button>
+          <a :href="exportUrl()" class="btn btn-outline btn-sm">⬇ Xuất Excel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Records Table ────────────────────────────────────── -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body p-0">
+
+      <!-- Loading -->
+      <div x-show="loading" class="flex justify-center py-8">
+        <span class="loading loading-spinner loading-md"></span>
+      </div>
+
+      <!-- Table -->
+      <div x-show="!loading" class="overflow-x-auto">
+        <table class="table table-xs table-zebra">
+          <thead>
+            <tr>
+              <th>#</th>
+              <template x-for="col in columns" :key="col">
+                <th x-text="col" class="whitespace-nowrap"></th>
+              </template>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-if="records.length === 0 && !loading">
+              <tr><td :colspan="columns.length + 1" class="text-center py-6 opacity-40 italic">Không có dữ liệu</td></tr>
+            </template>
+            <template x-for="r in records" :key="r.id">
+              <tr class="hover">
+                <td class="text-xs opacity-50" x-text="r.id"></td>
+                <template x-for="col in columns" :key="col">
+                  <td class="max-w-xs truncate" x-text="r.data[col] ?? '—'"></td>
+                </template>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between p-3 border-t border-base-200">
+        <span class="text-xs opacity-60">
+          Hiển thị <span x-text="records.length"></span> hồ sơ
+          (trang <span x-text="Math.floor(filter.skip / filter.limit) + 1"></span>)
+        </span>
+        <div class="join">
+          <button class="join-item btn btn-xs"
+            :disabled="filter.skip === 0"
+            @click="prevPage()">«</button>
+          <button class="join-item btn btn-xs"
+            :disabled="records.length < filter.limit"
+            @click="nextPage()">»</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function recordsBrowser() {
+  return {
+    records: [],
+    columns: [],
+    loading: false,
+    filter: {
+      sheet: 'travel',
+      date_from: '',
+      date_to: '',
+      insured_name: '',
+      skip: 0,
+      limit: 50,
+    },
+
+    sheetList: [
+      { key: 'travel',    label: 'Du lịch' },
+      { key: 'health',    label: 'Sức khỏe' },
+      { key: 'auto',      label: 'Ô tô' },
+      { key: 'motorbike', label: 'Xe máy' },
+      { key: 'bhyt_bhxh', label: 'BHYT/BHXH' },
+      { key: 'student',   label: 'HSSV' },
+    ],
+
+    SHEET_COLUMNS: {
+      travel:    ['insured_name','insured_id_number','trip_start','trip_end','destination','plan','premium','issued_date','created_at'],
+      health:    ['insured_name','insured_id_number','effective_from','premium','issued_date','created_at'],
+      auto:      ['insured_name','plate_number','vehicle_type','brand','premium','issued_date','created_at'],
+      motorbike: ['customer_name','plate_number','brand','total_premium','start_date','end_date','created_at'],
+      bhyt_bhxh: ['insured_name','insured_id_number','effective_from','premium','issued_date','created_at'],
+      student:   ['insured_name','school','class_name','effective_from','premium','issued_date','created_at'],
+    },
+
+    async init() {
+      await this.load();
+    },
+
+    async load() {
+      this.loading = true;
+      this.columns = this.SHEET_COLUMNS[this.filter.sheet] || [];
+      try {
+        const params = new URLSearchParams({
+          skip: this.filter.skip,
+          limit: this.filter.limit,
+        });
+        if (this.filter.date_from) params.set('date_from', this.filter.date_from);
+        if (this.filter.date_to)   params.set('date_to',   this.filter.date_to);
+        if (this.filter.insured_name) params.set('insured_name', this.filter.insured_name);
+        const r = await fetch(`/records/${this.filter.sheet}?${params}`);
+        if (r.ok) {
+          this.records = await r.json();
+        } else {
+          this.records = [];
+        }
+      } catch (_) {
+        this.records = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    prevPage() {
+      this.filter.skip = Math.max(0, this.filter.skip - this.filter.limit);
+      this.load();
+    },
+
+    nextPage() {
+      this.filter.skip += this.filter.limit;
+      this.load();
+    },
+
+    resetFilter() {
+      this.filter.date_from = '';
+      this.filter.date_to = '';
+      this.filter.insured_name = '';
+      this.filter.skip = 0;
+      this.load();
+    },
+
+    exportUrl() {
+      return `/export/${this.filter.sheet}`;
+    },
+  };
+}
+</script>
+{% endblock %}

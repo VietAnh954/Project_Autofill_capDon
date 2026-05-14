@@ -100,11 +100,32 @@
 
 ---
 
+## Phase 6 — Web Dashboard + Gmail
+
+### 6A — Web Dashboard (daily-use website, deployable)
+- [x] 6.1. `pipeline_state.py`: trạng thái pipeline, logs deque, background subprocess runner.
+- [x] 6.2. New API endpoints: `POST /pipeline/run`, `GET /pipeline/status`, `GET /pipeline/logs/stream` (SSE).
+- [x] 6.3. FastAPI Jinja2Templates + StaticFiles setup.
+- [x] 6.4. HTML templates: `base.html` (DaisyUI + Alpine.js CDN), `dashboard.html` (stats, pipeline control, log console), `records.html` (filter/search/paginate/export).
+       Acceptance: `python -m auto_fill serve` → mở `http://localhost:8000/dashboard` hiển thị đúng.
+- [x] 6.5. Tests: `pytest tests/test_dashboard_routes.py` xanh.
+
+### 6B — Gmail source
+- [x] 6.6. `mail/gmail_client.py`: OAuth2 + list messages (google-api-python-client).
+- [x] 6.7. `mail/gmail_fetcher.py`: filter sender + subject → iterator `MailMessage`.
+- [x] 6.8. `mail/gmail_downloader.py` + `mail/gmail_marker.py`: tải attachment, label "Processed".
+- [x] 6.9. Tích hợp Gmail vào pipeline CLI flag `--source outlook|gmail|both`.
+- [x] 6.10. Tests: `pytest tests/test_gmail_*.py` xanh.
+
+### 6C — Wrap up
+- [x] 6.11. Update `requirements.txt` + docs.
+- [ ] 6.12. Tag `v0.6.0`.
+
+---
+
 ## Backlog (chưa ưu tiên)
 
-- [ ] Hỗ trợ Gmail (Phase 5).
 - [ ] Multi-tenant nếu mở rộng cho nhiều phòng ban.
-- [ ] Web dashboard hiển thị status realtime.
 
 ---
 

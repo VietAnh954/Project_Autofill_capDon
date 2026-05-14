@@ -7,7 +7,46 @@
 
 ## Đang làm
 
-(Phase 5 hoàn thành — tất cả task 5.1–5.8 đã tick. Backlog chưa được ưu tiên.)
+(Phase 6 in progress — 6.1–6.11 done, chờ tag 6.12)
+
+---
+
+## Session Summary — 2026-05-14 (Phase 6: Dashboard + Gmail)
+
+**Phase 6: Web Dashboard (daily-use) + Gmail source**
+
+| Task | File chính | Tests | Trạng thái |
+|------|-----------|-------|-----------|
+| 6.1 pipeline_state | `api/pipeline_state.py` | — | ✅ |
+| 6.2 API endpoints | `api/app.py` (pipeline/run, status, logs/stream) | 12 passed | ✅ |
+| 6.3 Jinja2 setup | `api/app.py` | — | ✅ |
+| 6.4 HTML templates | `api/templates/base.html`, `dashboard.html`, `records.html` | — | ✅ |
+| 6.5 Dashboard tests | `tests/test_dashboard_routes.py` | 12 passed | ✅ |
+| 6.6 GmailClient | `mail/gmail_client.py` | — | ✅ |
+| 6.7 GmailFetcher | `mail/gmail_fetcher.py` | — | ✅ |
+| 6.8 GmailDownloader + Marker | `mail/gmail_downloader.py`, `mail/gmail_marker.py` | 12 passed | ✅ |
+| 6.9 --source flag | `__main__.py` (run cmd + gmail-setup cmd) | — | ✅ |
+| 6.10 Gmail tests | `tests/test_gmail_client.py` | 12 passed | ✅ |
+| 6.11 requirements.txt | jinja2, python-multipart, google libs | — | ✅ |
+
+**Full test suite: 452 passed**
+
+### Dashboard features:
+- `/dashboard` — stats cards (6 sheet + tổng), pipeline control (Chạy/Dry Run), live log console (SSE), recent records
+- `/dashboard/records` — filter theo sheet/ngày/tên, paginate, export Excel
+- `/` → redirect `/dashboard`
+
+### Gmail features:
+- `GmailClient`: OAuth2 PKCE, list messages, get attachment, modify labels
+- `GmailFetcher`: filter sender allowlist + subject regex, reuse `MailMessage` dataclass
+- `GmailDownloader`: tải xlsx/csv/pdf vào data/inbox/
+- `GmailMarker`: thêm label "AutoFill/Processed", xóa UNREAD/INBOX
+- CLI: `python -m auto_fill run --source gmail|outlook|both`
+- CLI: `python -m auto_fill gmail-setup` — OAuth2 setup flow
+
+### Note kỹ thuật:
+- Starlette 1.0.0 dùng API mới: `TemplateResponse(request, name, context)` (bỏ API cũ)
+- SSE test không stream thực (infinite generator) — dùng mock/state check thay
 
 ---
 

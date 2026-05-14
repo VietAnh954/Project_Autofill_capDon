@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     retry_delay_seconds: int = 10
     db_enabled: bool = True  # ghi vao SQLite khi True
 
+    # --- Gmail (tuy chon) ---
+    gmail_credentials_file: Path | None = None  # credentials.json tu Google Cloud Console
+    gmail_token_file: Path | None = None  # token.json (tu dong tao sau oauth flow)
+
     # --- Cloud / Postgres (tuy chon) ---
     # Khi set, DATABASE_URL ghi de db_path cho toan bo SQLAlchemy.
     # Format: postgresql+psycopg2://user:pass@host:5432/dbname

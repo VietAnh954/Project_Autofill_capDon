@@ -29,71 +29,38 @@ def cli(ctx: click.Context, log_level: str | None) -> None:
 
 @cli.command()
 @click.option("--dry-run", is_flag=True, help="Doc & parse nhung KHONG ghi vao file tong.")
+@click.option(
+    "--source",
+    default="outlook",
+    type=click.Choice(["outlook", "gmail", "both"], case_sensitive=False),
+    show_default=True,
+    help="Nguon mail: outlook | gmail | both.",
+)
 @click.pass_context
-def run(ctx: click.Context, dry_run: bool) -> None:
+def run(ctx: click.Context, dry_run: bool, source: str) -> None:
     """Chay pipeline 1 lan: fetch mail -> parse -> fill master."""
     from auto_fill.config.settings import Settings
     from auto_fill.filler.backup import snapshot
-    from auto_fill.mail.downloader import download_attachments
-    from auto_fill.mail.fetcher import MailFetcher
-    from auto_fill.mail.marker import mark_processed
-    from auto_fill.mail.outlook_client import OutlookClient
     from auto_fill.reporter.daily_report import RunStats, render_report
-    from auto_fill.utils.errors import ClassifierError, ValidationError
 
     settings: Settings = ctx.obj["settings"]
     effective_dry_run = dry_run or settings.dry_run
 
-    click.echo(f"[run] dry_run={effective_dry_run}")
+    click.echo(f"[run] dry_run={effective_dry_run} source={source}")
     stats = RunStats()
-
-    client = OutlookClient(
-        profile=settings.outlook_profile,
-        inbox_folder=settings.outlook_inbox_folder,
-    )
-    try:
-        client.connect()
-    except Exception as exc:
-        click.echo(f"[error] Khong ket noi duoc Outlook: {exc}", err=True)
-        sys.exit(1)
 
     if not effective_dry_run and settings.backup_every_run:
         with contextlib.suppress(FileNotFoundError):
             snapshot(settings.master_file_path, settings.data_root / "backup")
 
-    fetcher = MailFetcher(
-        client=client,
-        sender_allowlist=settings.sender_allowlist_set,
-        subject_pattern=settings.subject_pattern,
-    )
+    inbox_dir = settings.data_root / "inbox"
+    inbox_dir.mkdir(parents=True, exist_ok=True)
 
-    for mail in fetcher.fetch_matching():
-        ns: Any = client._namespace  # type: ignore[attr-defined]
-        inbox_dir = settings.data_root / "inbox"
-        inbox_dir.mkdir(parents=True, exist_ok=True)
-        paths = download_attachments(mail, inbox_dir, ns, settings.max_attachment_mb)
-        stats.processed += len(paths)
+    if source in ("outlook", "both"):
+        _run_outlook_source(settings, effective_dry_run, inbox_dir, stats)
 
-        for file_path in paths:
-            try:
-                sheet_alias = _process_file(
-                    file_path=file_path,
-                    mail_subject=mail.subject,
-                    mail_sender=mail.sender_email,
-                    settings=settings,
-                    effective_dry_run=effective_dry_run,
-                    stats=stats,
-                )
-                if sheet_alias:
-                    stats.add_written(sheet_alias)
-            except (ClassifierError, ValidationError, Exception) as exc:
-                click.echo(f"[skip] {file_path.name}: {exc}", err=True)
-                stats.add_error(f"`{file_path.name}`: {exc}")
-                continue
-
-        if not effective_dry_run:
-            folder = settings.outlook_processed_folder.split("\\")[-1]
-            mark_processed(ns, mail.entry_id, folder)
+    if source in ("gmail", "both"):
+        _run_gmail_source(settings, effective_dry_run, inbox_dir, stats)
 
     click.echo(
         f"[done] processed={stats.processed} written={stats.written} "
@@ -103,6 +70,94 @@ def run(ctx: click.Context, dry_run: bool) -> None:
     if not effective_dry_run:
         report_path = render_report(stats, settings.data_root / "reports")
         click.echo(f"[report] {report_path}")
+
+
+def _run_outlook_source(
+    settings: Any, effective_dry_run: bool, inbox_dir: Path, stats: Any
+) -> None:
+    from auto_fill.mail.downloader import download_attachments
+    from auto_fill.mail.fetcher import MailFetcher
+    from auto_fill.mail.marker import mark_processed
+    from auto_fill.mail.outlook_client import OutlookClient
+    from auto_fill.utils.errors import ClassifierError
+
+    client = OutlookClient(
+        profile=settings.outlook_profile,
+        inbox_folder=settings.outlook_inbox_folder,
+    )
+    try:
+        client.connect()
+    except Exception as exc:
+        click.echo(f"[outlook] Khong ket noi duoc: {exc}", err=True)
+        return
+
+    fetcher = MailFetcher(
+        client=client,
+        sender_allowlist=settings.sender_allowlist_set,
+        subject_pattern=settings.subject_pattern,
+    )
+    for mail in fetcher.fetch_matching():
+        ns: Any = client._namespace  # type: ignore[attr-defined]
+        paths = download_attachments(mail, inbox_dir, ns, settings.max_attachment_mb)
+        stats.processed += len(paths)
+        for file_path in paths:
+            try:
+                alias = _process_file(
+                    file_path, mail.subject, mail.sender_email, settings, effective_dry_run, stats
+                )
+                if alias:
+                    stats.add_written(alias)
+            except (ClassifierError, Exception) as exc:
+                click.echo(f"[skip] {file_path.name}: {exc}", err=True)
+                stats.add_error(f"`{file_path.name}`: {exc}")
+        if not effective_dry_run:
+            folder = settings.outlook_processed_folder.split("\\")[-1]
+            mark_processed(ns, mail.entry_id, folder)
+
+
+def _run_gmail_source(settings: Any, effective_dry_run: bool, inbox_dir: Path, stats: Any) -> None:
+    from auto_fill.mail.gmail_client import GmailClient, GmailClientError
+    from auto_fill.mail.gmail_downloader import download_gmail_attachments
+    from auto_fill.mail.gmail_fetcher import GmailFetcher
+    from auto_fill.mail.gmail_marker import mark_gmail_processed
+    from auto_fill.utils.errors import ClassifierError
+
+    creds_file = getattr(settings, "gmail_credentials_file", None)
+    token_file = getattr(settings, "gmail_token_file", None)
+    if not creds_file or not Path(creds_file).exists():
+        click.echo(
+            "[gmail] credentials.json chua duoc cau hinh. Chay: python -m auto_fill gmail-setup",
+            err=True,
+        )
+        return
+
+    try:
+        client = GmailClient(creds_file, token_file or Path(creds_file).parent / "token.json")
+        client.connect()
+    except GmailClientError as exc:
+        click.echo(f"[gmail] Khong ket noi duoc: {exc}", err=True)
+        return
+
+    fetcher = GmailFetcher(
+        client=client,
+        sender_allowlist=settings.sender_allowlist_set,
+        subject_pattern=settings.subject_pattern,
+    )
+    for mail in fetcher.fetch():
+        paths = download_gmail_attachments(client, mail, inbox_dir)
+        stats.processed += len(paths)
+        for file_path in paths:
+            try:
+                alias = _process_file(
+                    file_path, mail.subject, mail.sender_email, settings, effective_dry_run, stats
+                )
+                if alias:
+                    stats.add_written(alias)
+            except (ClassifierError, Exception) as exc:
+                click.echo(f"[skip] {file_path.name}: {exc}", err=True)
+                stats.add_error(f"`{file_path.name}`: {exc}")
+        if not effective_dry_run:
+            mark_gmail_processed(client, mail)
 
 
 def _process_file(
@@ -378,6 +433,38 @@ def _export_single_sheet(sheet_alias: str, db_path: str, out_path: str) -> None:
     df = pd.DataFrame(data, columns=columns)
     df.to_excel(out_path, index=False, sheet_name=sheet_alias)
     click.echo(f"[export] {len(df)} rows -> {out_path}")
+
+
+@cli.command("gmail-setup")
+@click.option(
+    "--credentials",
+    default="gmail_credentials.json",
+    show_default=True,
+    help="Duong dan toi credentials.json tai ve tu Google Cloud Console.",
+)
+@click.option(
+    "--token",
+    default="gmail_token.json",
+    show_default=True,
+    help="Duong dan luu refresh token (se duoc tao moi).",
+)
+def gmail_setup(credentials: str, token: str) -> None:
+    """Kich hoat OAuth2 flow cho Gmail (chay 1 lan dau).
+
+    Sau khi chay xong, them GMAIL_CREDENTIALS_FILE va GMAIL_TOKEN_FILE vao .env.
+    """
+    from auto_fill.mail.gmail_client import GmailClient, GmailClientError
+
+    try:
+        client = GmailClient(credentials, token)
+        client.connect()
+        click.echo(f"[gmail-setup] OK! Token da luu tai: {token}")
+        click.echo("Them vao .env:")
+        click.echo(f"  GMAIL_CREDENTIALS_FILE={credentials}")
+        click.echo(f"  GMAIL_TOKEN_FILE={token}")
+    except GmailClientError as exc:
+        click.echo(f"[error] {exc}", err=True)
+        sys.exit(1)
 
 
 @cli.command("serve")

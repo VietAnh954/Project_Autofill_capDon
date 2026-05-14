@@ -1,29 +1,46 @@
-"""FastAPI application — query va export du lieu bao hiem.
+"""FastAPI application — query, export, web dashboard, pipeline control.
 
 Chay:
     uvicorn auto_fill.api.app:app --reload
     python -m auto_fill serve
 
-Endpoints:
+Endpoints (API):
     GET  /health                     — kiem tra ket noi DB
     GET  /stats                      — dem ban ghi moi sheet
     GET  /records/{sheet}            — list ban ghi (skip, limit, filter)
     GET  /records/{sheet}/{id}       — lay 1 ban ghi theo id
     GET  /export/{sheet}             — tai Excel snapshot 1 sheet
     GET  /export                     — tai Excel snapshot tat ca sheet
+
+Endpoints (pipeline control):
+    POST /pipeline/run               — kich hoat pipeline trong background
+    GET  /pipeline/status            — trang thai hien tai
+    GET  /pipeline/logs/stream       — SSE stream log realtime
+
+Endpoints (dashboard):
+    GET  /                           — redirect sang /dashboard
+    GET  /dashboard                  — trang tong quan
+    GET  /dashboard/records          — trang duyet ho so
 """
 
 from __future__ import annotations
 
+import asyncio
 import io
 from datetime import date
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import StreamingResponse
+from fastapi.requests import Request
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from auto_fill.api.pipeline_state import run_pipeline
+from auto_fill.api.pipeline_state import state as pipeline_state
 from auto_fill.api.schemas import HealthOut, RecordOut, StatsOut
 from auto_fill.db.engine import get_db_url_from_settings, get_engine
 from auto_fill.db.models import (
@@ -35,10 +52,13 @@ from auto_fill.db.models import (
     TravelInsurance,
 )
 
+_TEMPLATES_DIR = Path(__file__).parent / "templates"
+templates = Jinja2Templates(directory=str(_TEMPLATES_DIR))
+
 app = FastAPI(
     title="AutoFill Cap Don API",
-    description="Query va export du lieu phieu cap don bao hiem.",
-    version="0.4.0",
+    description="Query, export va dieu khien pipeline phieu cap don bao hiem.",
+    version="0.6.0",
 )
 
 _ALIAS_TO_MODEL: dict[str, type[Any]] = {
@@ -70,7 +90,88 @@ def _row_to_dict(row: Any) -> dict[str, Any]:
 
 
 # --------------------------------------------------------------------------- #
-# Routes                                                                       #
+# Dashboard routes                                                             #
+# --------------------------------------------------------------------------- #
+
+
+@app.get("/", include_in_schema=False)
+def root_redirect() -> RedirectResponse:
+    return RedirectResponse(url="/dashboard")
+
+
+@app.get("/dashboard", response_class=HTMLResponse, include_in_schema=False)
+def dashboard(request: Request) -> Any:  # type: ignore[type-arg]
+    return templates.TemplateResponse(request, "dashboard.html", {"active_page": "dashboard"})
+
+
+@app.get("/dashboard/records", response_class=HTMLResponse, include_in_schema=False)
+def dashboard_records(request: Request) -> Any:  # type: ignore[type-arg]
+    return templates.TemplateResponse(request, "records.html", {"active_page": "records"})
+
+
+# --------------------------------------------------------------------------- #
+# Pipeline control                                                             #
+# --------------------------------------------------------------------------- #
+
+
+class RunRequest(BaseModel):
+    dry_run: bool = False
+
+
+@app.post("/pipeline/run")
+def pipeline_run(req: RunRequest) -> dict[str, Any]:
+    """Kich hoat pipeline trong background thread."""
+    started = run_pipeline(dry_run=req.dry_run)
+    if started:
+        return {"started": True, "message": "Pipeline đã khởi động."}
+    return {"started": False, "message": "Pipeline đang chạy, vui lòng đợi."}
+
+
+@app.get("/pipeline/status")
+def pipeline_status() -> dict[str, Any]:
+    """Tra ve trang thai hien tai cua pipeline."""
+    return {
+        "status": pipeline_state.status,
+        "started_at": pipeline_state.started_at.isoformat() if pipeline_state.started_at else None,
+        "finished_at": pipeline_state.finished_at.isoformat()
+        if pipeline_state.finished_at
+        else None,
+        "error": pipeline_state.error,
+        "log_count": len(pipeline_state.logs),
+    }
+
+
+@app.get("/pipeline/logs/stream")
+async def pipeline_logs_stream() -> StreamingResponse:
+    """SSE stream: day log moi cua pipeline den trinh duyet."""
+
+    async def generate() -> Any:
+        last_sent = 0
+        while True:
+            logs = list(pipeline_state.logs)
+            new_lines = logs[last_sent:]
+            for line in new_lines:
+                # Escape newlines inside the data payload
+                safe = line.replace("\n", " ")
+                yield f"data: {safe}\n\n"
+            last_sent = len(logs)
+            # Heartbeat so the client connection stays alive
+            yield "data: __heartbeat__\n\n"
+            await asyncio.sleep(1)
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )
+
+
+# --------------------------------------------------------------------------- #
+# API routes (existing)                                                        #
 # --------------------------------------------------------------------------- #
 
 
@@ -132,7 +233,7 @@ def list_records(
             name_attr = getattr(model_cls, "insured_name", None)
             if name_attr is not None:
                 q = q.filter(name_attr.ilike(f"%{insured_name}%"))
-        rows = q.order_by(model_cls.id).offset(skip).limit(limit).all()
+        rows = q.order_by(model_cls.id.desc()).offset(skip).limit(limit).all()
     return [RecordOut(id=row.id, sheet=sheet, data=_row_to_dict(row)) for row in rows]
 
 
@@ -171,7 +272,6 @@ def export_all() -> StreamingResponse:
 
 
 def _export_response(sheet_aliases: list[str], filename: str) -> StreamingResponse:
-    """Tao Excel file trong bo nho va tra ve StreamingResponse."""
     import openpyxl
 
     wb = openpyxl.Workbook()
@@ -202,14 +302,12 @@ def _export_response(sheet_aliases: list[str], filename: str) -> StreamingRespon
 
 
 def _serialize(value: Any) -> Any:
-    """Chuyen doi gia tri sang kieu Excel-safe."""
     if isinstance(value, date):
         return value.isoformat()
     return value
 
 
 def _mask_url(url: str) -> str:
-    """An password trong URL de log an toan."""
     if "@" in url:
         scheme_user, rest = url.split("@", 1)
         if ":" in scheme_user:
