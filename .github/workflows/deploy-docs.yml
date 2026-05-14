@@ -2,59 +2,39 @@ name: Deploy MkDocs to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
-      - 'site_docs/**'
-      - 'mkdocs.yml'
-      - '.github/workflows/deploy-docs.yml'
+      - "site_docs/**"
+      - "mkdocs.yml"
+      - ".github/workflows/deploy-docs.yml"
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          cache: pip
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: mkdocs-${{ hashFiles("requirements.txt") }}
+          restore-keys: mkdocs-
 
       - name: Install MkDocs + plugins
-        run: |
-          pip install \
-            mkdocs-material>=9.5 \
-            mkdocs-glightbox>=0.3 \
-            mkdocs-mermaid2-plugin>=1.1 \
-            pymdown-extensions>=10.3
+        run: pip install "mkdocs-material>=9.5.0" "mkdocs-glightbox>=0.3.5" "mkdocs-mermaid2-plugin>=1.1.1" "pymdown-extensions>=10.3"
 
-      - name: Build site
-        run: mkdocs build --strict --verbose
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./site
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Build and deploy
+        run: mkdocs gh-deploy --force --clean

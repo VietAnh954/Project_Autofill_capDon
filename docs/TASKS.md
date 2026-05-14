@@ -7,7 +7,7 @@
 
 ## Đang làm
 
-(Phase 4 complete — tiếp theo Phase 5)
+(Phase 5 in progress — 5.1–5.5 done, chờ user enable Pages 5.6)
 
 ---
 
@@ -20,7 +20,8 @@
 | 4.1 Windows Service | `scripts/install_service.ps1`, `scripts/uninstall_service.ps1`, `src/auto_fill/windows_service.py` | 10 passed | `ecac87f` |
 | 4.2 GUI Tkinter | `src/auto_fill/gui.py`, `__main__.py` (gui command) | 10 passed | `030f05a` |
 | 4.3 Postgres/cloud | `db/engine.py`, `config/settings.py`, `alembic/env.py`, `tools/push_to_postgres.py` | 6 passed | `5b6a3e7` |
-| 4.4 FastAPI | `src/auto_fill/api/` (app.py, schemas.py, __init__.py), `__main__.py` (serve cmd) | 14 passed | — |
+| 4.4 FastAPI | `src/auto_fill/api/` (app.py, schemas.py, __init__.py), `__main__.py` (serve cmd) | 14 passed | `f42d907` |
+| 5.1-5.5 Docs site | `mkdocs.yml`, `site_docs/`, `.github/workflows/deploy-docs.yml` | build OK | — |
 
 ### Chi tiết:
 - `scripts/install_service.ps1` — PowerShell script dùng NSSM cài service; cấu hình AppDirectory, log rotation, auto-start, description.

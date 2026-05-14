@@ -80,10 +80,10 @@
 > Stack: MkDocs Material + GitHub Actions auto-deploy. Free, không cần server.
 > Live URL (sau khi enable Pages): `https://vietanh954.github.io/Project_Autofill_capDon/`
 
-- [ ] 5.1. Cài thêm dev deps: `mkdocs-material`, `mkdocs-glightbox`, `mkdocs-mermaid2-plugin`.
+- [x] 5.1. Cài thêm dev deps: `mkdocs-material`, `mkdocs-glightbox`, `mkdocs-mermaid2-plugin`.
        Acceptance: `mkdocs --version` chạy OK.
-- [ ] 5.2. Viết `mkdocs.yml` (config: theme, nav, plugin, markdown extensions).
-- [ ] 5.3. Tạo `site_docs/` chứa nội dung cho web (TÁCH biệt với `docs/` engineering).
+- [x] 5.2. Viết `mkdocs.yml` (config: theme, nav, plugin, markdown extensions).
+- [x] 5.3. Tạo `site_docs/` chứa nội dung cho web (TÁCH biệt với `docs/` engineering).
        - `site_docs/index.md` — landing: vấn đề + giải pháp.
        - `site_docs/how-it-works.md` — sơ đồ flow (Mermaid).
        - `site_docs/installation.md` — hướng dẫn cài.
@@ -91,8 +91,8 @@
        - `site_docs/products.md` — list 20 sản phẩm BH hỗ trợ.
        - `site_docs/troubleshoot.md` — FAQ.
        - `site_docs/changelog.md` — auto-gen từ git tag.
-- [ ] 5.4. Test local: `mkdocs serve` → http://127.0.0.1:8000 hiển thị OK.
-- [ ] 5.5. Viết `.github/workflows/deploy-docs.yml` — build + push lên branch `gh-pages`.
+- [x] 5.4. Test local: `mkdocs serve` → http://127.0.0.1:8000 hiển thị OK.
+- [x] 5.5. Viết `.github/workflows/deploy-docs.yml` — build + push lên branch `gh-pages`.
        Acceptance: push lên main → Actions chạy xanh → site live.
 - [ ] 5.6. Enable GitHub Pages trong repo settings (USER chạy tay 1 lần).
 - [ ] 5.7. Thêm Custom domain (tuỳ chọn) nếu user có domain riêng.
