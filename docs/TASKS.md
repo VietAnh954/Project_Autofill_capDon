@@ -7,7 +7,7 @@
 
 ## Đang làm
 
-(Task 1.8 in_progress — Classifier)
+(Task 1.9 in_progress — Validator)
 
 ---
 

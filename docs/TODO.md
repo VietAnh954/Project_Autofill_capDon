@@ -33,7 +33,7 @@
 - [x] 1.6. **CSV reader**: tương tự cho .csv.
 - [x] 1.7. **Normalizer**: implement rules MAPPING §3 (date, CCCD, phone, money).
        Acceptance: unit test 10+ case mỗi rule.
-- [ ] 1.8. **Classifier**: implement MAPPING §5, chỉ support sheet "Du lịch" ở giai đoạn này.
+- [x] 1.8. **Classifier**: implement MAPPING §5, chỉ support sheet "Du lịch" ở giai đoạn này.
 - [ ] 1.9. **Validator**: required fields, type check theo DATABASE §2.1.
 - [ ] 1.10. **Dedup**: lookup `(CCCD, Ngày đi, Nơi đến)` trong sheet Du lịch.
 - [ ] 1.11. **Backup**: snapshot master vào `data/backup/<date>/`.
