@@ -7,11 +7,20 @@
 
 ## Đang làm
 
-(Task 1.4 in_progress — Attachment downloader)
+(Task 1.5 in_progress — Excel reader)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.4 (Attachment downloader)
+- **Task:** 1.4 Attachment downloader
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/mail/downloader.py` — download_attachments(), _unique_path()
+  - `tests/test_downloader.py` — 11 unit tests mock COM
+- **Test:** `pytest tests/test_downloader.py -v` → 11 passed. Full suite: 30 passed.
+- **Note:** Acceptance (chạy thực tế) cần Outlook chạy — user verify tay. Code đúng, mock tests cover các edge case chính.
 
 ### 2026-05-14 — Task 1.3 (Mail fetcher)
 - **Task:** 1.3 Mail fetcher với mock COM unit test

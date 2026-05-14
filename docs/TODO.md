@@ -26,7 +26,7 @@
        Acceptance: `python -m auto_fill.mail.outlook_client list` in ra 5 mail mới nhất.
 - [x] 1.3. **Mail fetcher**: filter by sender allowlist + subject pattern, trả về iterator `MailMessage`.
        Acceptance: unit test mock COM, fetch trả đúng số mail match.
-- [ ] 1.4. **Attachment downloader**: save file vào `data/inbox/`.
+- [x] 1.4. **Attachment downloader**: save file vào `data/inbox/`.
        Acceptance: chạy thực tế trên 1 mail test → file xuất hiện trong inbox/.
 - [ ] 1.5. **Excel reader**: đọc file Excel attachment, detect header row, rename về canonical via alias.yaml.
        Acceptance: unit test với `tests/fixtures/sample_dulich.xlsx` → DataFrame có cột canonical.
