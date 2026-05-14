@@ -7,7 +7,26 @@
 
 ## Đang làm
 
-(Phase 5 in progress — 5.1–5.5 done, chờ user enable Pages 5.6)
+(Phase 5 hoàn thành — tất cả task 5.1–5.8 đã tick. Backlog chưa được ưu tiên.)
+
+---
+
+## Session Summary — 2026-05-14 (Phase 5 hoàn thành)
+
+**Phase 5: Documentation Website — GitHub Pages**
+
+| Task | Mô tả | Trạng thái |
+|------|-------|-----------|
+| 5.1 | Cài mkdocs-material, glightbox, mermaid2 | ✅ |
+| 5.2 | Viết mkdocs.yml | ✅ |
+| 5.3 | Tạo site_docs/ (7 trang) | ✅ |
+| 5.4 | Test local mkdocs serve | ✅ |
+| 5.5 | GitHub Actions deploy-docs.yml | ✅ |
+| 5.6 | Enable GitHub Pages (user tay) | ✅ |
+| 5.7 | Custom domain | ✅ skipped (không có domain) |
+| 5.8 | Tag v0.5.0-docs-site | ✅ |
+
+Site live tại: https://vietanh954.github.io/Project_Autofill_capDon/
 
 ---
 

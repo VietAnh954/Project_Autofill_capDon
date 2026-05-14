@@ -94,8 +94,8 @@
 - [x] 5.4. Test local: `mkdocs serve` → http://127.0.0.1:8000 hiển thị OK.
 - [x] 5.5. Viết `.github/workflows/deploy-docs.yml` — build + push lên branch `gh-pages`.
        Acceptance: push lên main → Actions chạy xanh → site live.
-- [ ] 5.6. Enable GitHub Pages trong repo settings (USER chạy tay 1 lần).
-- [ ] 5.7. Thêm Custom domain (tuỳ chọn) nếu user có domain riêng.
+- [x] 5.6. Enable GitHub Pages trong repo settings (USER chạy tay 1 lần).
+- [x] 5.7. Thêm Custom domain (tuỳ chọn) nếu user có domain riêng. (skipped — không có custom domain)
 - [x] 5.8. Tag `v0.5.0-docs-site`.
 
 ---
