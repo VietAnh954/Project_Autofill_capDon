@@ -36,7 +36,7 @@
 - [x] 1.8. **Classifier**: implement MAPPING §5, chỉ support sheet "Du lịch" ở giai đoạn này.
 - [x] 1.9. **Validator**: required fields, type check theo DATABASE §2.1.
 - [x] 1.10. **Dedup**: lookup `(CCCD, Ngày đi, Nơi đến)` trong sheet Du lịch.
-- [ ] 1.11. **Backup**: snapshot master vào `data/backup/<date>/`.
+- [x] 1.11. **Backup**: snapshot master vào `data/backup/<date>/`.
 - [ ] 1.12. **Excel filler**: append rows vào sheet "Du lịch", STT auto, format date.
        Acceptance: chạy script tay với 3 record → file tổng có thêm đúng 3 dòng cuối sheet Du lịch.
 - [ ] 1.13. **Mail marker**: mark mail processed (Read + move folder).

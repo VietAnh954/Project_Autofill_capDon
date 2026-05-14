@@ -7,11 +7,20 @@
 
 ## Đang làm
 
-(Task 1.11 in_progress — Backup)
+(Task 1.12 in_progress — Excel filler)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.11 (Backup)
+- **Task:** 1.11 Backup snapshot master
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/filler/backup.py` — snapshot(), _purge_old()
+  - `tests/test_backup.py` — 10 unit tests
+- **Test:** `pytest tests/test_backup.py -q` → 10 passed.
+- **Note:** Giữ tối đa 30 ngày backup, tự xóa folder cũ hơn. Tên folder = YYYY-MM-DD.
 
 ### 2026-05-14 — Task 1.10 (Dedup)
 - **Task:** 1.10 Dedup lookup (CCCD, Ngày đi, Nơi đến)
