@@ -7,7 +7,7 @@
 
 ## Đang làm
 
-(Task 1.7 in_progress — Normalizer)
+(Task 1.8 in_progress — Classifier)
 
 ---
 
