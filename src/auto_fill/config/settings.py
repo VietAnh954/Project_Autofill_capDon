@@ -57,6 +57,12 @@ class Settings(BaseSettings):
     gmail_credentials_file: Path | None = None  # credentials.json tu Google Cloud Console
     gmail_token_file: Path | None = None  # token.json (tu dong tao sau oauth flow)
 
+    # --- Google Drive (doc file tong tu Drive de hien thi tren dashboard) ---
+    gdrive_master_file_id: str = ""  # File ID trong URL Google Drive
+    gdrive_credentials_file: Path | None = None  # credentials.json (co the dung chung voi Gmail)
+    gdrive_token_file: Path | None = None  # gdrive_token.json (tao qua drive-setup)
+    gdrive_cache_minutes: int = 5  # So phut cache file truoc khi tai lai
+
     # --- Cloud / Postgres (tuy chon) ---
     # Khi set, DATABASE_URL ghi de db_path cho toan bo SQLAlchemy.
     # Format: postgresql+psycopg2://user:pass@host:5432/dbname

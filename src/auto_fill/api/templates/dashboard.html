@@ -138,6 +138,132 @@
     </div>
 
   </div>
+
+  <!-- ── Master Excel Viewer (Google Drive) ────────────────── -->
+  <div class="card bg-base-100 shadow mt-4"
+       x-data="masterViewer()"
+       x-init="init()"
+       x-cloak>
+    <div class="card-body p-4">
+
+      <!-- Header row -->
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <h2 class="card-title text-base flex-1">📊 File Excel Tổng (Google Drive)</h2>
+        <span class="text-xs text-base-content/50"
+              x-text="cachedAt ? 'Cập nhật: ' + cachedAt : ''"></span>
+        <button class="btn btn-ghost btn-xs"
+                @click="refresh()"
+                :disabled="loading">
+          <span x-show="!loading">🔄 Làm mới</span>
+          <span x-show="loading">
+            <span class="loading loading-spinner loading-xs"></span>
+          </span>
+        </button>
+      </div>
+
+      <!-- Not configured state -->
+      <div x-show="!driveConfigured && !loading"
+           class="alert alert-warning text-sm py-2">
+        <div>
+          <p class="font-semibold">Google Drive chưa được cấu hình.</p>
+          <p class="mt-1 opacity-80">Chạy lệnh sau để kết nối (1 lần duy nhất):</p>
+          <code class="block bg-warning-content/10 rounded mt-1 px-2 py-1 text-xs">
+            python -m auto_fill drive-setup
+          </code>
+          <p class="mt-1 text-xs opacity-70">
+            Cần bật <strong>Google Drive API</strong> trong Google Cloud Console và tải
+            <code>credentials.json</code> về thư mục project.
+          </p>
+        </div>
+      </div>
+
+      <!-- API error (configured but failed) -->
+      <div x-show="driveConfigured && apiError && !sheets.length"
+           class="alert alert-error text-sm py-2">
+        <span x-text="apiError"></span>
+      </div>
+
+      <!-- Warning banner (stale cache etc.) -->
+      <div x-show="warning && sheets.length"
+           class="alert alert-warning text-xs py-1 mb-2">
+        <span x-text="warning"></span>
+      </div>
+
+      <!-- Sheet tabs -->
+      <div x-show="sheets.length > 0" class="flex flex-wrap gap-1 mb-3">
+        <template x-for="s in sheets" :key="s">
+          <button class="btn btn-xs"
+                  :class="activeSheet === s ? 'btn-primary' : 'btn-ghost'"
+                  @click="selectSheet(s)"
+                  x-text="s">
+          </button>
+        </template>
+      </div>
+
+      <!-- Loading spinner -->
+      <div x-show="loading" class="flex justify-center py-8">
+        <span class="loading loading-spinner loading-md"></span>
+      </div>
+
+      <!-- Data table -->
+      <div x-show="!loading && rows.length > 0">
+        <div class="text-xs text-base-content/50 mb-1"
+             x-text="`${totalRows.toLocaleString()} dòng • Trang ${page} / ${totalPages}`">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="table table-xs table-zebra">
+            <thead>
+              <tr>
+                <template x-for="col in columns" :key="col">
+                  <th x-text="col"
+                      class="whitespace-nowrap text-xs sticky top-0 bg-base-200"></th>
+                </template>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(row, i) in rows" :key="i">
+                <tr class="hover">
+                  <template x-for="col in columns" :key="col">
+                    <td class="whitespace-nowrap text-xs max-w-xs truncate"
+                        :title="row[col] != null ? String(row[col]) : ''"
+                        x-text="row[col] != null ? String(row[col]) : ''">
+                    </td>
+                  </template>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-center items-center gap-1 mt-3" x-show="totalPages > 1">
+          <button class="btn btn-xs btn-ghost"
+                  @click="goPage(1)" :disabled="page <= 1">«</button>
+          <button class="btn btn-xs btn-ghost"
+                  @click="goPage(page - 1)" :disabled="page <= 1">‹</button>
+          <template x-for="p in pageRange" :key="p">
+            <button class="btn btn-xs"
+                    :class="p === page ? 'btn-primary' : 'btn-ghost'"
+                    @click="goPage(p)"
+                    x-text="p">
+            </button>
+          </template>
+          <button class="btn btn-xs btn-ghost"
+                  @click="goPage(page + 1)" :disabled="page >= totalPages">›</button>
+          <button class="btn btn-xs btn-ghost"
+                  @click="goPage(totalPages)" :disabled="page >= totalPages">»</button>
+        </div>
+      </div>
+
+      <!-- Empty sheet -->
+      <div x-show="!loading && driveConfigured && sheets.length > 0 && rows.length === 0 && !apiError"
+           class="text-center opacity-40 italic text-sm py-4">
+        Sheet này không có dữ liệu
+      </div>
+
+    </div>
+  </div>
+
 </div>
 {% endblock %}
 
@@ -251,6 +377,110 @@ function dashboard() {
 
     sheetLabel(key) {
       return (this.sheetList.find(s => s.key === key) || {}).label || key;
+    },
+  };
+}
+
+function masterViewer() {
+  return {
+    driveConfigured: false,
+    sheets: [],
+    activeSheet: '',
+    columns: [],
+    rows: [],
+    totalRows: 0,
+    page: 1,
+    pageSize: 50,
+    totalPages: 1,
+    cachedAt: '',
+    loading: false,
+    apiError: '',
+    warning: '',
+
+    get pageRange() {
+      const start = Math.max(1, this.page - 3);
+      const end = Math.min(this.totalPages, start + 6);
+      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    },
+
+    async init() {
+      // Check if Drive is configured first
+      try {
+        const r = await fetch('/master/status');
+        const d = await r.json();
+        this.driveConfigured = d.configured;
+        if (!this.driveConfigured) return;
+      } catch (_) { return; }
+
+      await this.fetchSheets(false);
+    },
+
+    async fetchSheets(forceRefresh) {
+      this.loading = true;
+      this.apiError = '';
+      try {
+        const url = forceRefresh ? '/master/sheets?refresh=true' : '/master/sheets';
+        const r = await fetch(url);
+        const d = await r.json();
+        if (!r.ok) {
+          this.apiError = d.detail || 'Lỗi kết nối Google Drive';
+          return;
+        }
+        this.sheets = d.sheets || [];
+        this.cachedAt = d.cached_at ? d.cached_at.slice(0, 19).replace('T', ' ') : '';
+        this.warning = d.warning || '';
+
+        if (this.sheets.length > 0) {
+          if (!this.activeSheet || !this.sheets.includes(this.activeSheet)) {
+            this.activeSheet = this.sheets[0];
+          }
+          await this.loadSheet();
+        }
+      } catch (e) {
+        this.apiError = 'Không thể kết nối server: ' + e.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async selectSheet(name) {
+      this.activeSheet = name;
+      this.page = 1;
+      await this.loadSheet();
+    },
+
+    async loadSheet() {
+      if (!this.activeSheet) return;
+      this.loading = true;
+      try {
+        const url = `/master/sheet/${encodeURIComponent(this.activeSheet)}?page=${this.page}&page_size=${this.pageSize}`;
+        const r = await fetch(url);
+        const d = await r.json();
+        if (!r.ok) {
+          this.apiError = d.detail || 'Lỗi đọc sheet';
+          return;
+        }
+        this.columns = d.columns || [];
+        this.rows = d.rows || [];
+        this.totalRows = d.total_rows || 0;
+        this.totalPages = d.total_pages || 1;
+        if (d.warning) this.warning = d.warning;
+      } catch (e) {
+        this.apiError = 'Lỗi: ' + e.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async goPage(p) {
+      if (p < 1 || p > this.totalPages || p === this.page) return;
+      this.page = p;
+      await this.loadSheet();
+    },
+
+    async refresh() {
+      this.page = 1;
+      await this.fetchSheets(true);
     },
   };
 }

@@ -435,6 +435,47 @@ def _export_single_sheet(sheet_alias: str, db_path: str, out_path: str) -> None:
     click.echo(f"[export] {len(df)} rows -> {out_path}")
 
 
+@cli.command("drive-setup")
+@click.option(
+    "--credentials",
+    default="gdrive_credentials.json",
+    show_default=True,
+    help="Duong dan toi credentials.json tu Google Cloud Console.",
+)
+@click.option(
+    "--token",
+    default="gdrive_token.json",
+    show_default=True,
+    help="Duong dan luu refresh token (se duoc tao moi).",
+)
+def drive_setup(credentials: str, token: str) -> None:
+    """Kich hoat OAuth2 cho Google Drive (chay 1 lan dau).
+
+    Yeu cau: credentials.json tu Google Cloud Console (cung project voi Gmail).
+    Bat buoc enable 'Google Drive API' trong Cloud Console.
+
+    Sau khi chay xong, them vao .env:
+        GDRIVE_CREDENTIALS_FILE=<path>/credentials.json
+        GDRIVE_TOKEN_FILE=<path>/gdrive_token.json
+    """
+    from auto_fill.drive.gdrive_client import DriveClient, DriveClientError
+
+    click.echo("[drive-setup] Kich hoat OAuth2 cho Google Drive...")
+    click.echo(f"  credentials: {credentials}")
+    click.echo(f"  token luu tai: {token}")
+    try:
+        client = DriveClient(credentials, token)
+        client.connect()
+        click.echo(f"[drive-setup] OK! Token da luu tai: {token}")
+        click.echo("")
+        click.echo("Them 2 dong sau vao file .env:")
+        click.echo(f"  GDRIVE_CREDENTIALS_FILE={credentials}")
+        click.echo(f"  GDRIVE_TOKEN_FILE={token}")
+    except DriveClientError as exc:
+        click.echo(f"[error] {exc}", err=True)
+        sys.exit(1)
+
+
 @cli.command("gmail-setup")
 @click.option(
     "--credentials",
