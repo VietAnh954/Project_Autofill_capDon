@@ -99,8 +99,9 @@ class DriveClient:
     def download_as_xlsx(self, file_id: str, dest: Path) -> Path:
         """Download Google Sheet hoac xlsx tu Drive ve local.
 
-        Voi Google Sheet (spreadsheets/d/...): dung export API → xlsx.
-        Voi file xlsx thuon luu tren Drive: dung get_media.
+        Kiem tra mimeType truoc:
+        - Google Sheets native → export sang xlsx.
+        - File xlsx upload (mimeType khac) → get_media download goc.
 
         Parameters
         ----------
@@ -116,11 +117,15 @@ class DriveClient:
         svc = self._ensure_connected()
         dest.parent.mkdir(parents=True, exist_ok=True)
 
-        # Thu export Google Sheet → xlsx
-        try:
+        # Lay mimeType de quyet dinh cach download
+        meta = svc.files().get(fileId=file_id, fields="mimeType,name").execute()
+        mime = meta.get("mimeType", "")
+
+        if "google-apps.spreadsheet" in mime:
+            # Native Google Sheet → export sang xlsx
             request = svc.files().export_media(fileId=file_id, mimeType=_XLSX_MIME)
-        except Exception:
-            # Fallback: download original file (da la xlsx tren Drive)
+        else:
+            # File xlsx/xlsm upload len Drive → tai file goc
             request = svc.files().get_media(fileId=file_id)
 
         buf = io.BytesIO()
