@@ -7,11 +7,20 @@
 
 ## Đang làm
 
-(Task 1.12 in_progress — Excel filler)
+(Task 1.13 in_progress — Mail marker)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.12 (Excel filler)
+- **Task:** 1.12 Excel filler — append rows vào sheet Du lịch
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/filler/excel_filler.py` — append_travel_rows(), _next_stt(), _write_row(), _coerce()
+  - `tests/test_excel_filler.py` — 14 unit tests với openpyxl fixture
+- **Test:** `pytest tests/test_excel_filler.py -q` → 14 passed. Full suite: all passed.
+- **Note:** STT auto-increment (max+1). trip_days computed từ trip_end - trip_start. openpyxl đọc lại date thành datetime → test normalize với .date().
 
 ### 2026-05-14 — Task 1.11 (Backup)
 - **Task:** 1.11 Backup snapshot master
