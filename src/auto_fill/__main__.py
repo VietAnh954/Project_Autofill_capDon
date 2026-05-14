@@ -105,6 +105,7 @@ def _process_file(
 ) -> None:
     """Xu ly 1 file attachment: classify -> read -> normalize -> validate -> dedup -> fill."""
     from auto_fill.filler.excel_filler import append_travel_rows
+    from auto_fill.mapper.aliases_loader import load_aliases
     from auto_fill.mapper.classifier import classify
     from auto_fill.mapper.dedup import is_duplicate
     from auto_fill.mapper.normalizer import (
@@ -118,12 +119,13 @@ def _process_file(
     from auto_fill.reader.excel_reader import read_excel
 
     sheet_info = classify(mail_subject, mail_sender)
+    aliases = load_aliases()
 
     suffix = file_path.suffix.lower()
     if suffix in {".xlsx", ".xls", ".xlsm"}:
-        df = read_excel(file_path, aliases={})
+        df = read_excel(file_path, aliases=aliases)
     elif suffix == ".csv":
-        df = read_csv(file_path, aliases={})
+        df = read_csv(file_path, aliases=aliases)
     else:
         raise ValueError(f"Dinh dang khong ho tro: {suffix}")
 

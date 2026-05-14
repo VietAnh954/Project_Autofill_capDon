@@ -1,0 +1,430 @@
+# aliases.yaml — Bảng alias cho tất cả canonical field
+#
+# Format: canonical_name:
+#           - "alias 1"   (lowercase, có hoặc không có dấu)
+#           - "alias 2"
+#
+# Reader dùng exact match trước, sau đó fuzzy (ratio >= 85).
+# Xem MAPPING.md §4 để biết context đầy đủ.
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+# THÔNG TIN NGƯỜI ĐƯỢC BẢO HIỂM (NĐBH)
+# -----------------------------------------------------------------------
+
+insured_name:
+  - "họ và tên"
+  - "ho va ten"
+  - "họ tên"
+  - "ho ten"
+  - "tên khách hàng"
+  - "ten khach hang"
+  - "tên ndbh"
+  - "ten ndbh"
+  - "họ tên ndbh"
+  - "ho ten ndbh"
+  - "họ tên người được bảo hiểm"
+  - "tên người được bảo hiểm"
+  - "ten nguoi duoc bao hiem"
+  - "tên người tham gia bảo hiểm"
+  - "nguoi duoc bao hiem"
+  - "full name"
+  - "name"
+
+insured_dob:
+  - "ngày sinh"
+  - "ngay sinh"
+  - "ngày tháng năm sinh"
+  - "ngay thang nam sinh"
+  - "ngày sinh ndbh"
+  - "dob"
+  - "date of birth"
+  - "năm sinh"
+  - "nam sinh"
+
+insured_gender:
+  - "giới tính"
+  - "gioi tinh"
+  - "gt"
+  - "gender"
+  - "sex"
+
+insured_id_number:
+  - "cccd"
+  - "cmnd"
+  - "cccd/cmnd"
+  - "cccd/cmnd/passport"
+  - "cccd/cmnd/hộ chiếu"
+  - "cccd/cmnd/pasport id"
+  - "số cccd"
+  - "so cccd"
+  - "số cmnd"
+  - "so cmnd"
+  - "số giấy tờ"
+  - "so giay to"
+  - "id number"
+  - "passport"
+  - "hộ chiếu"
+  - "so ho chieu"
+  - "số hộ chiếu"
+
+insured_passport:
+  - "số hộ chiếu"
+  - "so ho chieu"
+  - "passport no"
+  - "passport number"
+  - "hộ chiếu"
+
+insured_phone:
+  - "số điện thoại"
+  - "so dien thoai"
+  - "điện thoại"
+  - "dien thoai"
+  - "sdt"
+  - "phone"
+  - "mobile"
+  - "di động"
+  - "di dong"
+  - "số điện thoại ndbh"
+
+insured_email:
+  - "email"
+  - "e-mail"
+  - "email ndbh"
+  - "địa chỉ email"
+  - "dia chi email"
+
+insured_address:
+  - "địa chỉ"
+  - "dia chi"
+  - "địa chỉ thường trú"
+  - "dia chi thuong tru"
+  - "địa chỉ liên lạc"
+  - "nơi ở"
+  - "noi o"
+  - "address"
+
+# -----------------------------------------------------------------------
+# THÔNG TIN BÊN MUA BẢO HIỂM (BMBH)
+# -----------------------------------------------------------------------
+
+buyer_name:
+  - "bên mua"
+  - "ben mua"
+  - "bên mua bảo hiểm"
+  - "ben mua bao hiem"
+  - "họ tên bmbh"
+  - "ho ten bmbh"
+  - "tên bmbh"
+  - "ten bmbh"
+  - "người mua"
+  - "nguoi mua"
+  - "policyholder"
+
+buyer_dob:
+  - "ngày sinh bmbh"
+  - "ngay sinh bmbh"
+  - "ngày sinh bên mua"
+  - "dob bmbh"
+
+buyer_id_number:
+  - "cccd bmbh"
+  - "cmnd bmbh"
+  - "cccd/cmnd bmbh"
+  - "số cccd bmbh"
+  - "giấy tờ bmbh"
+
+buyer_phone:
+  - "sdt bmbh"
+  - "điện thoại bmbh"
+  - "số điện thoại bmbh"
+  - "phone bmbh"
+
+buyer_relation:
+  - "mối quan hệ"
+  - "moi quan he"
+  - "quan hệ"
+  - "quan he"
+  - "relationship"
+  - "mqh"
+  - "quan hệ bmbh ndbh"
+
+# -----------------------------------------------------------------------
+# THÔNG TIN HỢP ĐỒNG / HIỆU LỰC
+# -----------------------------------------------------------------------
+
+issued_date:
+  - "ngày cấp"
+  - "ngay cap"
+  - "ngày update"
+  - "ngay update"
+  - "ngày"
+  - "issue date"
+  - "date"
+
+contract_number:
+  - "số hợp đồng"
+  - "so hop dong"
+  - "mã hợp đồng"
+  - "ma hop dong"
+  - "số đơn"
+  - "so don"
+  - "contract no"
+  - "policy number"
+
+effective_from:
+  - "ngày hiệu lực"
+  - "ngay hieu luc"
+  - "ngày bắt đầu"
+  - "ngay bat dau"
+  - "ngày thanh toán"
+  - "ngay thanh toan"
+  - "from date"
+  - "start date"
+  - "hiệu lực từ"
+  - "hieu luc tu"
+  - "có hiệu lực từ"
+
+effective_to:
+  - "ngày hết hiệu lực"
+  - "ngay het hieu luc"
+  - "ngày kết thúc"
+  - "ngay ket thuc"
+  - "to date"
+  - "end date"
+  - "hiệu lực đến"
+  - "hết hiệu lực"
+  - "het hieu luc"
+
+premium:
+  - "phí bảo hiểm"
+  - "phi bao hiem"
+  - "tổng phí"
+  - "tong phi"
+  - "tổng phí bảo hiểm"
+  - "tong phi bao hiem"
+  - "phí"
+  - "phi"
+  - "premium"
+  - "số tiền phí"
+
+product_code:
+  - "mã sản phẩm"
+  - "ma san pham"
+  - "mã sp"
+  - "product code"
+
+plan:
+  - "plan"
+  - "gói"
+  - "goi"
+  - "gói bảo hiểm"
+  - "goi bao hiem"
+  - "loại gói"
+  - "package"
+
+scope:
+  - "phạm vi"
+  - "pham vi"
+  - "vùng lãnh thổ"
+  - "vung lanh tho"
+  - "phạm vi bảo hiểm"
+  - "scope"
+  - "coverage area"
+
+# -----------------------------------------------------------------------
+# DU LỊCH (travel-specific)
+# -----------------------------------------------------------------------
+
+trip_start:
+  - "ngày đi"
+  - "ngay di"
+  - "ngày khởi hành"
+  - "ngay khoi hanh"
+  - "departure date"
+  - "from date"
+  - "ngày bắt đầu chuyến đi"
+
+trip_end:
+  - "ngày về"
+  - "ngay ve"
+  - "ngày kết thúc chuyến đi"
+  - "return date"
+  - "to date"
+  - "arrival date"
+  - "ngày đến"
+
+trip_days:
+  - "số ngày"
+  - "so ngay"
+  - "số ngày đi"
+  - "days"
+  - "duration"
+
+destination:
+  - "nơi đến"
+  - "noi den"
+  - "điểm đến"
+  - "diem den"
+  - "destination"
+  - "quốc gia"
+  - "quoc gia"
+  - "country"
+
+# -----------------------------------------------------------------------
+# XE CỘ (vehicle-specific)
+# -----------------------------------------------------------------------
+
+plate_number:
+  - "biển số"
+  - "bien so"
+  - "biển số xe"
+  - "bien so xe"
+  - "bks"
+  - "plate number"
+  - "license plate"
+
+frame_number:
+  - "số khung"
+  - "so khung"
+  - "chassis number"
+  - "frame no"
+  - "vin"
+
+engine_number:
+  - "số máy"
+  - "so may"
+  - "engine number"
+  - "engine no"
+
+vehicle_brand:
+  - "hãng xe"
+  - "hang xe"
+  - "nhãn hiệu"
+  - "nhan hieu"
+  - "thương hiệu"
+  - "brand"
+  - "make"
+
+vehicle_type:
+  - "loại xe"
+  - "loai xe"
+  - "kiểu xe"
+  - "kieu xe"
+  - "vehicle type"
+  - "type"
+
+vehicle_value:
+  - "giá trị xe"
+  - "gia tri xe"
+  - "giá xe"
+  - "value"
+  - "market value"
+
+seats:
+  - "số chỗ ngồi"
+  - "so cho ngoi"
+  - "chỗ ngồi"
+  - "seats"
+  - "capacity"
+
+usage_purpose:
+  - "mục đích sử dụng"
+  - "muc dich su dung"
+  - "mục đích"
+  - "purpose"
+
+vehicle_load:
+  - "tải trọng"
+  - "tai trong"
+  - "trọng tải"
+  - "load"
+  - "tonnage"
+
+# -----------------------------------------------------------------------
+# XE MÁY (motorbike-specific)
+# -----------------------------------------------------------------------
+
+premium_tnds:
+  - "phí tnds"
+  - "phi tnds"
+  - "tnds"
+  - "phí trách nhiệm dân sự"
+
+premium_accident:
+  - "phí tai nạn"
+  - "phi tai nan"
+  - "tai nạn"
+  - "accident premium"
+
+years:
+  - "số năm"
+  - "so nam"
+  - "kỳ hạn"
+  - "ky han"
+  - "years"
+
+# -----------------------------------------------------------------------
+# SỨC KHỎE (health-specific)
+# -----------------------------------------------------------------------
+
+outpatient:
+  - "ngoại trú"
+  - "ngoai tru"
+  - "outpatient"
+
+dental:
+  - "răng"
+  - "rang"
+  - "nha khoa"
+  - "dental"
+
+maternity:
+  - "thai sản"
+  - "thai san"
+  - "maternity"
+
+topup:
+  - "top-up"
+  - "topup"
+  - "bổ sung"
+  - "bo sung"
+
+adjustment_fee:
+  - "phí điều chỉnh"
+  - "phi dieu chinh"
+  - "adjustment"
+
+# -----------------------------------------------------------------------
+# HSSV (student-specific)
+# -----------------------------------------------------------------------
+
+school:
+  - "trường"
+  - "truong"
+  - "trường học"
+  - "truong hoc"
+  - "tên trường"
+  - "ten truong"
+  - "school"
+
+class_name:
+  - "lớp"
+  - "lop"
+  - "tên lớp"
+  - "ten lop"
+  - "class"
+  - "lớp học"
+
+# -----------------------------------------------------------------------
+# METADATA
+# -----------------------------------------------------------------------
+
+source_email_id:
+  - "email id"
+  - "mail id"
+
+source_attachment:
+  - "file đính kèm"
+  - "attachment"
+  - "file gốc"
