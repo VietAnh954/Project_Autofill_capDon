@@ -11,10 +11,10 @@
 - [x] 0.1. Tạo cấu trúc thư mục `src/auto_fill/`, `tests/`, `data/`, `docs/`, `logs/`
 - [x] 0.2. Viết toàn bộ docs/ (ARCHITECTURE, CODING_RULES, DATABASE, MAPPING, TECH_STACK, WORKFLOW, TODO, TASKS, DECISIONS, GLOSSARY)
 - [x] 0.3. Viết `CLAUDE.md` ở root
-- [ ] 0.4. Tạo `requirements.txt`, `pyproject.toml`, `.gitignore`, `.env.example`, `README.md`
-- [ ] 0.5. Tạo virtualenv + cài dependencies (`pip install -r requirements.txt`)
-- [ ] 0.6. Cấu hình pre-commit (`ruff`, `mypy`, `pytest`)
-- [ ] 0.7. Git init + connect remote `https://github.com/VietAnh954/Project_Autofill_capDon.git` + first commit + first push (USER chạy tay 1 lần — xem GIT_WORKFLOW §8)
+- [x] 0.4. Tạo `requirements.txt`, `pyproject.toml`, `.gitignore`, `.env.example`, `README.md`
+- [x] 0.5. Tạo virtualenv + cài dependencies (`pip install -r requirements.txt`)
+- [x] 0.6. Cấu hình pre-commit (`ruff`, `mypy`, `pytest`)
+- [x] 0.7. Git init + connect remote `https://github.com/VietAnh954/Project_Autofill_capDon.git` + first commit + first push (USER chạy tay 1 lần — xem GIT_WORKFLOW §8)
 - [x] 0.8. Setup `.claude/settings.json` + slash commands `/next`, `/verify`, `/status`
 - [x] 0.9. Setup `docs/GIT_WORKFLOW.md` để Claude tuân thủ commit/push policy
 

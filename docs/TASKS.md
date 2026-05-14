@@ -7,11 +7,25 @@
 
 ## Đang làm
 
-(Chưa có task nào in_progress — chờ user gõ `go` để bắt đầu task 0.4)
+(Chuyển sang task 1.1 — Config layer với pydantic-settings)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Phase 0 complete (0.4–0.7)
+- **Task:** 0.4, 0.5, 0.6, 0.7 (project config files + venv + pre-commit + git)
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `requirements.txt` — core + dev + docs deps
+  - `pyproject.toml` — build, ruff, mypy, pytest config
+  - `.gitignore` — exclude .env/data/logs/venv/xlsx
+  - `.env.example` — template config với Outlook + paths
+  - `README.md` — setup & usage guide
+  - `.pre-commit-config.yaml` — ruff + mypy + pytest hooks
+  - `.git/hooks/pre-commit` — installed via `pre-commit install`
+- **Test:** `pytest -v` → 3 passed.
+- **Note:** Tất cả files đã tồn tại từ session trước. Task 0.7 (git init + remote) đã được user hoàn thành. Chỉ chạy `pre-commit install` để kích hoạt hooks.
 
 ### 2026-05-14 — Phase 0 init
 - **Task:** 0.1, 0.2, 0.3 (scaffold + docs + CLAUDE.md)
