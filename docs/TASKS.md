@@ -7,7 +7,7 @@
 
 ## Đang làm
 
-(Task 1.6 in_progress — CSV reader)
+(Task 1.7 in_progress — Normalizer)
 
 ---
 

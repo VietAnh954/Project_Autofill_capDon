@@ -30,7 +30,7 @@
        Acceptance: chạy thực tế trên 1 mail test → file xuất hiện trong inbox/.
 - [x] 1.5. **Excel reader**: đọc file Excel attachment, detect header row, rename về canonical via alias.yaml.
        Acceptance: unit test với `tests/fixtures/sample_dulich.xlsx` → DataFrame có cột canonical.
-- [ ] 1.6. **CSV reader**: tương tự cho .csv.
+- [x] 1.6. **CSV reader**: tương tự cho .csv.
 - [ ] 1.7. **Normalizer**: implement rules MAPPING §3 (date, CCCD, phone, money).
        Acceptance: unit test 10+ case mỗi rule.
 - [ ] 1.8. **Classifier**: implement MAPPING §5, chỉ support sheet "Du lịch" ở giai đoạn này.
