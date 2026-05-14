@@ -208,11 +208,100 @@ def schedule(interval: int) -> None:
 
 
 @cli.command()
-@click.option("--to", "to_file", required=True, type=click.Path(exists=True))
-def rollback(to_file: str) -> None:
-    """Khoi phuc master file tu backup snapshot."""
-    click.echo(f"[rollback] restoring from {to_file}")
-    raise NotImplementedError("Se implement o Phase 2 task 2.8.")
+@click.option(
+    "--to",
+    "to_file",
+    required=True,
+    type=click.Path(exists=True),
+    help="Duong dan file backup (.xlsx) can khoi phuc.",
+)
+@click.option("--yes", "-y", is_flag=True, help="Xac nhan khong hoi lai.")
+@click.pass_context
+def rollback(ctx: click.Context, to_file: str, yes: bool) -> None:
+    """Khoi phuc master file tu backup snapshot.
+
+    Vi du: python -m auto_fill rollback --to data/backup/2026-05-14/master.xlsx
+    """
+    import shutil
+
+    from auto_fill.config.settings import Settings
+
+    settings: Settings = ctx.obj["settings"]
+    src = Path(to_file)
+    dst = settings.master_file_path
+
+    if not yes:
+        click.confirm(
+            f"Ghi de {dst.name} bang {src}?\nCANH BAO: Hanh dong nay khong the hoan tac!",
+            abort=True,
+        )
+
+    from auto_fill.filler.backup import snapshot
+
+    snapshot(dst, settings.data_root / "backup")
+    shutil.copy2(src, dst)
+    click.echo(f"[rollback] Da khoi phuc: {src} -> {dst}")
+
+
+@cli.command()
+@click.option(
+    "--folder",
+    default=None,
+    type=click.Path(exists=True),
+    help="Thu muc chua file can replay (mac dinh: data/inbox/).",
+)
+@click.option("--dry-run", is_flag=True, help="Parse nhung KHONG ghi.")
+@click.pass_context
+def replay(ctx: click.Context, folder: str | None, dry_run: bool) -> None:
+    """Re-process tat ca file trong thu muc (inbox hoac failed).
+
+    Vi du: python -m auto_fill replay --folder data/failed/unknown_schema/
+    """
+    from auto_fill.config.settings import Settings
+    from auto_fill.reporter.daily_report import RunStats, render_report
+    from auto_fill.utils.errors import ClassifierError, ValidationError
+
+    settings: Settings = ctx.obj["settings"]
+    effective_dry_run = dry_run or settings.dry_run
+
+    replay_dir = Path(folder) if folder else settings.data_root / "inbox"
+    supported = {".xlsx", ".xls", ".xlsm", ".csv", ".pdf"}
+
+    files = [f for f in sorted(replay_dir.iterdir()) if f.suffix.lower() in supported]
+    if not files:
+        click.echo(f"[replay] Khong co file nao trong {replay_dir}")
+        return
+
+    click.echo(
+        f"[replay] Tim thay {len(files)} file trong {replay_dir}. dry_run={effective_dry_run}"
+    )
+
+    stats = RunStats()
+    stats.processed = len(files)
+
+    for file_path in files:
+        try:
+            sheet_alias = _process_file(
+                file_path=file_path,
+                mail_subject=file_path.stem,
+                mail_sender="replay@local",
+                settings=settings,
+                effective_dry_run=effective_dry_run,
+                stats=stats,
+            )
+            if sheet_alias:
+                stats.add_written(sheet_alias)
+                click.echo(f"[ok] {file_path.name} -> {sheet_alias}")
+        except (ClassifierError, ValidationError, Exception) as exc:
+            click.echo(f"[skip] {file_path.name}: {exc}", err=True)
+            stats.add_error(f"`{file_path.name}`: {exc}")
+
+    click.echo(
+        f"[replay done] written={stats.written} duplicates={stats.duplicates} errors={stats.errors}"
+    )
+    if not effective_dry_run:
+        report_path = render_report(stats, settings.data_root / "reports")
+        click.echo(f"[report] {report_path}")
 
 
 if __name__ == "__main__":
