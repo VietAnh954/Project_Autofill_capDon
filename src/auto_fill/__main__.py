@@ -380,6 +380,25 @@ def _export_single_sheet(sheet_alias: str, db_path: str, out_path: str) -> None:
     click.echo(f"[export] {len(df)} rows -> {out_path}")
 
 
+@cli.command("serve")
+@click.option("--host", default="127.0.0.1", show_default=True)
+@click.option("--port", default=8080, show_default=True)
+@click.option("--reload", is_flag=True, help="Auto-reload khi code thay doi (dev mode).")
+def serve_cmd(host: str, port: int, reload: bool) -> None:
+    """Khoi dong FastAPI server de query / export du lieu.
+
+    Vi du: python -m auto_fill serve --port 8080
+    """
+    import uvicorn
+
+    uvicorn.run(
+        "auto_fill.api.app:app",
+        host=host,
+        port=port,
+        reload=reload,
+    )
+
+
 @cli.command("gui")
 def gui_cmd() -> None:
     """Mo bang dieu khien GUI Tkinter cho non-tech user."""

@@ -19,6 +19,7 @@ repos:
           - sqlalchemy>=2.0
           - alembic>=1.13
           - pywin32>=306
+          - fastapi>=0.109.0
 
   - repo: local
     hooks:
