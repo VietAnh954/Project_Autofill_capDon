@@ -7,11 +7,28 @@
 
 ## Đang làm
 
-(Task 1.9 in_progress — Validator)
+(Task 1.11 in_progress — Backup)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.10 (Dedup)
+- **Task:** 1.10 Dedup lookup (CCCD, Ngày đi, Nơi đến)
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/mapper/dedup.py` — is_duplicate(), _load_sheet(), _rename_columns(), _check_match(), _parse_date()
+  - `tests/test_dedup.py` — 20 unit tests với mock _load_sheet
+- **Test:** `pytest tests/test_dedup.py -q` → 20 passed. Full suite: 184 passed.
+- **Note:** Dedup so khớp case-insensitive destination, hỗ trợ nhiều format ngày (dd/mm/yyyy, yyyy-mm-dd, Excel serial). Load fail → False (safe default).
+
+### 2026-05-14 — Task 1.9 (Validator)
+- **Task:** 1.9 Validator required fields + type check
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/mapper/validator.py` — FieldSpec, ValidationResult, TRAVEL_SCHEMA, validate_record(), validate_and_raise()
+  - `tests/test_validator.py` — 14 unit tests
+- **Test:** `pytest tests/test_validator.py -q` → 14 passed.
 
 ### 2026-05-14 — Task 1.5 (Excel reader)
 - **Task:** 1.5 Excel reader
