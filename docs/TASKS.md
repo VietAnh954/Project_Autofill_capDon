@@ -7,11 +7,20 @@
 
 ## Đang làm
 
-(Task 1.16 in_progress — End-to-end smoke test)
+(Task 1.17 in_progress — Tag v0.1.0-mvp-dulich)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.16 (Smoke test)
+- **Task:** 1.16 End-to-end smoke test
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `tests/test_pipeline_smoke.py` — 9 tests cover full pipeline (backup, classify, validate, dedup, fill, marker)
+  - `src/auto_fill/mapper/dedup.py` — thêm format "%Y-%m-%d %H:%M:%S" vào _parse_date (fix pandas dtype=str)
+- **Test:** `pytest tests/test_pipeline_smoke.py -v` → 9 passed. Full suite: all passed.
+- **Note:** Phát hiện bug dedup: pandas đọc date từ xlsx về dạng "2026-05-20 00:00:00" khi dtype=str. Đã thêm format parsing.
 
 ### 2026-05-14 — Task 1.15 (CLI entry)
 - **Task:** 1.15 CLI entry — `python -m auto_fill run --dry-run`

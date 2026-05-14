@@ -121,7 +121,7 @@ def _parse_date(value: str) -> date | None:
     """Thu parse chuoi ngay theo cac dinh dang pho bien, tra None neu that bai."""
     from datetime import datetime
 
-    for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%m/%d/%Y", "%d-%m-%Y"):
+    for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%m/%d/%Y", "%d-%m-%Y", "%Y-%m-%d %H:%M:%S"):
         try:
             return datetime.strptime(value, fmt).date()
         except ValueError:
