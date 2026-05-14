@@ -53,7 +53,7 @@
 - [x] 2.3. Viết `aliases.yaml` đầy đủ cho mọi canonical field.
 - [x] 2.4. PDF reader (`pdf_reader.py`) với `pdfplumber`.
 - [x] 2.5. PDF OCR fallback (`pytesseract`) cho phiếu scan.
-- [ ] 2.6. Report end-of-day: render `report_YYYY-MM-DD.md` + gửi qua Outlook.
+- [x] 2.6. Report end-of-day: render `report_YYYY-MM-DD.md` + gửi qua Outlook.
 - [ ] 2.7. Scheduler: `apscheduler` poll mỗi 15 phút.
 - [ ] 2.8. CLI `rollback`, `replay`.
 - [ ] 2.9. Tag `v0.2.0`.

@@ -38,12 +38,14 @@ def run(ctx: click.Context, dry_run: bool) -> None:
     from auto_fill.mail.fetcher import MailFetcher
     from auto_fill.mail.marker import mark_processed
     from auto_fill.mail.outlook_client import OutlookClient
+    from auto_fill.reporter.daily_report import RunStats, render_report
     from auto_fill.utils.errors import ClassifierError, ValidationError
 
     settings: Settings = ctx.obj["settings"]
     effective_dry_run = dry_run or settings.dry_run
 
     click.echo(f"[run] dry_run={effective_dry_run}")
+    stats = RunStats()
 
     client = OutlookClient(
         profile=settings.outlook_profile,
@@ -65,35 +67,42 @@ def run(ctx: click.Context, dry_run: bool) -> None:
         subject_pattern=settings.subject_pattern,
     )
 
-    processed_count = 0
-    skipped_count = 0
-
     for mail in fetcher.fetch_matching():
         ns: Any = client._namespace  # type: ignore[attr-defined]
         inbox_dir = settings.data_root / "inbox"
         inbox_dir.mkdir(parents=True, exist_ok=True)
         paths = download_attachments(mail, inbox_dir, ns, settings.max_attachment_mb)
+        stats.processed += len(paths)
 
         for file_path in paths:
             try:
-                _process_file(
+                sheet_alias = _process_file(
                     file_path=file_path,
                     mail_subject=mail.subject,
                     mail_sender=mail.sender_email,
                     settings=settings,
                     effective_dry_run=effective_dry_run,
+                    stats=stats,
                 )
-                processed_count += 1
+                if sheet_alias:
+                    stats.add_written(sheet_alias)
             except (ClassifierError, ValidationError, Exception) as exc:
                 click.echo(f"[skip] {file_path.name}: {exc}", err=True)
-                skipped_count += 1
+                stats.add_error(f"`{file_path.name}`: {exc}")
                 continue
 
         if not effective_dry_run:
             folder = settings.outlook_processed_folder.split("\\")[-1]
             mark_processed(ns, mail.entry_id, folder)
 
-    click.echo(f"[done] processed={processed_count} skipped={skipped_count}")
+    click.echo(
+        f"[done] processed={stats.processed} written={stats.written} "
+        f"duplicates={stats.duplicates} errors={stats.errors}"
+    )
+
+    if not effective_dry_run:
+        report_path = render_report(stats, settings.data_root / "reports")
+        click.echo(f"[report] {report_path}")
 
 
 def _process_file(
@@ -102,8 +111,12 @@ def _process_file(
     mail_sender: str,
     settings: Any,
     effective_dry_run: bool,
-) -> None:
-    """Xu ly 1 file attachment: classify -> read -> normalize -> validate -> dedup -> fill."""
+    stats: Any,
+) -> str | None:
+    """Xu ly 1 file attachment: classify -> read -> normalize -> validate -> dedup -> fill.
+
+    Returns sheet alias neu ghi thanh cong, None neu khong co record nao.
+    """
     from auto_fill.filler.excel_filler import append_travel_rows
     from auto_fill.mapper.aliases_loader import load_aliases
     from auto_fill.mapper.classifier import classify
@@ -129,6 +142,7 @@ def _process_file(
     else:
         raise ValueError(f"Dinh dang khong ho tro: {suffix}")
 
+    wrote_any = False
     for _, row in df.iterrows():
         record: dict[str, Any] = dict(row)
         _normalize_record(
@@ -137,13 +151,18 @@ def _process_file(
         validate_and_raise(record, sheet_info.alias)
         if is_duplicate(record, settings.master_file_path, sheet_name=sheet_info.excel_name):
             click.echo(f"[dedup] Bo qua: {record.get('insured_id_number')}")
+            stats.add_duplicate()
             continue
         if not effective_dry_run:
             append_travel_rows(
                 [record], settings.master_file_path, sheet_name=sheet_info.excel_name
             )
+            wrote_any = True
         else:
             click.echo(f"[dry-run] Se ghi: {record.get('insured_name')}")
+            wrote_any = True
+
+    return sheet_info.alias if wrote_any else None
 
 
 def _normalize_record(
