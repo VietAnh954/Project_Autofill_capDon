@@ -79,10 +79,11 @@ def read_pdf(
     except Exception as exc:
         raise ReaderError(f"Khong doc duoc PDF {path.name}: {exc}") from exc
 
-    raise ReaderError(
-        f"Khong trich xuat duoc du lieu tu {path.name}. "
-        "Thu OCR fallback (task 2.5) hoac kiem tra file."
-    )
+    # Strategy 3: OCR fallback (yeu cau Tesseract binary)
+    logger.warning("pdf_fallback_ocr", extra={"file": path.name})
+    from auto_fill.reader.ocr_reader import read_pdf_ocr
+
+    return read_pdf_ocr(path, aliases=aliases, page_limit=page_limit)
 
 
 def _try_extract_tables(
