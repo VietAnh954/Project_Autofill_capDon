@@ -30,6 +30,8 @@ _SUBJECT_RULES: list[tuple[re.Pattern[str], str]] = [
 _VEHICLE_COLS = frozenset({"plate_number", "frame_number", "engine_number"})
 _TRAVEL_COLS = frozenset({"trip_start", "trip_end", "destination"})
 _HEALTH_COLS = frozenset({"outpatient", "dental", "maternity"})
+_STUDENT_COLS = frozenset({"school", "class_name"})
+_BHYT_COLS = frozenset({"insured_id_number", "buyer_relation", "buyer_dob"})
 
 
 def classify(
@@ -101,6 +103,11 @@ def _classify_by_columns(col_set: set[str]) -> str | None:
     if col_set & _HEALTH_COLS:
         return "health"
     if col_set & _VEHICLE_COLS:
-        # Phan biet oto/xemay
+        # Phan biet oto/xemay: oto co cot seats, xemay khong
         return "motorbike" if "seats" not in col_set else "auto"
+    if col_set & _STUDENT_COLS:
+        return "student"
+    if len(col_set & _BHYT_COLS) >= 2:
+        # Can >= 2 cols khop vi cac cols nay cung xuat hien o nhieu sheet khac
+        return "bhyt_bhxh"
     return None

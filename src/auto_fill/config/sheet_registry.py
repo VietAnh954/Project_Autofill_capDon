@@ -10,10 +10,10 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class SheetInfo:
-    excel_name: str       # tên thật trong file Excel
-    alias: str            # tên trong code
-    header_row: int       # số hàng header (1-indexed)
-    dedup_keys: tuple[str, ...]   # canonical field names dùng cho dedup
+    excel_name: str  # tên thật trong file Excel
+    alias: str  # tên trong code
+    header_row: int  # số hàng header (1-indexed)
+    dedup_keys: tuple[str, ...]  # canonical field names dùng cho dedup
     enabled_in_mvp: bool = False
 
 
@@ -30,30 +30,35 @@ SHEET_REGISTRY: dict[str, SheetInfo] = {
         alias="health",
         header_row=3,
         dedup_keys=("insured_id_number", "effective_from"),
+        enabled_in_mvp=True,
     ),
     "auto": SheetInfo(
         excel_name="Bao hiem oto",
         alias="auto",
         header_row=1,
         dedup_keys=("plate_number", "issued_date"),
+        enabled_in_mvp=True,
     ),
     "motorbike": SheetInfo(
         excel_name="Thông tin cấp Bảo hiểm xe máy",
         alias="motorbike",
         header_row=2,
         dedup_keys=("plate_number", "issued_date"),
+        enabled_in_mvp=True,
     ),
     "bhyt_bhxh": SheetInfo(
         excel_name="BHYTBHXH",
         alias="bhyt_bhxh",
         header_row=2,
         dedup_keys=("insured_id_number", "effective_from"),
+        enabled_in_mvp=True,
     ),
     "student": SheetInfo(
         excel_name="HSSV",
         alias="student",
         header_row=1,
         dedup_keys=("insured_id_number", "school", "issued_date"),
+        enabled_in_mvp=True,
     ),
     # Các sheet còn lại sẽ thêm ở Phase 2.
 }
