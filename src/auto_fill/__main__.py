@@ -380,5 +380,13 @@ def _export_single_sheet(sheet_alias: str, db_path: str, out_path: str) -> None:
     click.echo(f"[export] {len(df)} rows -> {out_path}")
 
 
+@cli.command("gui")
+def gui_cmd() -> None:
+    """Mo bang dieu khien GUI Tkinter cho non-tech user."""
+    from auto_fill.gui import main as _gui_main
+
+    _gui_main()
+
+
 if __name__ == "__main__":
     cli()

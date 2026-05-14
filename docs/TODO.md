@@ -70,7 +70,7 @@
 ## Phase 4 — Service / GUI / Cloud
 
 - [x] 4.1. Đóng gói Windows service (NSSM).
-- [ ] 4.2. GUI Tkinter / PyQt cho non-tech user.
+- [x] 4.2. GUI Tkinter / PyQt cho non-tech user.
 - [ ] 4.3. Đẩy DB lên Postgres / cloud.
 - [ ] 4.4. API FastAPI cho query / export remote.
 
