@@ -7,11 +7,20 @@
 
 ## Đang làm
 
-(Task 1.5 in_progress — Excel reader)
+(Task 1.6 in_progress — CSV reader)
 
 ---
 
 ## Lịch sử (gần nhất ở trên)
+
+### 2026-05-14 — Task 1.5 (Excel reader)
+- **Task:** 1.5 Excel reader
+- **Trạng thái:** ✅ Done
+- **File thay đổi:**
+  - `src/auto_fill/reader/excel_reader.py` — read_excel(), _detect_header_row(), _build_rename_map(), _fuzzy_match()
+  - `tests/test_excel_reader.py` — 12 unit tests, fixture tạo bằng openpyxl
+- **Test:** `pytest tests/test_excel_reader.py -v` → 12 passed. Full suite: 42 passed.
+- **Note:** Alias mapping dùng exact match + fuzzy (rapidfuzz ratio >= 85). Full aliases.yaml sẽ tạo ở task 2.3.
 
 ### 2026-05-14 — Task 1.4 (Attachment downloader)
 - **Task:** 1.4 Attachment downloader
