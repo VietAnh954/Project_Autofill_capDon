@@ -132,7 +132,7 @@
        Acceptance: 4 mail mẫu trả đúng type (mail1=C, mail2=A, mail3=B, mail4=B).
 - [x] 7.2. Tạo `src/auto_fill/mapper/email_quote.py` — strip nested reply quotes, chỉ lấy top-level body.
        Acceptance: unit test với mail3 (5 reply lồng) → body chỉ ~10 dòng đầu của Lien (TCGI).
-- [ ] 7.3. Tạo `src/auto_fill/reader/gcn_pdf_reader.py` — parse GCN từ TYPE B PDF.
+- [x] 7.3. Tạo `src/auto_fill/reader/gcn_pdf_reader.py` — parse GCN từ TYPE B PDF.
        Extract: số GCN, BMBH, NĐBH, phí, thời hạn, sản phẩm.
        Acceptance: test với `GCN NGUYỄN ANH TÚ tái tục.pdf` → trả đủ 7 field.
 - [ ] 7.4. Update `mail/fetcher.py` để scan folder `Inbox\AutoFill\Incoming` thay vì `Inbox`.
