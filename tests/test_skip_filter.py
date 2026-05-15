@@ -144,3 +144,34 @@ class TestReview:
     def test_pdf_without_gcn_name(self) -> None:
         result = classify_mail_type("RE: xác nhận", "", ["hop_dong.pdf"])
         assert result == "review"
+
+
+# ── Priority ordering (MAIL_PATTERNS.md §4) ────────────────────────────────
+
+
+class TestPriority:
+    def test_p10_d_beats_p60_a_even_with_excel(self) -> None:
+        """TYPE D body overrides A even when Excel + TYPE A subject present."""
+        result = classify_mail_type(
+            "THÔNG TIN TÁI TỤC",
+            "Tổng: 10 / Trả phương án: 5 / Còn: 5",
+            ["data.xlsx"],
+        )
+        assert result == "D"
+
+    def test_p20_c_checked_before_p30_b(self) -> None:
+        """CHECK PHƯƠNG ÁN without Excel → C, even if GCN subject present."""
+        result = classify_mail_type("CHECK PHƯƠNG ÁN xác nhận", "", [])
+        assert result == "C"
+
+    def test_p40_bill_confirm_is_type_a(self) -> None:
+        result = classify_mail_type("Bill confirm", "", ["data.xlsx"])
+        assert result == "A"
+
+    def test_p40_phi_da_thanh_toan_is_type_a(self) -> None:
+        result = classify_mail_type("Phí đã thanh toán tháng 5", "", ["data.xlsx"])
+        assert result == "A"
+
+    def test_p50_thong_tin_cap_don_is_type_a(self) -> None:
+        result = classify_mail_type("Thông tin cấp đơn KH ABC", "", ["data.xlsx"])
+        assert result == "A"

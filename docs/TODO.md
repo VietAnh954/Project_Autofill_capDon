@@ -155,7 +155,7 @@
        - … (full list trong DATABASE.md §2.4)
 - [x] 7.9. Reader Excel "Sức khỏe" — support 3-row header (row 1 = nhóm merged, row 2 = chi tiết, row 3 = ghi chú).
 - [x] 7.10. Reader Excel — implement fill-down BMBH cho rows có cột BMBH trống nhưng cột NĐBH có data.
-- [ ] 7.11. Subject classifier — refine theo `MAIL_PATTERNS.md §4` (priority table 10–99).
+- [x] 7.11. Subject classifier — refine theo `MAIL_PATTERNS.md §4` (priority table 10–99).
 - [ ] 7.12. Test fixture từ 4 mail mẫu copy vào `tests/fixtures/example_mail/` (bỏ ảnh JPEG để giảm size).
 - [ ] 7.13. End-to-end test với 4 mail mẫu: 2 fill OK (mail2 + mail3 đối soát) + 1 review (mail1) + 1 đối soát (mail4).
 - [ ] 7.14. Update `site_docs/products.md` + `site_docs/how-it-works.md` với 5 TYPE mail và skip rules.
