@@ -19,8 +19,9 @@ Phase 7 — Task 7.2 (email_quote.py) kế tiếp.
 | 7.2 email_quote | `mapper/email_quote.py` | 14 passed | ✅ |
 | 7.3 gcn_pdf_reader | `reader/gcn_pdf_reader.py` | 16 passed | ✅ |
 | 7.4 fetcher + outlook folder | `mail/fetcher.py`, `outlook_client.py` | 20 passed | ✅ |
+| 7.5 folder_router | `mail/folder_router.py`, `outlook_client.py` | 14 passed | ✅ |
 
-**Full test suite: 508 passed**
+**Full test suite: 522 passed**
 
 ### Chi tiết 7.1:
 - `classify_mail_type(subject, body, attachments)` → 'A'/'B'/'C'/'D'/'review'

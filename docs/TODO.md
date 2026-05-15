@@ -137,7 +137,7 @@
        Acceptance: test với `GCN NGUYỄN ANH TÚ tái tục.pdf` → trả đủ 7 field.
 - [x] 7.4. Update `mail/fetcher.py` để scan folder `Inbox\AutoFill\Incoming` thay vì `Inbox`.
        Backward-compat: nếu folder không tồn tại → fallback Inbox + log warning.
-- [ ] 7.5. Tạo `src/auto_fill/mail/folder_router.py` — sau process, move mail sang folder đúng:
+- [x] 7.5. Tạo `src/auto_fill/mail/folder_router.py` — sau process, move mail sang folder đúng:
        - TYPE A/B OK → `Processed/<today>/`
        - TYPE A/B fail validate → `Needs_Review/`
        - TYPE C/review → `Needs_Review/`

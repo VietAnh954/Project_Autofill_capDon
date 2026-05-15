@@ -172,6 +172,24 @@ class OutlookClient:
             logger.error("move_failed", extra={"folder": folder_name}, exc_info=True)
             raise RuntimeError(f"Không di chuyển được mail: {exc}") from exc
 
+    def move_to_nested_folder(self, entry_id: str, folder_path: str) -> None:
+        """Di chuyển mail vào nested folder (vd "Processed/2026-05-16").
+
+        Tự tạo từng cấp folder nếu chưa có.
+        """
+        if self._outlook is None:
+            raise RuntimeError("Chưa connect().")
+        try:
+            namespace = self._outlook.GetNamespace("MAPI")
+            item = namespace.GetItemFromID(entry_id)
+            parent = self._inbox
+            for part in folder_path.replace("\\", "/").split("/"):
+                parent = _get_or_create_folder(parent, part)
+            item.Move(parent)
+        except Exception as exc:
+            logger.error("move_nested_failed", extra={"folder": folder_path}, exc_info=True)
+            raise RuntimeError(f"Không di chuyển được mail: {exc}") from exc
+
 
 # === Private helpers ===
 
