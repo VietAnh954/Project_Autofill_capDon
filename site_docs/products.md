@@ -71,3 +71,38 @@ Sản phẩm cụ thể có thêm field:
 - **HSSV:** `school`, `class_name`
 
 Đầy đủ: [MAPPING.md](https://github.com/VietAnh954/Project_Autofill_capDon/blob/main/docs/MAPPING.md).
+
+---
+
+## :material-email-multiple: 5 TYPE mail pipeline nhận (Phase 7)
+
+Pipeline phân loại từng mail đến thành một trong 5 TYPE trước khi xử lý:
+
+| TYPE | Tên | Hành động | Ví dụ subject |
+|:----:|-----|-----------|---------------|
+| **A** | Yêu cầu cấp đơn mới | Fill vào Excel tổng | `THÔNG TIN TÁI TỤC`, `Bill Ck`, `CẤP ĐƠN MỚI` |
+| **B** | GCN từ nhà BH | Parse PDF → đối soát | `[AFFINA - TCGIs] XÁC NHẬN PHƯƠNG ÁN` |
+| **C** | Thảo luận phương án | Skip → Needs_Review | `CHECK PHƯƠNG ÁN`, `Fwd: CHECK PHƯƠNG ÁN` |
+| **D** | Báo cáo tiến độ | Skip → Skipped | Body chứa `Tổng: X / Trả: Y / Còn: Z` |
+| **review** | Không rõ type | Chờ người dùng xử lý | Mọi trường hợp còn lại |
+
+### Luật ưu tiên (Priority 10–99)
+
+```
+P10  TYPE D — body báo cáo số liệu (ưu tiên cao nhất, kể cả khi có xlsx)
+P20  TYPE C — subject "CHECK PHƯƠNG ÁN" + không có Excel
+P30  TYPE B — tên file GCN*.pdf + subject xác nhận phương án
+P40  TYPE A — "Bill Ck" / "Bill confirm" / "Phí đã thanh toán" + có Excel
+P50  TYPE A — "THÔNG TIN TÁI TỤC" / "THÔNG TIN CẤP ĐƠN" + có Excel
+P60  TYPE A — "CẤP ĐƠN MỚI" / "GỬI ĐƠN" + có Excel
+P99  review — fallback mặc định
+```
+
+### Routing sau phân loại
+
+| Kết quả | Folder Outlook |
+|---------|---------------|
+| A/B xử lý OK | `AutoFill/Processed/<ngày>/` |
+| A/B lỗi validate | `AutoFill/Needs_Review/` |
+| C / review | `AutoFill/Needs_Review/` |
+| D | `AutoFill/Skipped/<ngày>/` |

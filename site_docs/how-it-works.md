@@ -33,7 +33,7 @@ sequenceDiagram
     CLI-->>U: summary (X mail, Y row, Z fail)
 ```
 
-## :material-layers-outline: 7 tầng xử lý
+## :material-layers-outline: 8 tầng xử lý
 
 ### :one: Mail Fetcher
 
@@ -63,7 +63,32 @@ sequenceDiagram
     - Extract table.
     - Nếu là PDF scan → OCR `pytesseract`.
 
-### :four: Classifier
+### :four: Mail Type Classifier (Phase 7)
+
+Trước khi đọc file, pipeline phân loại mail thành **5 TYPE** (MAIL_PATTERNS.md):
+
+```mermaid
+flowchart TD
+    A[Mail mới] --> B{Body chứa<br/>báo cáo tiến độ?}
+    B -- Yes --> D[TYPE D: SKIP]
+    B -- No --> C{Subject chứa<br/>CHECK PHƯƠNG ÁN?}
+    C -- Yes, no Excel --> CC[TYPE C: Needs_Review]
+    C -- No --> E{GCN PDF +<br/>XÁC NHẬN?}
+    E -- Yes --> B2[TYPE B: parse GCN]
+    E -- No --> F{Excel +<br/>TYPE A subject?}
+    F -- Yes --> A2[TYPE A: fill]
+    F -- No --> R[review]
+```
+
+| TYPE | Ý nghĩa | Hành động |
+|:----:|---------|-----------|
+| **A** | Yêu cầu cấp đơn (có Excel) | Đọc Excel → ghi vào sheet tổng |
+| **B** | GCN từ nhà BH (có PDF GCN) | Parse PDF → đối soát / lưu |
+| **C** | Thảo luận phương án (không có Excel) | Chuyển Needs_Review |
+| **D** | Báo cáo số liệu (body: Tổng/Trả/Còn) | Skip hoàn toàn |
+| **review** | Không xác định type | Chờ xử lý tay |
+
+### :five: Sheet Classifier
 
 Quyết định sheet đích theo PRIORITY:
 
@@ -74,7 +99,7 @@ Quyết định sheet đích theo PRIORITY:
 | 3 | Column signature | có `Biển số` + `Số chỗ ngồi` → Bao hiem oto |
 | 4 | Fallback | `data/failed/unclassified/` + log |
 
-### :five: Normalizer
+### :six: Normalizer
 
 | Field | Rule |
 |-------|------|
@@ -85,7 +110,7 @@ Quyết định sheet đích theo PRIORITY:
 | Họ tên | Collapse whitespace, giữ nguyên case |
 | Biển số | UPPERCASE, giữ `-` `.` |
 
-### :six: Validator + Dedup
+### :seven: Validator + Dedup
 
 - **Validator:** check required field theo từng sheet (xem [DATABASE.md](https://github.com/VietAnh954/Project_Autofill_capDon/blob/main/docs/DATABASE.md)).
 - **Dedup keys** (mỗi sheet 1 set):
@@ -101,7 +126,7 @@ HSSV:       (CCCD, Năm học)
 
 Trùng → đẩy `data/failed/duplicates/`, KHÔNG ghi.
 
-### :seven: Filler
+### :eight: Filler
 
 ```mermaid
 flowchart TB
