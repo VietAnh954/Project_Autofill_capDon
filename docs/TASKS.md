@@ -22,6 +22,7 @@ Phase 7 — Task 7.2 (email_quote.py) kế tiếp.
 | 7.5 folder_router | `mail/folder_router.py`, `outlook_client.py` | 14 passed | ✅ |
 | 7.6 processed_tracker | `mail/processed_tracker.py`, `mail/fetcher.py` | 10 passed | ✅ |
 | 7.7 outlook setup-folders CLI | `__main__.py`, `outlook_client.py` | CLI verified | ✅ |
+| 7.8 aliases.yaml Affina Care | `mapper/aliases.yaml` | 53 fields, loads OK | ✅ |
 
 **Full test suite: 532 passed**
 

@@ -30,6 +30,11 @@ insured_name:
   - "nguoi duoc bao hiem"
   - "full name"
   - "name"
+  # Affina Care template (row 3, mail2)
+  - "họ tên người được bh (*)"
+  - "ho ten nguoi duoc bh (*)"
+  - "họ tên "
+  - "ho ten "
 
 insured_dob:
   - "ngày sinh"
@@ -41,6 +46,10 @@ insured_dob:
   - "date of birth"
   - "năm sinh"
   - "nam sinh"
+  # Affina Care row 3
+  - "ngày sinh người được bh (*)"
+  - "ngay sinh nguoi duoc bh (*)"
+  - "ngày sinh người được bảo hiểm (*)"
 
 insured_gender:
   - "giới tính"
@@ -48,6 +57,10 @@ insured_gender:
   - "gt"
   - "gender"
   - "sex"
+  # Affina Care row 3
+  - "giới tính người được bh (*)"
+  - "gioi tinh nguoi duoc bh (*)"
+  - "giới tính "
 
 insured_id_number:
   - "cccd"
@@ -67,6 +80,10 @@ insured_id_number:
   - "hộ chiếu"
   - "so ho chieu"
   - "số hộ chiếu"
+  # Affina Care row 3
+  - "cccd người được bh (*)"
+  - "cccd nguoi duoc bh (*)"
+  - "cmnd/cccd"
 
 insured_passport:
   - "số hộ chiếu"
@@ -120,12 +137,20 @@ buyer_name:
   - "người mua"
   - "nguoi mua"
   - "policyholder"
+  # Affina Care row 3 (BMBH section)
+  - "tên người mua (*)"
+  - "ten nguoi mua (*)"
+  - "tên khách hàng"
+  - "ten khach hang"
 
 buyer_dob:
   - "ngày sinh bmbh"
   - "ngay sinh bmbh"
   - "ngày sinh bên mua"
   - "dob bmbh"
+  # Affina Care row 3
+  - "ngày sinh người mua (*)"
+  - "ngay sinh nguoi mua (*)"
 
 buyer_id_number:
   - "cccd bmbh"
@@ -133,12 +158,21 @@ buyer_id_number:
   - "cccd/cmnd bmbh"
   - "số cccd bmbh"
   - "giấy tờ bmbh"
+  # Affina Care row 3
+  - "cmnd người mua (*)"
+  - "cmnd nguoi mua (*)"
+  - "số cmnd"
+  - "so cmnd"
 
 buyer_phone:
   - "sdt bmbh"
   - "điện thoại bmbh"
   - "số điện thoại bmbh"
   - "phone bmbh"
+  # Affina Care row 3
+  - "số điện thoại người mua (*)"
+  - "so dien thoai nguoi mua (*)"
+  - "số điện thoại người mua(*)"
 
 buyer_relation:
   - "mối quan hệ"
@@ -148,6 +182,10 @@ buyer_relation:
   - "relationship"
   - "mqh"
   - "quan hệ bmbh ndbh"
+  # Affina Care row 3
+  - "quan hệ bmbh (*)"
+  - "quan he bmbh (*)"
+  - "quan hệ bmbh"
 
 # -----------------------------------------------------------------------
 # THÔNG TIN HỢP ĐỒNG / HIỆU LỰC
@@ -161,6 +199,10 @@ issued_date:
   - "ngày"
   - "issue date"
   - "date"
+  # Affina Care row 3
+  - "ngày update (*)"
+  - "ngay update (*)"
+  - "ngày ycbh"
 
 contract_number:
   - "số hợp đồng"
@@ -184,6 +226,11 @@ effective_from:
   - "hiệu lực từ"
   - "hieu luc tu"
   - "có hiệu lực từ"
+  # Affina Care row 3
+  - "ngày bắt đầu (*)"
+  - "ngay bat dau (*)"
+  - "ngày bắt đầu hiệu lực "
+  - "quyền lợi chính "
 
 effective_to:
   - "ngày hết hiệu lực"
@@ -222,6 +269,10 @@ plan:
   - "goi bao hiem"
   - "loại gói"
   - "package"
+  # Affina Care row 3
+  - "chương trình tham gia (*)"
+  - "chuong trinh tham gia (*)"
+  - "chương trình bảo hiểm"
 
 scope:
   - "phạm vi"
@@ -428,3 +479,54 @@ source_attachment:
   - "file đính kèm"
   - "attachment"
   - "file gốc"
+
+# -----------------------------------------------------------------------
+# AFFINA CARE — các field đặc thù (từ template mail2)
+# -----------------------------------------------------------------------
+
+previous_contract_number:
+  - "số gcn/hđ cũ (*)"
+  - "so gcn/hd cu (*)"
+  - "số gcn/hđ cũ"
+  - "so gcn/hd cu"
+  - "số hợp đồng cũ"
+  - "hợp đồng cũ"
+  - "số gcn cũ"
+
+previous_insurer:
+  - "nhà bảo hiểm cũ (*)"
+  - "nha bao hiem cu (*)"
+  - "nhà bảo hiểm cũ"
+  - "nha bao hiem cu"
+  - "bảo hiểm cũ"
+
+buyer_email:
+  - "email người mua (*)"
+  - "email nguoi mua (*)"
+  - "email bmbh"
+  - "email người mua"
+
+buyer_address:
+  - "địa chỉ (*)"
+  - "dia chi (*)"
+  - "địa chỉ bmbh"
+  - "address"
+
+product_name:
+  - "sản phẩm"
+  - "san pham"
+  - "tên sản phẩm"
+  - "product name"
+  - "product"
+
+sales_channel:
+  - "channel"
+  - "kênh"
+  - "kenh"
+  - "kênh bán"
+
+payment_date:
+  - "ngày thanh toán"
+  - "ngay thanh toan"
+  - "ngày thanh toán phí"
+  - "payment date"

@@ -145,7 +145,7 @@
 - [x] 7.6. Tạo `data/state/processed_mail_ids.txt` tracker + integrate vào fetcher (lớp 2 anti-double).
        Acceptance: chạy `run` 2 lần liên tiếp → lần 2 process 0 mail.
 - [x] 7.7. CLI mới: `python -m auto_fill outlook setup-folders` — auto tạo 4 folder con của AutoFill.
-- [ ] 7.8. Update aliases.yaml với header thực từ Excel mail2 (Affina Care template):
+- [x] 7.8. Update aliases.yaml với header thực từ Excel mail2 (Affina Care template):
        - `"tên người mua (*)"` → `buyer_name`
        - `"cmnd người mua (*)"` → `buyer_id_number`
        - `"họ tên người được bh (*)"` → `insured_name`
