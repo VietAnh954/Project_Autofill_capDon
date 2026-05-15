@@ -8,7 +8,12 @@ import openpyxl
 import pandas as pd
 import pytest
 
-from auto_fill.reader.excel_reader import _build_rename_map, _detect_header_row, read_excel
+from auto_fill.reader.excel_reader import (
+    _build_rename_map,
+    _detect_header_row,
+    _filldown_buyer,
+    read_excel,
+)
 from auto_fill.utils.errors import ReaderError
 
 ALIASES: dict[str, list[str]] = {
@@ -162,6 +167,49 @@ class TestDetectHeaderRow:
             ]
         )
         assert _detect_header_row(df) == 0
+
+
+@pytest.fixture
+def buyer_filldown_xlsx(tmp_path: Path) -> Path:
+    """Excel with 1 BMBH row + 2 NĐBH rows (buyer cols empty on row 2)."""
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.append(["buyer_name", "buyer_id_number", "insured_name"])
+    ws.append(["Nguyễn Thị A", "123456789012", "Con 1"])
+    ws.append([None, None, "Con 2"])
+    dest = tmp_path / "filldown.xlsx"
+    wb.save(dest)
+    return dest
+
+
+class TestFilldownBuyer:
+    def test_filldown_propagates_buyer_name(self, buyer_filldown_xlsx: Path) -> None:
+        df = read_excel(buyer_filldown_xlsx, {})
+        assert df.iloc[1]["buyer_name"] == "Nguyễn Thị A"
+
+    def test_filldown_propagates_buyer_id(self, buyer_filldown_xlsx: Path) -> None:
+        df = read_excel(buyer_filldown_xlsx, {})
+        assert df.iloc[1]["buyer_id_number"] == "123456789012"
+
+    def test_filldown_does_not_overwrite_existing_value(self) -> None:
+        df = pd.DataFrame(
+            {
+                "buyer_name": ["Alice", "Bob"],
+                "insured_name": ["X", "Y"],
+            }
+        )
+        result = _filldown_buyer(df)
+        assert result.iloc[1]["buyer_name"] == "Bob"
+
+    def test_filldown_skips_missing_buyer_cols(self) -> None:
+        df = pd.DataFrame({"insured_name": ["X", "Y"]})
+        result = _filldown_buyer(df)
+        assert list(result.columns) == ["insured_name"]
+
+    def test_filldown_replaces_empty_string(self) -> None:
+        df = pd.DataFrame({"buyer_name": ["Alice", ""], "insured_name": ["X", "Y"]})
+        result = _filldown_buyer(df)
+        assert result.iloc[1]["buyer_name"] == "Alice"
 
 
 class TestBuildRenameMap:

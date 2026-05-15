@@ -21,6 +21,19 @@ _MIN_FUZZY_RATIO = 85  # nguong fuzzy match (0-100)
 _MAX_HEADER_SCAN_ROWS = 10  # quét tối đa 10 hàng đầu tìm header
 _DATA_ROW_NUMERIC_RATIO = 0.20  # >20% cells numeric → data row (not header)
 
+# Buyer (BMBH) canonical columns that should be forward-filled when empty
+_BUYER_FILLDOWN_COLS = frozenset(
+    {
+        "buyer_name",
+        "buyer_id_number",
+        "buyer_dob",
+        "buyer_phone",
+        "buyer_email",
+        "buyer_address",
+        "buyer_relation",
+    }
+)
+
 
 def read_excel(
     path: Path,
@@ -66,6 +79,7 @@ def read_excel(
 
     rename_map = _build_rename_map(headers, aliases)
     data_df = data_df.rename(columns=rename_map)
+    data_df = _filldown_buyer(data_df)
 
     logger.info(
         "excel_read_ok",
@@ -77,6 +91,22 @@ def read_excel(
         },
     )
     return data_df
+
+
+def _filldown_buyer(df: pd.DataFrame) -> pd.DataFrame:
+    """Forward-fill BMBH columns when buyer cells are empty but insured row has data.
+
+    Common pattern: 1 BMBH buys insurance for multiple NĐBH — Excel has buyer
+    info only on the first row for each group, leaving subsequent rows blank.
+    """
+    cols = [c for c in _BUYER_FILLDOWN_COLS if c in df.columns]
+    if not cols:
+        return df
+    df = df.copy()
+    # Treat empty strings as missing so ffill propagates correctly
+    df[cols] = df[cols].replace("", pd.NA).replace("nan", pd.NA)
+    df[cols] = df[cols].ffill()
+    return df
 
 
 def _detect_header_row(df: pd.DataFrame) -> int:
