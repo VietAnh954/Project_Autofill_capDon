@@ -535,5 +535,46 @@ def gui_cmd() -> None:
     _gui_main()
 
 
+@cli.group("outlook")
+def outlook_group() -> None:
+    """Lenh quan ly Outlook folders va cai dat."""
+
+
+@outlook_group.command("setup-folders")
+@click.pass_context
+def outlook_setup_folders(ctx: click.Context) -> None:
+    """Auto tao 4 folder con cua AutoFill trong Outlook Inbox.
+
+    Tao cau truc:
+      Inbox/AutoFill/Incoming     <- mail cho xu ly
+      Inbox/AutoFill/Processed    <- da xu ly OK (subfolder theo ngay tao tu dong)
+      Inbox/AutoFill/Needs_Review <- can kiem tra tay
+      Inbox/AutoFill/Skipped      <- bo qua (TYPE D / sender la)
+
+    Vi du: python -m auto_fill outlook setup-folders
+    """
+    from auto_fill.config.settings import Settings
+    from auto_fill.mail.outlook_client import OutlookClient
+
+    settings: Settings = ctx.obj["settings"]
+    client = OutlookClient(profile=settings.outlook_profile)
+    try:
+        client.connect()
+    except Exception as exc:
+        click.echo(f"[outlook] Khong ket noi duoc Outlook: {exc}", err=True)
+        sys.exit(1)
+
+    folders_to_create = [
+        "AutoFill/Incoming",
+        "AutoFill/Processed",
+        "AutoFill/Needs_Review",
+        "AutoFill/Skipped",
+    ]
+    created = client.ensure_folder_structure(folders_to_create)
+    for path in created:
+        click.echo(f"[ok] Inbox/{path}")
+    click.echo(f"[done] {len(created)}/{len(folders_to_create)} folders san sang.")
+
+
 if __name__ == "__main__":
     cli()

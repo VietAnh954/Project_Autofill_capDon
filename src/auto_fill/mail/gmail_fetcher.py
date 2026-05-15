@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import base64
 import email
+import email.utils
 import logging
 import re
 from collections.abc import Iterator
@@ -140,7 +141,8 @@ def _extract_email(from_header: str) -> str:
 
 def _parse_date(date_str: str) -> datetime:
     try:
-        return email.utils.parsedate_to_datetime(date_str)
+        result = email.utils.parsedate_to_datetime(date_str)
+        return result
     except Exception:
         return datetime.now()
 

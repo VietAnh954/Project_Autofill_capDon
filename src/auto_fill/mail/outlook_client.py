@@ -172,6 +172,31 @@ class OutlookClient:
             logger.error("move_failed", extra={"folder": folder_name}, exc_info=True)
             raise RuntimeError(f"Không di chuyển được mail: {exc}") from exc
 
+    def ensure_folder_structure(self, folder_paths: list[str]) -> list[str]:
+        """Create nested folders relative to inbox if they don't already exist.
+
+        Args:
+            folder_paths: List of "/" or "\\" separated paths, e.g.
+                ["AutoFill/Incoming", "AutoFill/Processed", "AutoFill/Needs_Review"].
+
+        Returns:
+            List of folder paths that were successfully created or already existed.
+        """
+        if self._inbox is None:
+            raise RuntimeError("Chưa connect().")
+        created: list[str] = []
+        for path in folder_paths:
+            parent = self._inbox
+            parts = path.replace("\\", "/").split("/")
+            try:
+                for part in parts:
+                    parent = _get_or_create_folder(parent, part)
+                created.append(path)
+                logger.info("folder_ensured", extra={"path": path})
+            except Exception:
+                logger.error("folder_ensure_failed", extra={"path": path}, exc_info=True)
+        return created
+
     def move_to_nested_folder(self, entry_id: str, folder_path: str) -> None:
         """Di chuyển mail vào nested folder (vd "Processed/2026-05-16").
 
