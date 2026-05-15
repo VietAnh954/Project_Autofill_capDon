@@ -40,6 +40,7 @@ data/master/*.xlsx
 *.xlsm
 # nhưng giữ fixtures cho test
 !tests/fixtures/*.xlsx
+!tests/fixtures/**/*.xlsx
 
 # Logs
 logs/*
