@@ -7,7 +7,23 @@
 
 ## Đang làm
 
-(Phase 6 hoàn thành — 6.1–6.12 done, tag v0.6.0 pushed)
+Phase 7 — Task 7.2 (email_quote.py) kế tiếp.
+
+---
+
+## Session Summary — 2026-05-16 (Phase 7: Mail Pattern Refinement)
+
+| Task | File chính | Tests | Trạng thái |
+|------|-----------|-------|-----------|
+| 7.1 skip_filter | `mapper/skip_filter.py` | 22 passed | ✅ |
+
+**Full test suite: 474 passed**
+
+### Chi tiết 7.1:
+- `classify_mail_type(subject, body, attachments)` → 'A'/'B'/'C'/'D'/'review'
+- Priority: D (body status report) > B (GCN PDF) > A (Excel + subject) > C (CHECK PHƯƠNG ÁN, no excel) > review
+- Fix regex Unicode: `c[áaấ]p`, `m[ơớo]i` để match full diacritics như "Cấp đơn mới"
+- 4 mail mẫu pass đúng: mail1=C, mail2=A, mail3=B, mail4=B
 
 ---
 

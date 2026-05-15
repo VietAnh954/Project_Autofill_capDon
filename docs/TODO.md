@@ -123,6 +123,46 @@
 
 ---
 
+## Phase 7 — Mail Pattern Refinement (từ mẫu thực tế)
+
+> Phát sinh sau khi user gửi `example_mail/mail1..mail4`. Xem `docs/MAIL_PATTERNS.md` cho 5 TYPE.
+> Mục tiêu: pipeline đọc mail thực tế của Việt Anh / Affina mà không nhầm lẫn mail báo cáo / mail check phương án với mail cấp đơn.
+
+- [x] 7.1. Tạo `src/auto_fill/mapper/skip_filter.py` — `classify_mail_type()` trả về A/B/C/D/E/review theo `MAIL_PATTERNS.md §6`.
+       Acceptance: 4 mail mẫu trả đúng type (mail1=C, mail2=A, mail3=B, mail4=B).
+- [ ] 7.2. Tạo `src/auto_fill/mapper/email_quote.py` — strip nested reply quotes, chỉ lấy top-level body.
+       Acceptance: unit test với mail3 (5 reply lồng) → body chỉ ~10 dòng đầu của Lien (TCGI).
+- [ ] 7.3. Tạo `src/auto_fill/reader/gcn_pdf_reader.py` — parse GCN từ TYPE B PDF.
+       Extract: số GCN, BMBH, NĐBH, phí, thời hạn, sản phẩm.
+       Acceptance: test với `GCN NGUYỄN ANH TÚ tái tục.pdf` → trả đủ 7 field.
+- [ ] 7.4. Update `mail/fetcher.py` để scan folder `Inbox\AutoFill\Incoming` thay vì `Inbox`.
+       Backward-compat: nếu folder không tồn tại → fallback Inbox + log warning.
+- [ ] 7.5. Tạo `src/auto_fill/mail/folder_router.py` — sau process, move mail sang folder đúng:
+       - TYPE A/B OK → `Processed/<today>/`
+       - TYPE A/B fail validate → `Needs_Review/`
+       - TYPE C/review → `Needs_Review/`
+       - TYPE D → `Skipped/<today>/`
+- [ ] 7.6. Tạo `data/state/processed_mail_ids.txt` tracker + integrate vào fetcher (lớp 2 anti-double).
+       Acceptance: chạy `run` 2 lần liên tiếp → lần 2 process 0 mail.
+- [ ] 7.7. CLI mới: `python -m auto_fill outlook setup-folders` — auto tạo 4 folder con của AutoFill.
+- [ ] 7.8. Update aliases.yaml với header thực từ Excel mail2 (Affina Care template):
+       - `"tên người mua (*)"` → `buyer_name`
+       - `"cmnd người mua (*)"` → `buyer_id_number`
+       - `"họ tên người được bh (*)"` → `insured_name`
+       - `"cccd người được bh (*)"` → `insured_id_number`
+       - `"chương trình tham gia (*)"` → `plan`
+       - `"số gcn/hđ cũ (*)"` → `previous_contract_number`
+       - … (full list trong DATABASE.md §2.4)
+- [ ] 7.9. Reader Excel "Sức khỏe" — support 3-row header (row 1 = nhóm merged, row 2 = chi tiết, row 3 = ghi chú).
+- [ ] 7.10. Reader Excel — implement fill-down BMBH cho rows có cột BMBH trống nhưng cột NĐBH có data.
+- [ ] 7.11. Subject classifier — refine theo `MAIL_PATTERNS.md §4` (priority table 10–99).
+- [ ] 7.12. Test fixture từ 4 mail mẫu copy vào `tests/fixtures/example_mail/` (bỏ ảnh JPEG để giảm size).
+- [ ] 7.13. End-to-end test với 4 mail mẫu: 2 fill OK (mail2 + mail3 đối soát) + 1 review (mail1) + 1 đối soát (mail4).
+- [ ] 7.14. Update `site_docs/products.md` + `site_docs/how-it-works.md` với 5 TYPE mail và skip rules.
+- [ ] 7.15. Tag `v0.7.0-mail-refinement`.
+
+---
+
 ## Backlog (chưa ưu tiên)
 
 - [ ] Multi-tenant nếu mở rộng cho nhiều phòng ban.
