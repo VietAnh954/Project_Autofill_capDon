@@ -7,7 +7,7 @@
 
 ## Đang làm
 
-Phase 7 — Task 7.2 (email_quote.py) kế tiếp.
+Phase 7 — Task 7.10 kế tiếp (fill-down BMBH).
 
 ---
 
@@ -23,8 +23,16 @@ Phase 7 — Task 7.2 (email_quote.py) kế tiếp.
 | 7.6 processed_tracker | `mail/processed_tracker.py`, `mail/fetcher.py` | 10 passed | ✅ |
 | 7.7 outlook setup-folders CLI | `__main__.py`, `outlook_client.py` | CLI verified | ✅ |
 | 7.8 aliases.yaml Affina Care | `mapper/aliases.yaml` | 53 fields, loads OK | ✅ |
+| 7.9 3-row header + normalize | `reader/excel_reader.py` | 532 passed | ✅ |
 
 **Full test suite: 532 passed**
+
+### Chi tiết 7.9:
+- Added `header_row: int | None = None` param to `read_excel()` for explicit override
+- Added `_normalize_header(raw: str)` — collapses newlines/tabs to single space
+- Added `_DATA_ROW_NUMERIC_RATIO = 0.20` constant (lowered from 0.30)
+- Rewrote `_detect_header_row()`: numeric-cell ratio >20% → data row; header block = contiguous non-data rows from row 0; returns last row of block
+- Verified: Affina Care mail2 Excel (3-row merged header) auto-detects row 2 as header → canonical columns OK
 
 ### Chi tiết 7.1:
 - `classify_mail_type(subject, body, attachments)` → 'A'/'B'/'C'/'D'/'review'

@@ -19,20 +19,23 @@ logger = logging.getLogger(__name__)
 
 _MIN_FUZZY_RATIO = 85  # nguong fuzzy match (0-100)
 _MAX_HEADER_SCAN_ROWS = 10  # quét tối đa 10 hàng đầu tìm header
+_DATA_ROW_NUMERIC_RATIO = 0.20  # >20% cells numeric → data row (not header)
 
 
 def read_excel(
     path: Path,
     aliases: dict[str, list[str]],
     sheet_name: int | str = 0,
+    header_row: int | None = None,
 ) -> pd.DataFrame:
     """Đọc 1 file Excel attachment, trả về DataFrame với cột canonical.
 
     Args:
         path: Đường dẫn tới file .xlsx / .xls trong data/inbox/.
-        aliases: Dict mapping canonical_name → list[alias]. Ví dụ:
-                 {"insured_name": ["họ tên", "ho va ten", ...]}.
+        aliases: Dict mapping canonical_name → list[alias].
         sheet_name: Tên hoặc index sheet cần đọc (mặc định sheet đầu tiên).
+        header_row: 0-indexed row number to use as header. None = auto-detect.
+            Useful for known formats (e.g., Affina Care 3-row header → pass 2).
 
     Returns:
         DataFrame với cột theo canonical schema (MAPPING.md §2).
@@ -53,10 +56,10 @@ def read_excel(
     if raw_df.empty:
         raise ReaderError(f"File {path.name} không có dữ liệu.")
 
-    header_row_idx = _detect_header_row(raw_df)
+    header_row_idx = header_row if header_row is not None else _detect_header_row(raw_df)
     logger.debug("header_detected", extra={"file": path.name, "row": header_row_idx})
 
-    headers = [str(v).strip() for v in raw_df.iloc[header_row_idx]]
+    headers = [_normalize_header(str(v)) for v in raw_df.iloc[header_row_idx]]
     data_df = raw_df.iloc[header_row_idx + 1 :].copy()
     data_df.columns = pd.Index(headers)
     data_df = data_df.dropna(how="all").reset_index(drop=True)
@@ -77,30 +80,74 @@ def read_excel(
 
 
 def _detect_header_row(df: pd.DataFrame) -> int:
-    """Trả về index hàng header trong DataFrame (raw, không có cột tên).
+    """Trả về index hàng header trong DataFrame.
 
-    Heuristic: hàng đầu có nhiều cell text nhất (và ít NaN nhất)
-    trong _MAX_HEADER_SCAN_ROWS hàng đầu.
+    Heuristic:
+    1. Đánh dấu mỗi hàng là "data" hay "header-like" dựa vào tỉ lệ cell numeric.
+       Nếu >30% cell có thể parse thành float → data row.
+    2. Tìm khối hàng liên tiếp không phải data bắt đầu từ row 0 → header block.
+    3. Nếu block có 2+ hàng (Affina Care 3-row header), trả về hàng CUỐI block.
+    4. Nếu block chỉ có 1 hàng → trả về hàng đó.
+    5. Fallback: trả về hàng có score text cao nhất.
 
     Raises:
         ReaderError: Nếu không tìm được hàng hợp lệ.
     """
     scan_limit = min(_MAX_HEADER_SCAN_ROWS, len(df))
-    best_row = 0
-    best_score = -1
+
+    scores: list[int] = []
+    is_data_row: list[bool] = []
 
     for i in range(scan_limit):
-        row_values = df.iloc[i]
-        non_null = row_values.notna().sum()
-        text_count = sum(1 for v in row_values if isinstance(v, str) and v.strip())
-        score = text_count * 2 + non_null  # ưu tiên text cells
-        if score > best_score:
-            best_score = score
-            best_row = i
+        row = df.iloc[i]
+        non_null = int(row.notna().sum())
+        text_count = sum(1 for v in row if isinstance(v, str) and v.strip())
+        scores.append(text_count * 2 + non_null)
 
-    if best_score <= 0:
+        # A row is "data" if >30% of its filled cells parse as float
+        numeric_count = 0
+        filled_count = max(1, non_null)
+        for v in row:
+            if isinstance(v, str) and v.strip():
+                try:
+                    float(v.replace(",", "."))
+                    numeric_count += 1
+                except ValueError:
+                    pass
+        is_data_row.append(numeric_count / filled_count > _DATA_ROW_NUMERIC_RATIO)
+
+    if not scores or max(scores) <= 0:
         raise ReaderError("Không tìm được hàng header hợp lệ trong file.")
-    return best_row
+
+    # Build header block: contiguous non-data rows starting at row 0
+    header_block_end = -1
+    for i in range(scan_limit):
+        if not is_data_row[i]:
+            header_block_end = i
+        else:
+            break  # first data row found — stop block
+
+    if header_block_end >= 0 and not is_data_row[header_block_end]:
+        return header_block_end
+
+    # Fallback: best-scoring row
+    return scores.index(max(scores))
+
+
+def _normalize_header(raw: str) -> str:
+    """Normalize a cell value for use as column header.
+
+    - Strips outer whitespace
+    - Replaces newlines / tabs with a single space
+    - Collapses multiple spaces
+    - Removes zero-width characters
+    """
+    import re as _re
+
+    cleaned = raw.replace("\n", " ").replace("\r", " ").replace("\t", " ")
+    cleaned = _re.sub(r"\s{2,}", " ", cleaned)
+    cleaned = cleaned.strip()
+    return cleaned
 
 
 def _build_rename_map(
