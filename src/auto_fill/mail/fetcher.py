@@ -11,6 +11,7 @@ import re
 from collections.abc import Iterator
 
 from auto_fill.mail.outlook_client import MailMessage, OutlookClient
+from auto_fill.mail.processed_tracker import ProcessedTracker
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +34,13 @@ class MailFetcher:
         sender_allowlist: set[str],
         subject_pattern: str,
         target_folder: str | None = "AutoFill/Incoming",
+        tracker: ProcessedTracker | None = None,
     ) -> None:
         self._client = client
         self._sender_allowlist = sender_allowlist
         self._subject_re = re.compile(subject_pattern, re.IGNORECASE)
         self._target_folder = target_folder
+        self._tracker = tracker or ProcessedTracker()
 
     def fetch_matching(self) -> Iterator[MailMessage]:
         """Yield từng mail chưa đọc khớp với sender allowlist và subject pattern.
@@ -53,6 +56,12 @@ class MailFetcher:
         folder = self._client.resolve_folder(self._target_folder)
         for msg in self._client.iter_unread(folder=folder):
             total += 1
+            if self._tracker.is_processed(msg.entry_id):
+                logger.debug(
+                    "skip_already_processed",
+                    extra={"entry_id": msg.entry_id[:8], "subject": msg.subject[:40]},
+                )
+                continue
             if not self._is_sender_allowed(msg.sender_email):
                 logger.debug(
                     "skip_sender",
