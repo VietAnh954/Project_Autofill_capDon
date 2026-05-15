@@ -130,7 +130,7 @@
 
 - [x] 7.1. Tạo `src/auto_fill/mapper/skip_filter.py` — `classify_mail_type()` trả về A/B/C/D/E/review theo `MAIL_PATTERNS.md §6`.
        Acceptance: 4 mail mẫu trả đúng type (mail1=C, mail2=A, mail3=B, mail4=B).
-- [ ] 7.2. Tạo `src/auto_fill/mapper/email_quote.py` — strip nested reply quotes, chỉ lấy top-level body.
+- [x] 7.2. Tạo `src/auto_fill/mapper/email_quote.py` — strip nested reply quotes, chỉ lấy top-level body.
        Acceptance: unit test với mail3 (5 reply lồng) → body chỉ ~10 dòng đầu của Lien (TCGI).
 - [ ] 7.3. Tạo `src/auto_fill/reader/gcn_pdf_reader.py` — parse GCN từ TYPE B PDF.
        Extract: số GCN, BMBH, NĐBH, phí, thời hạn, sản phẩm.

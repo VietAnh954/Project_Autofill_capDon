@@ -16,8 +16,9 @@ Phase 7 — Task 7.2 (email_quote.py) kế tiếp.
 | Task | File chính | Tests | Trạng thái |
 |------|-----------|-------|-----------|
 | 7.1 skip_filter | `mapper/skip_filter.py` | 22 passed | ✅ |
+| 7.2 email_quote | `mapper/email_quote.py` | 14 passed | ✅ |
 
-**Full test suite: 474 passed**
+**Full test suite: 488 passed**
 
 ### Chi tiết 7.1:
 - `classify_mail_type(subject, body, attachments)` → 'A'/'B'/'C'/'D'/'review'
