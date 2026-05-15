@@ -7,7 +7,7 @@
 
 ## Đang làm
 
-Phase 7 — Task 7.10 kế tiếp (fill-down BMBH).
+(Phase 7 hoàn thành — 7.1–7.15 done, tag v0.7.0-mail-refinement pushed)
 
 ---
 

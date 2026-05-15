@@ -159,7 +159,7 @@
 - [x] 7.12. Test fixture từ 4 mail mẫu copy vào `tests/fixtures/example_mail/` (bỏ ảnh JPEG để giảm size).
 - [x] 7.13. End-to-end test với 4 mail mẫu: 2 fill OK (mail2 + mail3 đối soát) + 1 review (mail1) + 1 đối soát (mail4).
 - [x] 7.14. Update `site_docs/products.md` + `site_docs/how-it-works.md` với 5 TYPE mail và skip rules.
-- [ ] 7.15. Tag `v0.7.0-mail-refinement`.
+- [x] 7.15. Tag `v0.7.0-mail-refinement`.
 
 ---
 
