@@ -22,6 +22,9 @@ class MailFetcher:
         client: OutlookClient đã connect().
         sender_allowlist: Set email được phép (lowercase). Rỗng = chấp nhận tất cả.
         subject_pattern: Regex pattern để lọc subject.
+        target_folder: Subfolder path relative to inbox to scan.
+            Defaults to "AutoFill/Incoming". Falls back to inbox if not found.
+            Pass None to scan default inbox directly.
     """
 
     def __init__(
@@ -29,20 +32,26 @@ class MailFetcher:
         client: OutlookClient,
         sender_allowlist: set[str],
         subject_pattern: str,
+        target_folder: str | None = "AutoFill/Incoming",
     ) -> None:
         self._client = client
         self._sender_allowlist = sender_allowlist
         self._subject_re = re.compile(subject_pattern, re.IGNORECASE)
+        self._target_folder = target_folder
 
     def fetch_matching(self) -> Iterator[MailMessage]:
         """Yield từng mail chưa đọc khớp với sender allowlist và subject pattern.
+
+        Scans AutoFill/Incoming subfolder; falls back to default inbox when the
+        subfolder does not exist (logged as warning by OutlookClient).
 
         Yields:
             MailMessage khớp cả 2 điều kiện filter.
         """
         total = 0
         matched = 0
-        for msg in self._client.iter_unread():
+        folder = self._client.resolve_folder(self._target_folder)
+        for msg in self._client.iter_unread(folder=folder):
             total += 1
             if not self._is_sender_allowed(msg.sender_email):
                 logger.debug(

@@ -97,8 +97,37 @@ class OutlookClient:
                 logger.warning("skip_mail_item", extra={"index": i}, exc_info=True)
         return messages
 
-    def iter_unread(self) -> Iterator[MailMessage]:
-        """Yield từng mail chưa đọc trong inbox.
+    def resolve_folder(self, relative_path: str | None = None) -> Any:
+        """Return the Outlook folder to scan.
+
+        Navigates relative_path as subfolder names separated by "/" or "\\"
+        relative to the default inbox. Falls back to inbox with a warning when
+        any segment is not found.
+
+        Args:
+            relative_path: e.g. "AutoFill/Incoming". None → default inbox.
+        """
+        if self._inbox is None:
+            raise RuntimeError("Chưa connect().")
+        if not relative_path:
+            return self._inbox
+        folder: Any = self._inbox
+        for part in relative_path.replace("\\", "/").split("/"):
+            try:
+                folder = folder.Folders[part]
+            except Exception:
+                logger.warning(
+                    "target_folder_not_found_fallback",
+                    extra={"path": relative_path, "missing_part": part},
+                )
+                return self._inbox
+        return folder
+
+    def iter_unread(self, folder: Any | None = None) -> Iterator[MailMessage]:
+        """Yield từng mail chưa đọc trong `folder` (mặc định: inbox).
+
+        Args:
+            folder: Outlook folder COM object. None → use default inbox.
 
         Raises:
             RuntimeError: nếu chưa gọi connect().
@@ -106,7 +135,8 @@ class OutlookClient:
         if self._inbox is None:
             raise RuntimeError("Chưa connect(). Gọi OutlookClient.connect() trước.")
 
-        items = self._inbox.Items
+        target = folder if folder is not None else self._inbox
+        items = target.Items
         items.Sort("[ReceivedTime]", Descending=True)
         unread_items = items.Restrict("[Unread]=True")
 

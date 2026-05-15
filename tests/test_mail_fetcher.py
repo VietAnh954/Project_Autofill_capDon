@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from datetime import datetime
+from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -28,10 +29,11 @@ def _mock_client(messages: list[MailMessage]) -> OutlookClient:
     """OutlookClient mock — iter_unread yields given messages."""
     client = MagicMock(spec=OutlookClient)
 
-    def _iter() -> Iterator[MailMessage]:
+    def _iter(folder: object = None) -> Iterator[MailMessage]:
         yield from messages
 
-    client.iter_unread.side_effect = lambda: _iter()
+    client.iter_unread.side_effect = _iter
+    cast(MagicMock, client.resolve_folder).return_value = MagicMock()  # dummy folder object
     return client
 
 
@@ -113,3 +115,30 @@ class TestMixedMessages:
         result = list(fetcher.fetch_matching())
         assert result[0].entry_id == match1.entry_id
         assert result[1].entry_id == match2.entry_id
+
+
+class TestTargetFolder:
+    def test_default_target_folder_is_autofill_incoming(self) -> None:
+        client = _mock_client([])
+        fetcher = MailFetcher(client, ALLOWED, SUBJECT_PATTERN)
+        assert fetcher._target_folder == "AutoFill/Incoming"
+
+    def test_resolve_folder_called_with_target(self) -> None:
+        client = _mock_client([])
+        fetcher = MailFetcher(client, ALLOWED, SUBJECT_PATTERN, target_folder="AutoFill/Incoming")
+        list(fetcher.fetch_matching())
+        cast(MagicMock, client.resolve_folder).assert_called_once_with("AutoFill/Incoming")
+
+    def test_iter_unread_receives_resolved_folder(self) -> None:
+        dummy_folder = MagicMock()
+        client = _mock_client([])
+        cast(MagicMock, client.resolve_folder).return_value = dummy_folder
+        fetcher = MailFetcher(client, ALLOWED, SUBJECT_PATTERN)
+        list(fetcher.fetch_matching())
+        cast(MagicMock, client.iter_unread).assert_called_once_with(folder=dummy_folder)
+
+    def test_none_target_folder_passes_none_to_resolve(self) -> None:
+        client = _mock_client([])
+        fetcher = MailFetcher(client, ALLOWED, SUBJECT_PATTERN, target_folder=None)
+        list(fetcher.fetch_matching())
+        cast(MagicMock, client.resolve_folder).assert_called_once_with(None)
