@@ -42,6 +42,14 @@ class Settings(BaseSettings):
     # --- Sender ---
     sender_allowlist: str = ""  # comma-separated, parse trong property
 
+    # --- Sender → sheet hints (tuy chon, uu tien cao hon subject keyword) ---
+    sender_dulich: str = ""
+    sender_suckhoe: str = ""
+    sender_oto: str = ""
+    sender_xemay: str = ""
+    sender_bhyt: str = ""
+    sender_hssv: str = ""
+
     # --- Subject filter ---
     subject_pattern: str = r"(?i)c[aâấ]p\s*[đd][oơô]n|phi[eếề]u\s*c[aâấ]p"
 
@@ -76,6 +84,22 @@ class Settings(BaseSettings):
     def sender_allowlist_set(self) -> set[str]:
         """Trả về set các email allowed (lowercased)."""
         return {s.strip().lower() for s in self.sender_allowlist.split(",") if s.strip()}
+
+    @property
+    def sender_hints(self) -> dict[str, str]:
+        """Trả về dict {email_lowercase: sheet_alias} từ SENDER_* trong .env.
+
+        Alias phải khớp với SHEET_REGISTRY (travel/health/auto/motorbike/bhyt_bhxh/student).
+        """
+        mapping = {
+            "travel": self.sender_dulich,
+            "health": self.sender_suckhoe,
+            "auto": self.sender_oto,
+            "motorbike": self.sender_xemay,
+            "bhyt_bhxh": self.sender_bhyt,
+            "student": self.sender_hssv,
+        }
+        return {email.strip().lower(): alias for alias, email in mapping.items() if email.strip()}
 
 
 # Singleton — import: `from auto_fill.config.settings import settings`

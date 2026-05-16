@@ -62,7 +62,7 @@ def run_pipeline_once() -> None:
 
         for mail in fetcher.fetch_matching():
             any_mail = True
-            ns = client._namespace  # type: ignore[attr-defined]
+            ns = client._namespace
             inbox_dir = settings.data_root / "inbox"
             inbox_dir.mkdir(parents=True, exist_ok=True)
             paths = download_attachments(mail, inbox_dir, ns, settings.max_attachment_mb)

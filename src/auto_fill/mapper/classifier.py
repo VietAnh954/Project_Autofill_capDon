@@ -17,9 +17,15 @@ from auto_fill.utils.errors import ClassifierError
 logger = logging.getLogger(__name__)
 
 # --- Subject keyword rules (MAPPING §5) ---
+# Thứ tự quan trọng: rule cụ thể hơn đứng trước rule chung hơn.
 _SUBJECT_RULES: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"du\s*l[iị]ch|travel", re.IGNORECASE), "travel"),
     (re.compile(r"s[uứ]c\s*kh[oỏôõò]e|health|sk\b", re.IGNORECASE), "health"),
+    # Affina Care / TCGI = bảo hiểm sức khỏe nhóm
+    (re.compile(r"affina|tcgi", re.IGNORECASE), "health"),
+    # Tái tục / xác nhận phương án thường gặp trong mail Affina Care
+    (re.compile(r"t[aá]i\s*t[uụ]c", re.IGNORECASE), "health"),
+    (re.compile(r"x[aá]c\s*nh[aậ]n\s*ph[uướ][oơ]ng\s*[aá]n", re.IGNORECASE), "health"),
     (re.compile(r"[oôõ]\s*t[oô]|oto|auto|car\b", re.IGNORECASE), "auto"),
     (re.compile(r"xe\s*m[aáà]y|tnds\s*xm", re.IGNORECASE), "motorbike"),
     (re.compile(r"bhyt|bhxh", re.IGNORECASE), "bhyt_bhxh"),

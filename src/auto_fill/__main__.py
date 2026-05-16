@@ -143,7 +143,7 @@ def _run_outlook_source(
         include_read=include_read,
     )
     for mail in fetcher.fetch_matching():
-        ns: Any = client._namespace  # type: ignore[attr-defined]
+        ns: Any = client._namespace
         paths = download_attachments(mail, inbox_dir, ns, settings.max_attachment_mb)
         stats.processed += len(paths)
         for file_path in paths:
@@ -233,7 +233,7 @@ def _process_file(
     from auto_fill.reader.csv_reader import read_csv
     from auto_fill.reader.excel_reader import read_excel
 
-    sheet_info = classify(mail_subject, mail_sender)
+    sheet_info = classify(mail_subject, mail_sender, sender_hints=settings.sender_hints)
     aliases = load_aliases()
 
     suffix = file_path.suffix.lower()
