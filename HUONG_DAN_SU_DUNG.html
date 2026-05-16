@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hướng dẫn sử dụng — AutoFill Cấp Đơn</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      line-height: 1.7;
+    }
+
+    /* ── Header ── */
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      color: white;
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 10px; }
+    .hero p  { font-size: 1.1rem; opacity: .85; max-width: 600px; margin: 0 auto; }
+    .hero .badge {
+      display: inline-block;
+      background: rgba(255,255,255,.2);
+      border: 1px solid rgba(255,255,255,.4);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: .8rem;
+      margin-bottom: 14px;
+      letter-spacing: .5px;
+    }
+
+    /* ── Nav pills ── */
+    .toc {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 10px 0;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .toc-inner { display: flex; gap: 8px; padding: 0 24px; }
+    .toc a {
+      text-decoration: none;
+      color: #4a5568;
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: .85rem;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .toc a:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+    /* ── Layout ── */
+    .container { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* ── Section ── */
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid #edf2f7;
+    }
+    .section-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .icon-blue   { background: #dbeafe; }
+    .icon-green  { background: #dcfce7; }
+    .icon-orange { background: #ffedd5; }
+    .icon-purple { background: #ede9fe; }
+    .icon-red    { background: #fee2e2; }
+    .icon-teal   { background: #ccfbf1; }
+    .icon-yellow { background: #fef9c3; }
+
+    .section-title { font-size: 1.2rem; font-weight: 700; color: #1e3a8a; }
+    .section-subtitle { font-size: .85rem; color: #718096; margin-top: 2px; }
+
+    h3 { font-size: 1rem; font-weight: 700; color: #2d3748; margin: 20px 0 8px; }
+    p  { color: #4a5568; margin-bottom: 10px; }
+
+    /* ── Steps ── */
+    .steps { list-style: none; }
+    .steps li {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 28px; height: 28px;
+      background: #1e3a8a;
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-body { flex: 1; }
+    .step-body strong { display: block; color: #1a202c; margin-bottom: 3px; }
+    .step-body p { margin: 0; font-size: .9rem; }
+
+    /* ── Button mock ── */
+    .btn-demo {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: .85rem;
+      font-weight: 600;
+      margin: 3px 2px;
+      cursor: default;
+      border: 1px solid transparent;
+    }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-outline { background: white; color: #374151; border-color: #d1d5db; }
+    .btn-ghost   { background: #f3f4f6; color: #374151; }
+    .btn-neutral { background: #6b7280; color: white; }
+    .btn-success { background: #16a34a; color: white; }
+    .btn-warning { background: #d97706; color: white; }
+    .btn-error   { background: #dc2626; color: white; }
+
+    .badge-demo {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+    .badge-idle    { background: #e5e7eb; color: #374151; }
+    .badge-running { background: #fef3c7; color: #92400e; }
+    .badge-done    { background: #dcfce7; color: #166534; }
+    .badge-error   { background: #fee2e2; color: #991b1b; }
+
+    /* ── Info boxes ── */
+    .info-box {
+      display: flex;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+      align-items: flex-start;
+    }
+    .info-box .icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .info-box p { margin: 0; font-size: .9rem; }
+    .info-blue   { background: #eff6ff; border-left: 4px solid #3b82f6; }
+    .info-green  { background: #f0fdf4; border-left: 4px solid #16a34a; }
+    .info-orange { background: #fff7ed; border-left: 4px solid #f97316; }
+    .info-red    { background: #fef2f2; border-left: 4px solid #ef4444; }
+    .info-yellow { background: #fefce8; border-left: 4px solid #eab308; }
+
+    /* ── Flow diagram ── */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      align-items: center;
+      margin: 16px 0;
+    }
+    .flow-item {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: .82rem;
+      text-align: center;
+      min-width: 90px;
+    }
+    .flow-item .fi-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+    .flow-item strong { display: block; color: #1e3a8a; font-size: .8rem; }
+    .flow-arrow {
+      color: #9ca3af;
+      font-size: 1.2rem;
+      padding: 0 4px;
+      line-height: 1;
+    }
+
+    /* ── Mail type table ── */
+    .mail-type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .mail-type-card {
+      border-radius: 10px;
+      padding: 14px 16px;
+      border: 1.5px solid;
+    }
+    .type-a { background: #f0fdf4; border-color: #86efac; }
+    .type-b { background: #eff6ff; border-color: #93c5fd; }
+    .type-c { background: #fefce8; border-color: #fde047; }
+    .type-d { background: #f3f4f6; border-color: #d1d5db; }
+    .type-review { background: #fef2f2; border-color: #fca5a5; }
+    .type-label { font-size: .75rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 6px; }
+    .type-name { font-size: 1rem; font-weight: 700; color: #1e3a8a; margin-bottom: 4px; }
+    .type-desc { font-size: .82rem; color: #4a5568; margin-bottom: 6px; }
+    .type-action { font-size: .78rem; font-weight: 600; }
+    .action-fill { color: #166534; }
+    .action-review { color: #92400e; }
+    .action-skip { color: #6b7280; }
+
+    /* ── Condition table ── */
+    .cond-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .88rem; }
+    .cond-table th {
+      background: #f7fafc;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: .8rem;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .cond-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f0f4f8;
+      vertical-align: top;
+    }
+    .cond-table tr:hover td { background: #f7fafc; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+    .tag-req  { background: #fee2e2; color: #991b1b; }
+    .tag-opt  { background: #dbeafe; color: #1e40af; }
+    .tag-auto { background: #dcfce7; color: #166534; }
+
+    /* ── Screenshot mockup ── */
+    .mockup {
+      background: #1e2433;
+      border-radius: 10px;
+      padding: 16px;
+      margin: 16px 0;
+      font-family: 'Consolas', monospace;
+      font-size: .82rem;
+    }
+    .mockup .m-bar { display: flex; gap: 6px; margin-bottom: 12px; }
+    .mockup .m-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .m-red   { background: #ef4444; }
+    .m-yellow{ background: #f59e0b; }
+    .m-green { background: #22c55e; }
+    .m-line  { color: #4ade80; margin: 2px 0; }
+    .m-warn  { color: #fbbf24; }
+    .m-err   { color: #f87171; }
+    .m-dim   { color: #6b7280; }
+
+    /* ── Dashboard mock UI ── */
+    .dash-mock {
+      background: #f1f5f9;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      padding: 16px;
+      margin: 14px 0;
+    }
+    .dash-stats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+      min-width: 80px;
+      border: 1px solid #e2e8f0;
+    }
+    .stat-card .num { font-size: 1.4rem; font-weight: 800; color: #3b82f6; }
+    .stat-card .lbl { font-size: .7rem; color: #9ca3af; }
+    .stat-total { background: #3b82f6; }
+    .stat-total .num { color: white; }
+    .stat-total .lbl { color: rgba(255,255,255,.7); }
+    .dash-ctrl {
+      background: white;
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      border: 1px solid #e2e8f0;
+    }
+    .dash-ctrl-title { font-size: .85rem; font-weight: 700; flex: 1; }
+
+    /* ── Folder table ── */
+    .folder-row { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid #f0f4f8; align-items: flex-start; }
+    .folder-row:last-child { border: none; }
+    .folder-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .folder-body { flex: 1; }
+    .folder-name { font-weight: 700; color: #1e3a8a; font-size: .95rem; }
+    .folder-desc { font-size: .85rem; color: #4a5568; margin-top: 2px; }
+
+    /* ── Checklist ── */
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f4f8;
+      font-size: .9rem;
+    }
+    .checklist li:last-child { border: none; }
+    .check-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── FAQ ── */
+    .faq-item { margin-bottom: 16px; }
+    .faq-q {
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .faq-q::before { content: "Q"; background: #dbeafe; color: #1e40af; border-radius: 4px; padding: 1px 7px; font-size: .8rem; flex-shrink: 0; margin-top: 2px; }
+    .faq-a { font-size: .9rem; color: #4a5568; padding-left: 30px; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      color: #9ca3af;
+      font-size: .8rem;
+      padding: 24px;
+    }
+
+    @media (max-width: 600px) {
+      .section { padding: 20px 16px; }
+      .flow { gap: 4px; }
+      .flow-item { min-width: 70px; padding: 8px; }
+      .hero h1 { font-size: 1.5rem; }
+      .mail-type-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ HERO ══════════════ -->
+<div class="hero">
+  <div class="badge">Phiên bản 0.7.0 • Dành cho người dùng</div>
+  <h1>🛡️ Hướng dẫn sử dụng AutoFill Cấp Đơn</h1>
+  <p>Hệ thống tự động đọc mail, lấy file cấp đơn và điền vào Excel tổng — không cần copy-paste tay nữa.</p>
+</div>
+
+<!-- ══════════════ TOC ══════════════ -->
+<div class="toc">
+  <div class="toc-inner">
+    <a href="#s1">1. Hệ thống làm gì?</a>
+    <a href="#s2">2. Điều kiện cần có</a>
+    <a href="#s3">3. Khởi động Dashboard</a>
+    <a href="#s4">4. Các nút trên Dashboard</a>
+    <a href="#s5">5. Quy trình hàng ngày</a>
+    <a href="#s6">6. Đọc kết quả (Log)</a>
+    <a href="#s7">7. Xem file Excel tổng</a>
+    <a href="#s8">8. 5 loại mail hệ thống nhận</a>
+    <a href="#s9">9. Folder Outlook sau xử lý</a>
+    <a href="#s10">10. Cấu hình mail</a>
+    <a href="#s11">11. Câu hỏi thường gặp</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ══════════════ S1: HỆ THỐNG LÀM GÌ ══════════════ -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🤖</div>
+      <div>
+        <div class="section-title">1. Hệ thống làm gì?</div>
+        <div class="section-subtitle">Giải thích bài toán và giải pháp</div>
+      </div>
+    </div>
+
+    <p><strong>Vấn đề trước đây:</strong> Mỗi ngày nhận hàng chục email từ sale/nhà bảo hiểm gửi kèm file Excel/PDF cấp đơn. Phải mở từng mail, tải file xuống, copy từng dòng vào file Excel tổng — mất rất nhiều thời gian và dễ sai sót.</p>
+    <p><strong>Hệ thống này giải quyết:</strong> Tự động làm toàn bộ quy trình đó, bạn chỉ cần nhấn 1 nút.</p>
+
+    <div style="margin: 20px 0;">
+      <div style="font-size:.85rem; font-weight:700; color:#718096; margin-bottom:10px; text-transform:uppercase; letter-spacing:.5px;">Luồng xử lý tự động</div>
+      <div class="flow">
+        <div class="flow-item">
+          <span class="fi-icon">📧</span>
+          <strong>Mail Outlook</strong>
+          <span>của bạn</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item">
+          <span class="fi-icon">🏷️</span>
+          <strong>Phân loại</strong>
+          <span>5 TYPE mail</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item">
+          <span class="fi-icon">📎</span>
+          <strong>Tải file</strong>
+          <span>xlsx/csv/pdf</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item">
+          <span class="fi-icon">🧹</span>
+          <strong>Chuẩn hóa</strong>
+          <span>dữ liệu</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item">
+          <span class="fi-icon">📋</span>
+          <strong>Ghi vào</strong>
+          <strong>Excel tổng</strong>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item">
+          <span class="fi-icon">📁</span>
+          <strong>Move mail</strong>
+          <span>đúng folder</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box info-green">
+      <div class="icon">💡</div>
+      <p><strong>Mới trong v0.7.0:</strong> Hệ thống giờ phân loại mail thành 5 loại trước khi xử lý — tự bỏ qua mail báo cáo/đối soát, chỉ xử lý mail cấp đơn thực sự. Mail forward từ chị Linh (<strong>linh.nguyen2@affina.com.vn</strong>) được hỗ trợ đầy đủ.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ S2: ĐIỀU KIỆN ══════════════ -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-icon icon-orange">⚙️</div>
+      <div>
+        <div class="section-title">2. Điều kiện cần có trước khi chạy</div>
+        <div class="section-subtitle">Kiểm tra trước khi nhấn nút</div>
+      </div>
+    </div>
+
+    <table class="cond-table">
+      <thead>
+        <tr><th>Điều kiện</th><th>Trạng thái cần</th><th>Loại</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>Outlook Desktop đang mở</strong><br>
+            <span style="font-size:.8rem;color:#718096">Đăng nhập vào <code>anh.nguyen1@affina.com.vn</code></span>
+          </td>
+          <td>✅ Đang mở + đăng nhập</td>
+          <td><span class="tag tag-req">Bắt buộc</span></td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Dashboard đang chạy</strong><br>
+            <span style="font-size:.8rem;color:#718096">Terminal chạy <code>python -m auto_fill serve</code></span>
+          </td>
+          <td>✅ Terminal không đóng</td>
+          <td><span class="tag tag-req">Bắt buộc</span></td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Mail có tiêu đề / nội dung đúng quy định</strong><br>
+            <span style="font-size:.8rem;color:#718096">Hệ thống tự nhận biết dựa vào 5 TYPE (xem mục 8)</span>
+          </td>
+          <td>✅ Mail được nhận diện là TYPE A hoặc B</td>
+          <td><span class="tag tag-req">Bắt buộc</span></td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Sender nằm trong danh sách cho phép</strong><br>
+            <span style="font-size:.8rem;color:#718096">Bao gồm <code>linh.nguyen2@affina.com.vn</code> (mail forward)</span>
+          </td>
+          <td>✅ Email đã được thêm vào SENDER_ALLOWLIST</td>
+          <td><span class="tag tag-req">Bắt buộc</span></td>
+        </tr>
+        <tr>
+          <td>
+            <strong>File Excel tổng trên Google Drive</strong><br>
+            <span style="font-size:.8rem;color:#718096">Để xem dữ liệu trực tiếp trên Dashboard</span>
+          </td>
+          <td>✅ Đã setup drive-setup</td>
+          <td><span class="tag tag-opt">Tùy chọn</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box info-orange">
+      <div class="icon">⚠️</div>
+      <p>Nếu Outlook không mở hoặc không có mail phù hợp, hệ thống vẫn chạy bình thường nhưng sẽ không có gì được xử lý — không phải lỗi, chỉ là "không có việc gì để làm".</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ S3: KHỞI ĐỘNG ══════════════ -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-icon icon-green">🚀</div>
+      <div>
+        <div class="section-title">3. Cách khởi động Dashboard</div>
+        <div class="section-subtitle">Làm mỗi ngày khi bắt đầu làm việc</div>
+      </div>
+    </div>
+
+    <ul class="steps">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Mở Outlook Desktop</strong>
+          <p>Đảm bảo Outlook đang chạy và đã đăng nhập vào <strong>anh.nguyen1@affina.com.vn</strong>. Đợi Outlook đồng bộ mail mới (~1 phút).</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Mở PowerShell (hoặc Terminal)</strong>
+          <p>Nhấn <kbd style="background:#f3f4f6;border:1px solid #d1d5db;padding:1px 6px;border-radius:3px;font-size:.85rem">Windows + X</kbd> → chọn <strong>Terminal</strong> hoặc <strong>Windows PowerShell</strong>.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Di chuyển vào thư mục project</strong>
+          <div class="mockup">
+            <div class="m-bar"><div class="m-dot m-red"></div><div class="m-dot m-yellow"></div><div class="m-dot m-green"></div></div>
+            <div class="m-line">cd "C:\Users\ADMIN\Documents\Work\Project_Autofill_capDon"</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Khởi động server Dashboard</strong>
+          <div class="mockup">
+            <div class="m-bar"><div class="m-dot m-red"></div><div class="m-dot m-yellow"></div><div class="m-dot m-green"></div></div>
+            <div class="m-line">python -m auto_fill serve</div>
+            <div class="m-dim" style="margin-top:8px">INFO:     Started server process</div>
+            <div class="m-dim">INFO:     Waiting for application startup.</div>
+            <div class="m-green" style="color:#4ade80">INFO:     Uvicorn running on http://127.0.0.1:8080</div>
+          </div>
+          <p style="margin-top:8px;">Khi thấy dòng xanh <strong>"Uvicorn running"</strong> là server đã sẵn sàng. <strong>Không đóng Terminal này.</strong></p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <strong>Mở Chrome/Edge → truy cập Dashboard</strong>
+          <div style="background:#f0f9ff;border:2px solid #3b82f6;border-radius:8px;padding:12px 16px;font-family:monospace;font-size:1rem;color:#1e40af;font-weight:700;margin:8px 0;">
+            http://localhost:8080/dashboard
+          </div>
+          <p>Dashboard sẽ hiện ra với giao diện tương thích mọi kích cỡ cửa sổ. Để tiện, bạn có thể bookmark trang này.</p>
+        </div>
+      </li>
+    </ul>
+
+    <div class="info-box info-blue">
+      <div class="icon">💡</div>
+      <p><strong>Mẹo:</strong> Dashboard tương thích cả màn hình nhỏ và lớn. Trên điện thoại hoặc cửa sổ nhỏ, menu sẽ thu gọn lại thành nút ☰ góc trái trên.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ S4: CÁC NÚT ══════════════ -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🎛️</div>
+      <div>
+        <div class="section-title">4. Giải thích từng nút trên Dashboard</div>
+        <div class="section-subtitle">Biết mỗi nút làm gì, khi nào dùng</div>
+      </div>
+    </div>
+
+    <div class="dash-mock">
+      <div style="font-size:.75rem;color:#94a3b8;margin-bottom:10px;">📊 Giao diện Dashboard (mô phỏng)</div>
+      <div class="dash-stats">
+        <div class="stat-card"><div class="num">127</div><div class="lbl">Du lịch</div></div>
+        <div class="stat-card"><div class="num">84</div><div class="lbl">Sức khỏe</div></div>
+        <div class="stat-card"><div class="num">23</div><div class="lbl">Ô tô</div></div>
+        <div class="stat-card"><div class="num">56</div><div class="lbl">Xe máy</div></div>
+        <div class="stat-card"><div class="num">12</div><div class="lbl">BHYT/BHXH</div></div>
+        <div class="stat-card"><div class="num">8</div><div class="lbl">HSSV</div></div>
+        <div class="stat-card stat-total"><div class="num">310</div><div class="lbl">Tổng cộng</div></div>
+      </div>
+      <div class="dash-ctrl">
+        <span class="dash-ctrl-title">⚙️ Điều khiển Pipeline</span>
+        <span class="badge-demo badge-idle">Chờ</span>
+        <span class="btn-demo btn-primary">▶ Chạy ngay</span>
+        <span class="btn-demo btn-outline">🔍 Dry Run</span>
+        <span class="btn-demo btn-ghost">🔄</span>
+      </div>
+    </div>
+
+    <h3>📦 Các thẻ số (Du lịch, Sức khỏe...)</h3>
+    <p>Hiển thị số hồ sơ đã lưu vào database theo từng loại. Con số tăng mỗi lần pipeline chạy xong.</p>
+
+    <h3>🏷️ Badge trạng thái</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin:10px 0;">
+      <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;">
+        <span class="badge-demo badge-idle">Chờ</span>
+        <span style="font-size:.85rem;color:#4a5568">Sẵn sàng, chưa chạy</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;">
+        <span class="badge-demo badge-running">Đang chạy</span>
+        <span style="font-size:.85rem;color:#4a5568">Pipeline đang xử lý mail</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;">
+        <span class="badge-demo badge-done">Hoàn thành</span>
+        <span style="font-size:.85rem;color:#4a5568">Xong, thành công</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;">
+        <span class="badge-demo badge-error">Lỗi</span>
+        <span style="font-size:.85rem;color:#4a5568">Có lỗi (xem Log Console)</span>
+      </div>
+    </div>
+
+    <h3>▶ Nút "Chạy ngay" — <span style="color:#16a34a">Dùng hàng ngày</span></h3>
+    <p>Bắt đầu toàn bộ quy trình: phân loại mail → tải file → chuẩn hóa → kiểm tra trùng → ghi Excel tổng → chuyển mail vào đúng folder.</p>
+
+    <h3>🔍 Nút "Dry Run" — <span style="color:#2563eb">Dùng để kiểm tra</span></h3>
+    <p>Chạy thử — đọc mail và phân tích file, <strong>KHÔNG ghi gì</strong> vào Excel tổng và KHÔNG chuyển mail. Dùng để xem trước kết quả trước khi chạy thật.</p>
+
+    <h3>🔄 Nút "Làm mới"</h3>
+    <p>Tải lại số liệu thống kê từ database. Không chạy pipeline.</p>
+  </div>
+
+  <!-- ══════════════ S5: QUY TRÌNH HÀNG NGÀY ══════════════ -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-icon icon-green">📅</div>
+      <div>
+        <div class="section-title">5. Quy trình sử dụng hàng ngày</div>
+        <div class="section-subtitle">Làm theo đúng thứ tự này mỗi ngày</div>
+      </div>
+    </div>
+
+    <ul class="steps">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Mở Outlook — đợi mail đồng bộ xong</strong>
+          <p>Đợi Outlook tải mail mới từ server (~1 phút). Bạn sẽ thấy các mail mới trong Inbox.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Mở Dashboard (nếu chưa mở)</strong>
+          <p>Chạy <code>python -m auto_fill serve</code> trong Terminal → mở trình duyệt → <code>http://localhost:8080/dashboard</code></p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>(Tùy chọn) Chạy Dry Run để kiểm tra trước</strong>
+          <p>Nhấn <span class="btn-demo btn-outline" style="font-size:.8rem;padding:3px 10px;">🔍 Dry Run</span> → xem Log Console — hệ thống liệt kê tất cả hồ sơ tìm thấy mà không ghi gì.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Nhấn "Chạy ngay" để xử lý thật</strong>
+          <p>Nhấn <span class="btn-demo btn-primary" style="font-size:.8rem;padding:3px 10px;">▶ Chạy ngay</span> → badge đổi sang <span class="badge-demo badge-running">Đang chạy</span> → theo dõi Log Console bên dưới.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <strong>Đợi hoàn thành và kiểm tra kết quả</strong>
+          <p>Khi badge đổi sang <span class="badge-demo badge-done">Hoàn thành</span>: xem các thẻ số đã tăng chưa. Kiểm tra Outlook — mail đã xử lý sẽ nằm trong các folder tương ứng (xem mục 9).</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <strong>Kiểm tra folder Needs_Review (nếu có)</strong>
+          <p>Mail cần xem lại tay sẽ vào <strong>Inbox → AutoFill → Needs_Review</strong>. Xem chi tiết ở mục 9.</p>
+        </div>
+      </li>
+    </ul>
+
+    <div class="info-box info-green">
+      <div class="icon">✅</div>
+      <p><strong>Bình thường:</strong> Nếu không có mail mới phù hợp, pipeline hoàn thành ngay và log hiện <code>[done] processed=0 written=0</code> — không phải lỗi, chỉ là không có việc để làm.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ S6: ĐỌC KẾT QUẢ ══════════════ -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-icon icon-teal">📟</div>
+      <div>
+        <div class="section-title">6. Đọc Log Console — hiểu kết quả</div>
+        <div class="section-subtitle">Biết pipeline đang làm gì</div>
+      </div>
+    </div>
+
+    <div class="mockup">
+      <div class="m-bar"><div class="m-dot m-red"></div><div class="m-dot m-yellow"></div><div class="m-dot m-green"></div></div>
+      <div class="m-line">[run] dry_run=False source=outlook</div>
+      <div class="m-dim">→ Pipeline bắt đầu, chạy thật, nguồn Outlook</div>
+      <br>
+      <div class="m-line">[mail_type] subject="Affina Care tái tục..." → TYPE B (GCN PDF)</div>
+      <div class="m-dim">→ Hệ thống nhận diện loại mail</div>
+      <br>
+      <div class="m-line">[mail_type] subject="CHECK PHƯƠNG ÁN..." → TYPE C → Needs_Review</div>
+      <div class="m-dim">→ Mail check phương án, chuyển vào Needs_Review</div>
+      <br>
+      <div class="m-line">[ok] Nguyễn Văn A — Sức khỏe → ghi dòng #128</div>
+      <div class="m-dim">→ Hồ sơ được ghi vào Excel tổng thành công</div>
+      <br>
+      <div class="m-warn">[dedup] Bỏ qua: 012345678901 — Nguyễn Thị B (đã tồn tại)</div>
+      <div class="m-dim">→ Hồ sơ trùng với dữ liệu cũ, bỏ qua, KHÔNG ghi đè</div>
+      <br>
+      <div class="m-line">[done] processed=5 written=3 duplicates=1 review=1 skipped=0 errors=0</div>
+      <div class="m-dim">→ Tổng kết: 5 mail xử lý, 3 ghi thành công, 1 trùng, 1 cần review</div>
+    </div>
+
+    <h3>Các trường hợp cần chú ý</h3>
+    <table class="cond-table">
+      <thead><tr><th>Dòng log</th><th>Ý nghĩa</th><th>Hành động</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code style="color:#4ade80">[ok]</code></td>
+          <td>Ghi thành công vào Excel tổng</td>
+          <td>Không cần làm gì</td>
+        </tr>
+        <tr>
+          <td><code style="color:#fbbf24">[dedup] Bỏ qua</code></td>
+          <td>Hồ sơ đã có trong file tổng, bỏ qua để tránh trùng</td>
+          <td>Bình thường. Nếu cần cập nhật → sửa tay trong Excel</td>
+        </tr>
+        <tr>
+          <td><code style="color:#fbbf24">[review]</code></td>
+          <td>Mail cần xem lại tay (CHECK phương án, thiếu field...)</td>
+          <td>Kiểm tra folder Needs_Review trong Outlook</td>
+        </tr>
+        <tr>
+          <td><code style="color:#6b7280">[skip]</code></td>
+          <td>Mail báo cáo/thông báo, không cần xử lý</td>
+          <td>Bình thường, hệ thống tự bỏ qua</td>
+        </tr>
+        <tr>
+          <td><code style="color:#f87171">[error]</code></td>
+          <td>Lỗi (Outlook không kết nối, file hỏng...)</td>
+          <td>Xem chi tiết log, kiểm tra Outlook đang mở không</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════ S7: XEM EXCEL TỔNG ══════════════ -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📊</div>
+      <div>
+        <div class="section-title">7. Xem file Excel tổng trên Dashboard</div>
+        <div class="section-subtitle">Xem dữ liệu trực tiếp từ Google Drive</div>
+      </div>
+    </div>
+
+    <p>Phần dưới cùng của Dashboard hiển thị toàn bộ nội dung file Excel tổng từ Google Drive — không cần mở Excel.</p>
+
+    <ul class="steps">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Kéo xuống phần "📊 File Excel Tổng (Google Drive)"</strong>
+          <p>Trang web sẽ tự động tải dữ liệu khi bạn mở.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Chọn sheet cần xem</strong>
+          <p>Các nút tab ở trên (Du lịch, Sức khoẻ...) — nhấn để chuyển sheet. Trên màn hình nhỏ, tabs cuộn ngang được.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Chuyển trang dữ liệu</strong>
+          <p>Mỗi trang hiển thị 50 dòng. Dùng nút <strong>‹ ›</strong> để chuyển trang.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Nhấn 🔄 Làm mới để lấy dữ liệu mới nhất</strong>
+          <p>Hệ thống cache 5 phút. Nhấn 🔄 để tải lại ngay từ Google Drive.</p>
+        </div>
+      </li>
+    </ul>
+
+    <div class="info-box info-orange">
+      <div class="icon">⚠️</div>
+      <p>Phần này chỉ <strong>đọc</strong> — không ghi gì vào file gốc. Dữ liệu trong file Excel tổng được cập nhật khi pipeline chạy và ghi thành công.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ S8: 5 LOẠI MAIL ══════════════ -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🏷️</div>
+      <div>
+        <div class="section-title">8. Hệ thống nhận diện 5 loại mail</div>
+        <div class="section-subtitle">Tự động phân loại trước khi xử lý — không nhầm mail báo cáo</div>
+      </div>
+    </div>
+
+    <p>Từ v0.7.0, mỗi mail được phân loại thành 1 trong 5 TYPE trước khi quyết định có ghi vào Excel tổng hay không.</p>
+
+    <div class="mail-type-grid">
+      <div class="mail-type-card type-a">
+        <div class="type-label" style="color:#166534;">TYPE A</div>
+        <div class="type-name">Cấp đơn mới (Excel)</div>
+        <div class="type-desc">Mail có tiêu đề "Cấp đơn mới" / "Phiếu cấp đơn" + đính kèm file Excel. Đây là loại phổ biến nhất từ Affina (mail2 mẫu).</div>
+        <div class="type-action action-fill">✅ Tự động ghi vào Excel tổng</div>
+      </div>
+
+      <div class="mail-type-card type-b">
+        <div class="type-label" style="color:#1e40af;">TYPE B</div>
+        <div class="type-name">GCN / Tái tục (PDF)</div>
+        <div class="type-desc">Mail kèm file PDF Giấy Chứng Nhận hoặc thông báo tái tục bảo hiểm. Hệ thống đọc và trích xuất thông tin từ PDF.</div>
+        <div class="type-action action-fill">✅ Tự động ghi vào Excel tổng</div>
+      </div>
+
+      <div class="mail-type-card type-c">
+        <div class="type-label" style="color:#854d0e;">TYPE C</div>
+        <div class="type-name">Check phương án / Hỏi giá</div>
+        <div class="type-desc">Mail "CHECK PHƯƠNG ÁN", hỏi báo giá, xin tư vấn. Không có file cấp đơn thực sự — không cần ghi vào Excel.</div>
+        <div class="type-action action-review">🟡 Chuyển vào Needs_Review để bạn xem tay</div>
+      </div>
+
+      <div class="mail-type-card type-d">
+        <div class="type-label" style="color:#374151;">TYPE D</div>
+        <div class="type-name">Báo cáo / Thông báo nội bộ</div>
+        <div class="type-desc">Mail báo cáo doanh số, thông báo hệ thống, bản tin định kỳ. Không liên quan đến cấp đơn.</div>
+        <div class="type-action action-skip">⏭️ Tự động bỏ qua, chuyển vào Skipped</div>
+      </div>
+
+      <div class="mail-type-card type-review">
+        <div class="type-label" style="color:#991b1b;">REVIEW</div>
+        <div class="type-name">Không xác định / Cần kiểm tra</div>
+        <div class="type-desc">Mail không rõ loại, có thể là cấp đơn bất thường. Hệ thống không chắc chắn nên để bạn kiểm tra tay.</div>
+        <div class="type-action action-review">🟡 Chuyển vào Needs_Review</div>
+      </div>
+    </div>
+
+    <div class="info-box info-blue">
+      <div class="icon">ℹ️</div>
+      <p><strong>Mail forward từ chị Linh (linh.nguyen2@affina.com.vn):</strong> Hệ thống đọc từ <strong>người gửi của bạn</strong> (chị Linh), không phải người gửi gốc bên trong phần trích dẫn. Miễn là email chị Linh được thêm vào SENDER_ALLOWLIST và mail forward có kèm file Excel/PDF hợp lệ, hệ thống sẽ nhận diện đúng TYPE và xử lý bình thường.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ S9: FOLDER OUTLOOK ══════════════ -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📁</div>
+      <div>
+        <div class="section-title">9. Folder Outlook sau khi pipeline chạy</div>
+        <div class="section-subtitle">Mail được chuyển vào đúng folder tương ứng</div>
+      </div>
+    </div>
+
+    <p>Sau khi xử lý, hệ thống tự chuyển mail vào các sub-folder trong <strong>Inbox → AutoFill</strong>. Cấu trúc folder:</p>
+
+    <div class="folder-row">
+      <div class="folder-icon">📂</div>
+      <div class="folder-body">
+        <div class="folder-name">AutoFill/Incoming</div>
+        <div class="folder-desc">Folder bạn cần forward mail vào (nếu dùng Outlook rule). Hệ thống sẽ đọc từ đây thay vì Inbox chính.</div>
+      </div>
+    </div>
+    <div class="folder-row">
+      <div class="folder-icon">✅</div>
+      <div class="folder-body">
+        <div class="folder-name">AutoFill/Processed/YYYY-MM-DD</div>
+        <div class="folder-desc">Mail TYPE A/B đã xử lý thành công và ghi vào Excel tổng. Được tổ chức theo ngày.</div>
+      </div>
+    </div>
+    <div class="folder-row">
+      <div class="folder-icon">🔍</div>
+      <div class="folder-body">
+        <div class="folder-name">AutoFill/Needs_Review</div>
+        <div class="folder-desc">Mail TYPE C (check phương án), mail không xác định, hoặc mail TYPE A/B nhưng validate bị thiếu field bắt buộc. <strong>Bạn cần xem và xử lý tay các mail trong này.</strong></div>
+      </div>
+    </div>
+    <div class="folder-row">
+      <div class="folder-icon">⏭️</div>
+      <div class="folder-body">
+        <div class="folder-name">AutoFill/Skipped/YYYY-MM-DD</div>
+        <div class="folder-desc">Mail TYPE D (báo cáo, thông báo nội bộ) — hệ thống đã xem và xác định không cần xử lý.</div>
+      </div>
+    </div>
+
+    <div class="info-box info-orange">
+      <div class="icon">📌</div>
+      <p>Lần đầu chạy, hệ thống tự tạo các folder này trong Outlook. Nếu muốn tạo thủ công ngay, chạy lệnh: <code>python -m auto_fill outlook setup-folders</code></p>
+    </div>
+
+    <div class="info-box info-red">
+      <div class="icon">⚠️</div>
+      <p><strong>Hàng ngày:</strong> Kiểm tra folder <strong>Needs_Review</strong> — đây là nơi chứa các mail mà hệ thống không xử lý được tự động. Mỗi sáng nên xem qua để không bỏ sót hồ sơ quan trọng.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ S10: CẤU HÌNH MAIL ══════════════ -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <div class="section-icon icon-red">✉️</div>
+      <div>
+        <div class="section-title">10. Cấu hình mail — thêm người gửi</div>
+        <div class="section-subtitle">Cần làm khi có người gửi mới</div>
+      </div>
+    </div>
+
+    <div class="info-box info-blue">
+      <div class="icon">ℹ️</div>
+      <p>Hệ thống chỉ xử lý mail từ <strong>người gửi được phê duyệt</strong>. Nếu mail bị bỏ qua mà không thấy lý do trong log, rất có thể email người gửi chưa được thêm vào danh sách.</p>
+    </div>
+
+    <h3>Thêm email người gửi mới (bao gồm linh.nguyen2@affina.com.vn)</h3>
+    <ul class="steps">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Mở file <code>.env</code> trong thư mục project</strong>
+          <p>Đường dẫn: <code>C:\Users\ADMIN\Documents\Work\Project_Autofill_capDon\.env</code></p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Tìm dòng <code>SENDER_ALLOWLIST</code> và thêm email chị Linh</strong>
+          <div class="mockup">
+            <div class="m-line">SENDER_ALLOWLIST=anh.nguyen1@affina.com.vn,<span style="color:#4ade80">linh.nguyen2@affina.com.vn</span>,dailya@pti.com.vn</div>
+          </div>
+          <p style="margin-top:6px;font-size:.85rem;color:#4a5568;">Cách nhau bằng dấu phẩy, không có khoảng trắng.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Lưu file và khởi động lại server</strong>
+          <p>Đóng Terminal cũ (Ctrl+C), chạy lại <code>python -m auto_fill serve</code>.</p>
+        </div>
+      </li>
+    </ul>
+
+    <div class="info-box info-yellow">
+      <div class="icon">💡</div>
+      <p><strong>Gợi ý:</strong> Nếu chị Linh thường xuyên forward mail, bạn có thể tạo Outlook Rule để tự động chuyển mail từ chị Linh vào folder <strong>AutoFill/Incoming</strong> — hệ thống sẽ đọc từ đó ưu tiên hơn Inbox chính.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ S11: FAQ ══════════════ -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <div class="section-icon icon-purple">❓</div>
+      <div>
+        <div class="section-title">11. Câu hỏi thường gặp</div>
+        <div class="section-subtitle">Các tình huống hay gặp khi sử dụng</div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Mail chị Linh forward cho tôi có cấp đơn — hệ thống xử lý được không?</div>
+      <div class="faq-a">Được, miễn là email <code>linh.nguyen2@affina.com.vn</code> đã được thêm vào SENDER_ALLOWLIST trong file .env. Hệ thống nhìn vào <strong>người gửi trực tiếp</strong> (chị Linh), không nhìn vào nội dung trích dẫn bên trong. File đính kèm và tiêu đề mail forward của chị Linh sẽ được dùng để phân loại.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Mail chị Linh forward có hồ sơ trùng với dữ liệu cũ trong Excel tổng — xử lý thế nào?</div>
+      <div class="faq-a">Hệ thống tự phát hiện và <strong>bỏ qua hồ sơ trùng</strong> — không ghi đè, không xóa dữ liệu cũ. Log sẽ hiện <code>[dedup] Bỏ qua: &lt;tên/CCCD&gt;</code>. Mail vẫn được chuyển vào folder Processed. Nếu hồ sơ cần được <strong>cập nhật</strong> (ví dụ phí thay đổi), bạn cần sửa tay trực tiếp trong file Excel tổng.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Folder Needs_Review trong Outlook là gì? Khi nào tôi cần vào đó?</div>
+      <div class="faq-a">Needs_Review chứa các mail mà hệ thống không tự xử lý được: mail "CHECK PHƯƠNG ÁN", mail thiếu field bắt buộc, hoặc mail không rõ loại. <strong>Kiểm tra mỗi sáng</strong> — nếu có hồ sơ quan trọng trong này, bạn cần nhập tay vào Excel tổng.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Pipeline chạy xong nhưng số vẫn là 0?</div>
+      <div class="faq-a">Có thể: (1) không có mail mới phù hợp trong Inbox, (2) email người gửi chưa trong allowlist, (3) tất cả mail đều là TYPE C/D và bị bỏ qua. Xem log để biết chính xác — log sẽ in ra TYPE của từng mail.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Mail đã bị chuyển sang Processed nhưng không thấy trong Excel tổng?</div>
+      <div class="faq-a">Kiểm tra Log Console — có thể hồ sơ bị trùng lặp (dedup), lỗi validation (thiếu trường bắt buộc), hoặc là TYPE C/D đã bị bỏ qua. Log sẽ ghi rõ lý do từng hồ sơ.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Nhấn "Chạy ngay" nhưng badge vẫn ở "Chờ" không chuyển?</div>
+      <div class="faq-a">Kiểm tra Terminal xem server có đang chạy không. Nếu Terminal bị đóng, server đã tắt — chạy lại <code>python -m auto_fill serve</code> rồi thử lại.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Muốn chạy lại mail đã bị chuyển sang Processed?</div>
+      <div class="faq-a">Mở Outlook → vào folder Processed → drag mail trở về Inbox (hoặc AutoFill/Incoming) → chạy pipeline lại. Tuy nhiên nếu hồ sơ đã ghi vào Excel tổng, lần chạy lại sẽ bị dedup bỏ qua.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Lỡ tay chạy pipeline 2 lần, có bị ghi trùng không?</div>
+      <div class="faq-a">Không — hệ thống có 2 lớp bảo vệ: (1) dedup theo CCCD + ngày + nơi đến, (2) tracker mail ID đã xử lý. Hồ sơ và mail đã xử lý sẽ bị bỏ qua hoàn toàn ở lần chạy thứ 2.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">File Excel tổng trên Dashboard hiển thị dữ liệu cũ?</div>
+      <div class="faq-a">Nhấn nút 🔄 Làm mới trong phần "📊 File Excel Tổng" để tải lại từ Google Drive ngay lập tức (bỏ qua cache 5 phút).</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Dashboard không hiển thị đúng trên màn hình nhỏ / cửa sổ nhỏ?</div>
+      <div class="faq-a">Từ v0.7.0, Dashboard đã được tối ưu responsive. Trên màn hình nhỏ, menu thu gọn thành nút ☰. Nếu vẫn có vấn đề, thử <strong>Ctrl+Shift+R</strong> để reload lại page.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Cần backup file tổng, làm sao?</div>
+      <div class="faq-a">Hệ thống tự backup vào <code>data/backup/YYYY-MM-DD/</code> trước mỗi lần ghi. Giữ 30 ngày gần nhất. Nếu cần rollback: <code>python -m auto_fill rollback --to data/backup/2026-05-14/master.xlsx</code></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Muốn thêm loại bảo hiểm mới (ngoài 6 loại hiện tại)?</div>
+      <div class="faq-a">Báo cho developer biết tên sheet và cấu trúc file đính kèm — sẽ thêm vào hệ thống. Hiện tại hỗ trợ: Du lịch, Sức khỏe, Ô tô, Xe máy, BHYT/BHXH, HSSV.</div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════ QUICK REF ══════════════ -->
+  <div class="section" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white;">
+    <div class="section-header" style="border-color:rgba(255,255,255,.2);">
+      <div class="section-icon" style="background:rgba(255,255,255,.15);">⚡</div>
+      <div>
+        <div class="section-title" style="color:white;">Cheat Sheet — Dùng hàng ngày</div>
+        <div class="section-subtitle" style="color:rgba(255,255,255,.65);">In ra dán cạnh màn hình</div>
+      </div>
+    </div>
+
+    <ul class="checklist">
+      <li style="border-color:rgba(255,255,255,.1);">
+        <span class="check-icon">1️⃣</span>
+        <span style="color:rgba(255,255,255,.9);">Mở <strong style="color:white">Outlook</strong> → đợi mail đồng bộ</span>
+      </li>
+      <li style="border-color:rgba(255,255,255,.1);">
+        <span class="check-icon">2️⃣</span>
+        <span style="color:rgba(255,255,255,.9);">Mở Terminal → chạy <code style="background:rgba(255,255,255,.15);padding:2px 6px;border-radius:4px;">python -m auto_fill serve</code></span>
+      </li>
+      <li style="border-color:rgba(255,255,255,.1);">
+        <span class="check-icon">3️⃣</span>
+        <span style="color:rgba(255,255,255,.9);">Mở Chrome → <code style="background:rgba(255,255,255,.15);padding:2px 6px;border-radius:4px;">http://localhost:8080/dashboard</code></span>
+      </li>
+      <li style="border-color:rgba(255,255,255,.1);">
+        <span class="check-icon">4️⃣</span>
+        <span style="color:rgba(255,255,255,.9);">Nhấn <strong style="color:white">▶ Chạy ngay</strong> → đợi badge <strong style="color:#4ade80">Hoàn thành</strong></span>
+      </li>
+      <li style="border-color:rgba(255,255,255,.1);">
+        <span class="check-icon">5️⃣</span>
+        <span style="color:rgba(255,255,255,.9);">Kiểm tra <strong style="color:white">Needs_Review</strong> trong Outlook (nếu có)</span>
+      </li>
+      <li style="border-color:rgba(255,255,255,.1);">
+        <span class="check-icon">6️⃣</span>
+        <span style="color:rgba(255,255,255,.9);">Kéo xuống → xem dữ liệu <strong style="color:white">📊 File Excel Tổng</strong></span>
+      </li>
+      <li style="border-color:none;">
+        <span class="check-icon">✅</span>
+        <span style="color:rgba(255,255,255,.9);">Xong! Mail → folder <strong style="color:white">Processed/YYYY-MM-DD</strong></span>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+<div class="footer">
+  AutoFill Cấp Đơn v0.7.0 • Outlook: anh.nguyen1@affina.com.vn • Gmail: nguyenvietanh92tn@gmail.com<br>
+  Cập nhật: 2026-05-16 • Liên hệ developer để thêm loại BH mới hoặc cấu hình file mẫu
+</div>
+
+</body>
+</html>

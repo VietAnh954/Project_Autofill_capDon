@@ -5,32 +5,32 @@
 <div x-data="dashboard()" x-init="init()" x-cloak>
 
   <!-- ── Stats Row ────────────────────────────────────────── -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-4">
+  <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3 mb-4">
     <template x-for="s in sheetList" :key="s.key">
       <div class="card bg-base-100 shadow">
-        <div class="card-body p-3 items-center text-center">
-          <div class="text-2xl font-bold text-primary" x-text="stats[s.key] ?? '…'"></div>
-          <div class="text-xs text-base-content/60" x-text="s.label"></div>
+        <div class="card-body p-2 sm:p-3 items-center text-center">
+          <div class="text-xl sm:text-2xl font-bold text-primary" x-text="stats[s.key] ?? '…'"></div>
+          <div class="text-xs text-base-content/60 leading-tight" x-text="s.label"></div>
         </div>
       </div>
     </template>
     <!-- Total -->
-    <div class="card bg-primary text-primary-content shadow">
-      <div class="card-body p-3 items-center text-center">
-        <div class="text-2xl font-bold" x-text="stats.total ?? '…'"></div>
-        <div class="text-xs opacity-80">Tổng cộng</div>
+    <div class="card bg-primary text-primary-content shadow col-span-3 sm:col-span-4 lg:col-span-1">
+      <div class="card-body p-2 sm:p-3 items-center text-center flex-row sm:flex-row lg:flex-col justify-center gap-2 lg:gap-0">
+        <div class="text-xl sm:text-2xl font-bold" x-text="stats.total ?? '…'"></div>
+        <div class="text-xs opacity-80 lg:mt-0 mt-0">Tổng cộng</div>
       </div>
     </div>
   </div>
 
   <!-- ── Pipeline Control ─────────────────────────────────── -->
   <div class="card bg-base-100 shadow mb-4">
-    <div class="card-body p-4">
-      <div class="flex flex-wrap items-center gap-3">
-        <h2 class="card-title text-base flex-1">⚙️ Điều khiển Pipeline</h2>
+    <div class="card-body p-3 sm:p-4">
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <h2 class="card-title text-sm sm:text-base flex-1 min-w-0">⚙️ Điều khiển Pipeline</h2>
 
         <!-- Status badge -->
-        <div class="badge badge-lg"
+        <div class="badge badge-md sm:badge-lg"
           :class="{
             'badge-success': pipelineStatus === 'done',
             'badge-warning': pipelineStatus === 'running',
@@ -45,7 +45,7 @@
           :disabled="pipelineStatus === 'running'"
           @click="triggerRun(false)">
           <span x-show="pipelineStatus !== 'running'">▶ Chạy ngay</span>
-          <span x-show="pipelineStatus === 'running'">
+          <span x-show="pipelineStatus === 'running'" class="flex items-center gap-1">
             <span class="loading loading-spinner loading-xs"></span> Đang chạy…
           </span>
         </button>
@@ -57,12 +57,12 @@
         </button>
 
         <button class="btn btn-ghost btn-sm" @click="refreshStats()">
-          🔄 Làm mới
+          🔄
         </button>
       </div>
 
       <!-- Error message -->
-      <div x-show="pipelineError" class="alert alert-error mt-2 py-2 text-sm">
+      <div x-show="pipelineError" class="alert alert-error mt-2 py-2 text-xs sm:text-sm">
         <span x-text="pipelineError"></span>
       </div>
 
@@ -73,12 +73,13 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <!-- ── Log + Records (responsive 2-col) ─────────────────── -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
 
     <!-- ── Live Log Console ──────────────────────────────── -->
-    <div class="card bg-base-300 shadow">
-      <div class="card-body p-3">
-        <div class="flex items-center justify-between mb-2">
+    <div class="card bg-base-300 shadow flex flex-col">
+      <div class="card-body p-3 flex flex-col flex-1">
+        <div class="flex items-center justify-between mb-2 shrink-0">
           <h2 class="font-semibold text-sm">📟 Log Console</h2>
           <div class="flex items-center gap-2">
             <span class="badge badge-xs" :class="sseConnected ? 'badge-success' : 'badge-error'"
@@ -86,8 +87,9 @@
             <button class="btn btn-ghost btn-xs" @click="logs = []">Xóa</button>
           </div>
         </div>
-        <div class="log-console bg-neutral text-neutral-content rounded p-2 h-64 overflow-y-auto"
-          x-ref="logPanel">
+        <div class="log-console bg-neutral text-neutral-content rounded p-2
+                    h-48 sm:h-56 lg:h-64 xl:h-72 overflow-y-auto"
+             x-ref="logPanel">
           <template x-if="logs.length === 0">
             <div class="opacity-40 italic text-xs">Chưa có log. Chạy pipeline để xem.</div>
           </template>
@@ -103,19 +105,19 @@
     </div>
 
     <!-- ── Recent Records ────────────────────────────────── -->
-    <div class="card bg-base-100 shadow">
-      <div class="card-body p-3">
-        <div class="flex items-center justify-between mb-2">
+    <div class="card bg-base-100 shadow flex flex-col">
+      <div class="card-body p-3 flex flex-col flex-1">
+        <div class="flex items-center justify-between mb-2 shrink-0">
           <h2 class="font-semibold text-sm">📄 Hồ sơ gần nhất</h2>
           <a href="/dashboard/records" class="btn btn-ghost btn-xs">Xem tất cả →</a>
         </div>
-        <div class="overflow-x-auto">
-          <table class="table table-xs">
+        <div class="overflow-x-auto flex-1">
+          <table class="table table-xs w-full">
             <thead>
               <tr>
-                <th>Sheet</th>
-                <th>Tên người được BH</th>
-                <th>Ngày tạo</th>
+                <th class="whitespace-nowrap">Sheet</th>
+                <th class="whitespace-nowrap">Tên người được BH</th>
+                <th class="whitespace-nowrap hidden sm:table-cell">Ngày tạo</th>
               </tr>
             </thead>
             <tbody>
@@ -125,10 +127,12 @@
               <template x-for="r in recentRecords" :key="r.id + r.sheet">
                 <tr class="hover">
                   <td>
-                    <span class="badge badge-ghost badge-sm" x-text="sheetLabel(r.sheet)"></span>
+                    <span class="badge badge-ghost badge-sm whitespace-nowrap" x-text="sheetLabel(r.sheet)"></span>
                   </td>
-                  <td x-text="r.data.insured_name || r.data.customer_name || '—'"></td>
-                  <td class="text-xs opacity-60" x-text="r.data.created_at ? r.data.created_at.slice(0,16) : '—'"></td>
+                  <td class="max-w-[140px] sm:max-w-xs truncate"
+                      x-text="r.data.insured_name || r.data.customer_name || '—'"></td>
+                  <td class="text-xs opacity-60 whitespace-nowrap hidden sm:table-cell"
+                      x-text="r.data.created_at ? r.data.created_at.slice(0,16) : '—'"></td>
                 </tr>
               </template>
             </tbody>
@@ -140,16 +144,18 @@
   </div>
 
   <!-- ── Master Excel Viewer (Google Drive) ────────────────── -->
-  <div class="card bg-base-100 shadow mt-4"
+  <div class="card bg-base-100 shadow"
        x-data="masterViewer()"
        x-init="init()"
        x-cloak>
-    <div class="card-body p-4">
+    <div class="card-body p-3 sm:p-4">
 
       <!-- Header row -->
-      <div class="flex flex-wrap items-center gap-3 mb-3">
-        <h2 class="card-title text-base flex-1">📊 File Excel Tổng (Google Drive)</h2>
-        <span class="text-xs text-base-content/50"
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
+        <h2 class="card-title text-sm sm:text-base flex-1 min-w-0">
+          📊 File Excel Tổng (Google Drive)
+        </h2>
+        <span class="text-xs text-base-content/50 hidden sm:block"
               x-text="cachedAt ? 'Cập nhật: ' + cachedAt : ''"></span>
         <button class="btn btn-ghost btn-xs"
                 @click="refresh()"
@@ -163,36 +169,33 @@
 
       <!-- Not configured state -->
       <div x-show="!driveConfigured && !loading"
-           class="alert alert-warning text-sm py-2">
+           class="alert alert-warning text-xs sm:text-sm py-2">
         <div>
           <p class="font-semibold">Google Drive chưa được cấu hình.</p>
           <p class="mt-1 opacity-80">Chạy lệnh sau để kết nối (1 lần duy nhất):</p>
           <code class="block bg-warning-content/10 rounded mt-1 px-2 py-1 text-xs">
             python -m auto_fill drive-setup
           </code>
-          <p class="mt-1 text-xs opacity-70">
-            Cần bật <strong>Google Drive API</strong> trong Google Cloud Console và tải
-            <code>credentials.json</code> về thư mục project.
-          </p>
         </div>
       </div>
 
-      <!-- API error (configured but failed) -->
+      <!-- API error -->
       <div x-show="driveConfigured && apiError && !sheets.length"
-           class="alert alert-error text-sm py-2">
+           class="alert alert-error text-xs sm:text-sm py-2">
         <span x-text="apiError"></span>
       </div>
 
-      <!-- Warning banner (stale cache etc.) -->
+      <!-- Warning banner -->
       <div x-show="warning && sheets.length"
            class="alert alert-warning text-xs py-1 mb-2">
         <span x-text="warning"></span>
       </div>
 
-      <!-- Sheet tabs -->
-      <div x-show="sheets.length > 0" class="flex flex-wrap gap-1 mb-3">
+      <!-- Sheet tabs (scrollable on mobile) -->
+      <div x-show="sheets.length > 0"
+           class="flex gap-1 mb-3 overflow-x-auto pb-1 scrollbar-thin">
         <template x-for="s in sheets" :key="s">
-          <button class="btn btn-xs"
+          <button class="btn btn-xs shrink-0"
                   :class="activeSheet === s ? 'btn-primary' : 'btn-ghost'"
                   @click="selectSheet(s)"
                   x-text="s">
@@ -210,13 +213,13 @@
         <div class="text-xs text-base-content/50 mb-1"
              x-text="`${totalRows.toLocaleString()} dòng • Trang ${page} / ${totalPages}`">
         </div>
-        <div class="overflow-x-auto">
-          <table class="table table-xs table-zebra">
-            <thead>
+        <div class="overflow-x-auto rounded border border-base-200">
+          <table class="table table-xs table-zebra min-w-full">
+            <thead class="sticky top-0 z-10">
               <tr>
                 <template x-for="col in columns" :key="col">
                   <th x-text="col"
-                      class="whitespace-nowrap text-xs sticky top-0 bg-base-200"></th>
+                      class="whitespace-nowrap text-xs bg-base-200"></th>
                 </template>
               </tr>
             </thead>
@@ -224,7 +227,7 @@
               <template x-for="(row, i) in rows" :key="i">
                 <tr class="hover">
                   <template x-for="col in columns" :key="col">
-                    <td class="whitespace-nowrap text-xs max-w-xs truncate"
+                    <td class="whitespace-nowrap text-xs max-w-[160px] truncate"
                         :title="row[col] != null ? String(row[col]) : ''"
                         x-text="row[col] != null ? String(row[col]) : ''">
                     </td>
@@ -236,7 +239,8 @@
         </div>
 
         <!-- Pagination -->
-        <div class="flex justify-center items-center gap-1 mt-3" x-show="totalPages > 1">
+        <div class="flex justify-center items-center gap-1 mt-3 flex-wrap"
+             x-show="totalPages > 1">
           <button class="btn btn-xs btn-ghost"
                   @click="goPage(1)" :disabled="page <= 1">«</button>
           <button class="btn btn-xs btn-ghost"
@@ -292,11 +296,9 @@ function dashboard() {
     async init() {
       await Promise.all([this.refreshStats(), this.fetchPipelineStatus(), this.fetchRecentRecords()]);
       this.connectSSE();
-      // Poll status every 3s while running
       setInterval(() => {
         if (this.pipelineStatus === 'running') this.fetchPipelineStatus();
       }, 3000);
-      // Refresh stats every 30s
       setInterval(() => this.refreshStats(), 30000);
     },
 
@@ -404,14 +406,12 @@ function masterViewer() {
     },
 
     async init() {
-      // Check if Drive is configured first
       try {
         const r = await fetch('/master/status');
         const d = await r.json();
         this.driveConfigured = d.configured;
         if (!this.driveConfigured) return;
       } catch (_) { return; }
-
       await this.fetchSheets(false);
     },
 
@@ -429,7 +429,6 @@ function masterViewer() {
         this.sheets = d.sheets || [];
         this.cachedAt = d.cached_at ? d.cached_at.slice(0, 19).replace('T', ' ') : '';
         this.warning = d.warning || '';
-
         if (this.sheets.length > 0) {
           if (!this.activeSheet || !this.sheets.includes(this.activeSheet)) {
             this.activeSheet = this.sheets[0];

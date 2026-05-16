@@ -10,39 +10,100 @@
   <style>
     [x-cloak] { display: none !important; }
     .log-console { font-family: "Consolas", "Courier New", monospace; font-size: 0.78rem; }
+    html, body { height: 100%; }
   </style>
 </head>
 <body class="bg-base-200 min-h-screen">
 
-  <!-- Navbar -->
-  <div class="navbar bg-primary text-primary-content shadow-lg px-4">
-    <div class="navbar-start gap-2">
-      <span class="text-xl font-bold">🛡️ AutoFill Cấp Đơn</span>
-    </div>
-    <div class="navbar-center hidden md:flex">
-      <ul class="menu menu-horizontal">
-        <li><a href="/dashboard" class="{% if active_page == 'dashboard' %}bg-primary-focus rounded-lg{% endif %}">
-          📊 Dashboard
-        </a></li>
-        <li><a href="/dashboard/records" class="{% if active_page == 'records' %}bg-primary-focus rounded-lg{% endif %}">
-          📋 Hồ sơ
-        </a></li>
-      </ul>
-    </div>
-    <div class="navbar-end">
-      <span class="text-sm opacity-80 mr-2" id="navbar-clock"></span>
-    </div>
-  </div>
+  <!-- DaisyUI drawer: mobile nav sidebar -->
+  <div class="drawer">
+    <input id="mobile-nav-drawer" type="checkbox" class="drawer-toggle" />
 
-  <main class="container mx-auto p-4 max-w-7xl">
-    {% block content %}{% endblock %}
-  </main>
+    <!-- Page content -->
+    <div class="drawer-content flex flex-col min-h-screen">
+
+      <!-- Sticky Navbar -->
+      <div class="navbar bg-primary text-primary-content shadow-lg px-3 sticky top-0 z-30">
+        <div class="navbar-start gap-2">
+          <!-- Hamburger (mobile only) -->
+          <label for="mobile-nav-drawer"
+                 class="btn btn-ghost btn-sm drawer-button lg:hidden p-1"
+                 aria-label="menu">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </label>
+          <span class="text-lg sm:text-xl font-bold truncate">🛡️ AutoFill Cấp Đơn</span>
+        </div>
+
+        <!-- Desktop nav links -->
+        <div class="navbar-center hidden lg:flex">
+          <ul class="menu menu-horizontal gap-1">
+            <li>
+              <a href="/dashboard"
+                 class="rounded-lg {% if active_page == 'dashboard' %}bg-primary-focus font-semibold{% endif %}">
+                📊 Dashboard
+              </a>
+            </li>
+            <li>
+              <a href="/dashboard/records"
+                 class="rounded-lg {% if active_page == 'records' %}bg-primary-focus font-semibold{% endif %}">
+                📋 Hồ sơ
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="navbar-end">
+          <span class="text-xs sm:text-sm opacity-80 hidden sm:block" id="navbar-clock"></span>
+        </div>
+      </div>
+
+      <!-- Main content area -->
+      <main class="container mx-auto p-3 sm:p-4 max-w-7xl w-full flex-1">
+        {% block content %}{% endblock %}
+      </main>
+
+    </div><!-- /.drawer-content -->
+
+    <!-- Mobile sidebar drawer -->
+    <div class="drawer-side z-40">
+      <label for="mobile-nav-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+      <div class="bg-primary text-primary-content w-64 min-h-full flex flex-col p-4 gap-2">
+        <div class="text-xs opacity-60 font-semibold uppercase tracking-widest px-2 mb-1">
+          AutoFill Cấp Đơn
+        </div>
+        <ul class="menu w-full gap-1 p-0">
+          <li>
+            <a href="/dashboard"
+               class="{% if active_page == 'dashboard' %}bg-primary-focus font-semibold{% endif %}">
+              📊 Dashboard
+            </a>
+          </li>
+          <li>
+            <a href="/dashboard/records"
+               class="{% if active_page == 'records' %}bg-primary-focus font-semibold{% endif %}">
+              📋 Hồ sơ
+            </a>
+          </li>
+        </ul>
+        <div class="divider my-1 opacity-20"></div>
+        <div class="text-xs opacity-50 px-2" id="sidebar-clock"></div>
+      </div>
+    </div>
+
+  </div><!-- /.drawer -->
 
   <script>
     (function () {
       function tick() {
-        const el = document.getElementById('navbar-clock');
-        if (el) el.textContent = new Date().toLocaleString('vi-VN');
+        const now = new Date().toLocaleString('vi-VN');
+        const c1 = document.getElementById('navbar-clock');
+        const c2 = document.getElementById('sidebar-clock');
+        if (c1) c1.textContent = now;
+        if (c2) c2.textContent = now;
       }
       tick();
       setInterval(tick, 1000);
