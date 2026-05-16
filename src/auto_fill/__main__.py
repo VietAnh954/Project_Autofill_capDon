@@ -42,8 +42,24 @@ def cli(ctx: click.Context, log_level: str | None) -> None:
     default=False,
     help="Xu ly ca mail da doc (mac dinh chi lay mail chua doc). Dung de test / reprocess.",
 )
+@click.option(
+    "--scan-folder",
+    default=None,
+    metavar="FOLDER",
+    help=(
+        "Override folder can quet. 'inbox' = Inbox chinh. "
+        "Default: AutoFill/Incoming (theo cau hinh). "
+        "Vi du: --scan-folder inbox"
+    ),
+)
 @click.pass_context
-def run(ctx: click.Context, dry_run: bool, source: str, include_read: bool) -> None:
+def run(
+    ctx: click.Context,
+    dry_run: bool,
+    source: str,
+    include_read: bool,
+    scan_folder: str | None,
+) -> None:
     """Chay pipeline 1 lan: fetch mail -> parse -> fill master."""
     from auto_fill.config.settings import Settings
     from auto_fill.filler.backup import snapshot
@@ -52,7 +68,17 @@ def run(ctx: click.Context, dry_run: bool, source: str, include_read: bool) -> N
     settings: Settings = ctx.obj["settings"]
     effective_dry_run = dry_run or settings.dry_run
 
-    click.echo(f"[run] dry_run={effective_dry_run} source={source} include_read={include_read}")
+    # "inbox" sentinel → scan default inbox instead of AutoFill/Incoming
+    target_folder: str | None
+    if scan_folder is not None:
+        target_folder = None if scan_folder.lower() == "inbox" else scan_folder
+    else:
+        target_folder = "AutoFill/Incoming"
+
+    click.echo(
+        f"[run] dry_run={effective_dry_run} source={source} "
+        f"include_read={include_read} folder={target_folder or 'inbox'}"
+    )
     stats = RunStats()
 
     if not effective_dry_run and settings.backup_every_run:
@@ -64,7 +90,12 @@ def run(ctx: click.Context, dry_run: bool, source: str, include_read: bool) -> N
 
     if source in ("outlook", "both"):
         _run_outlook_source(
-            settings, effective_dry_run, inbox_dir, stats, include_read=include_read
+            settings,
+            effective_dry_run,
+            inbox_dir,
+            stats,
+            include_read=include_read,
+            target_folder=target_folder,
         )
 
     if source in ("gmail", "both"):
@@ -86,6 +117,7 @@ def _run_outlook_source(
     inbox_dir: Path,
     stats: Any,
     include_read: bool = False,
+    target_folder: str | None = "AutoFill/Incoming",
 ) -> None:
     from auto_fill.mail.downloader import download_attachments
     from auto_fill.mail.fetcher import MailFetcher
@@ -107,6 +139,7 @@ def _run_outlook_source(
         client=client,
         sender_allowlist=settings.sender_allowlist_set,
         subject_pattern=settings.subject_pattern,
+        target_folder=target_folder,
         include_read=include_read,
     )
     for mail in fetcher.fetch_matching():
