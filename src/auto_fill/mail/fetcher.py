@@ -35,15 +35,20 @@ class MailFetcher:
         subject_pattern: str,
         target_folder: str | None = "AutoFill/Incoming",
         tracker: ProcessedTracker | None = None,
+        include_read: bool = False,
     ) -> None:
         self._client = client
         self._sender_allowlist = sender_allowlist
         self._subject_re = re.compile(subject_pattern, re.IGNORECASE)
         self._target_folder = target_folder
         self._tracker = tracker or ProcessedTracker()
+        self._include_read = include_read
 
     def fetch_matching(self) -> Iterator[MailMessage]:
-        """Yield từng mail chưa đọc khớp với sender allowlist và subject pattern.
+        """Yield mail khớp với sender allowlist và subject pattern.
+
+        Mặc định chỉ lấy mail chưa đọc. Khi include_read=True, lấy cả mail đã đọc
+        (hữu ích để test / reprocess).
 
         Scans AutoFill/Incoming subfolder; falls back to default inbox when the
         subfolder does not exist (logged as warning by OutlookClient).
@@ -54,7 +59,8 @@ class MailFetcher:
         total = 0
         matched = 0
         folder = self._client.resolve_folder(self._target_folder)
-        for msg in self._client.iter_unread(folder=folder):
+        iter_fn = self._client.iter_all if self._include_read else self._client.iter_unread
+        for msg in iter_fn(folder=folder):
             total += 1
             if self._tracker.is_processed(msg.entry_id):
                 logger.debug(

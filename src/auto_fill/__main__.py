@@ -36,8 +36,14 @@ def cli(ctx: click.Context, log_level: str | None) -> None:
     show_default=True,
     help="Nguon mail: outlook | gmail | both.",
 )
+@click.option(
+    "--include-read",
+    is_flag=True,
+    default=False,
+    help="Xu ly ca mail da doc (mac dinh chi lay mail chua doc). Dung de test / reprocess.",
+)
 @click.pass_context
-def run(ctx: click.Context, dry_run: bool, source: str) -> None:
+def run(ctx: click.Context, dry_run: bool, source: str, include_read: bool) -> None:
     """Chay pipeline 1 lan: fetch mail -> parse -> fill master."""
     from auto_fill.config.settings import Settings
     from auto_fill.filler.backup import snapshot
@@ -46,7 +52,7 @@ def run(ctx: click.Context, dry_run: bool, source: str) -> None:
     settings: Settings = ctx.obj["settings"]
     effective_dry_run = dry_run or settings.dry_run
 
-    click.echo(f"[run] dry_run={effective_dry_run} source={source}")
+    click.echo(f"[run] dry_run={effective_dry_run} source={source} include_read={include_read}")
     stats = RunStats()
 
     if not effective_dry_run and settings.backup_every_run:
@@ -57,7 +63,9 @@ def run(ctx: click.Context, dry_run: bool, source: str) -> None:
     inbox_dir.mkdir(parents=True, exist_ok=True)
 
     if source in ("outlook", "both"):
-        _run_outlook_source(settings, effective_dry_run, inbox_dir, stats)
+        _run_outlook_source(
+            settings, effective_dry_run, inbox_dir, stats, include_read=include_read
+        )
 
     if source in ("gmail", "both"):
         _run_gmail_source(settings, effective_dry_run, inbox_dir, stats)
@@ -73,7 +81,11 @@ def run(ctx: click.Context, dry_run: bool, source: str) -> None:
 
 
 def _run_outlook_source(
-    settings: Any, effective_dry_run: bool, inbox_dir: Path, stats: Any
+    settings: Any,
+    effective_dry_run: bool,
+    inbox_dir: Path,
+    stats: Any,
+    include_read: bool = False,
 ) -> None:
     from auto_fill.mail.downloader import download_attachments
     from auto_fill.mail.fetcher import MailFetcher
@@ -95,6 +107,7 @@ def _run_outlook_source(
         client=client,
         sender_allowlist=settings.sender_allowlist_set,
         subject_pattern=settings.subject_pattern,
+        include_read=include_read,
     )
     for mail in fetcher.fetch_matching():
         ns: Any = client._namespace  # type: ignore[attr-defined]

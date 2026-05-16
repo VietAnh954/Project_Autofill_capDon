@@ -146,6 +146,30 @@ class OutlookClient:
             except Exception:
                 logger.warning("skip_unread_item", exc_info=True)
 
+    def iter_all(self, folder: Any | None = None) -> Iterator[MailMessage]:
+        """Yield tất cả mail trong `folder`, bao gồm cả mail đã đọc.
+
+        Dùng cho --include-read (test / reprocess). Không lọc theo trạng thái đọc.
+
+        Args:
+            folder: Outlook folder COM object. None → use default inbox.
+
+        Raises:
+            RuntimeError: nếu chưa gọi connect().
+        """
+        if self._inbox is None:
+            raise RuntimeError("Chưa connect(). Gọi OutlookClient.connect() trước.")
+
+        target = folder if folder is not None else self._inbox
+        items = target.Items
+        items.Sort("[ReceivedTime]", Descending=True)
+
+        for item in items:
+            try:
+                yield _mail_item_to_message(item)
+            except Exception:
+                logger.warning("skip_all_item", exc_info=True)
+
     def mark_as_read(self, entry_id: str) -> None:
         """Mark mail theo entry_id là đã đọc."""
         if self._outlook is None:
