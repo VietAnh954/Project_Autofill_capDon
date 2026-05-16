@@ -61,6 +61,7 @@ class OutlookClient:
         self._profile = profile
         self._inbox_folder_name = inbox_folder
         self._outlook: Any = None
+        self._namespace: Any = None
         self._inbox: Any = None
 
     def connect(self) -> None:
@@ -69,6 +70,7 @@ class OutlookClient:
             self._outlook = win32com.client.Dispatch("Outlook.Application")
             namespace = self._outlook.GetNamespace("MAPI")
             namespace.Logon(self._profile)
+            self._namespace = namespace
             self._inbox = namespace.GetDefaultFolder(6)  # 6 = olFolderInbox
             logger.info("outlook_connected", extra={"profile": self._profile})
         except Exception as exc:
