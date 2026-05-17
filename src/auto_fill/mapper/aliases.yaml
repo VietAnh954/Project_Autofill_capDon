@@ -35,6 +35,11 @@ insured_name:
   - "ho ten nguoi duoc bh (*)"
   - "họ tên "
   - "ho ten "
+  # HSSV template — abbreviated header
+  - "tên người được bh"
+  - "ten nguoi duoc bh"
+  - "tên nđbh"
+  - "ten ndbh"
 
 insured_dob:
   - "ngày sinh"
@@ -146,6 +151,13 @@ buyer_name:
   - "ten nguoi mua (*)"
   - "tên khách hàng"
   - "ten khach hang"
+  # HSSV template — "Người yêu cầu BH (Phụ huynh)" section
+  - "người yêu cầu bh"
+  - "nguoi yeu cau bh"
+  - "tên người yêu cầu bh"
+  - "ten nguoi yeu cau bh"
+  - "người yêu cầu bảo hiểm"
+  - "nguoi yeu cau bao hiem"
 
 buyer_dob:
   - "ngày sinh bmbh"
@@ -198,6 +210,13 @@ buyer_relation:
   - "quan hệ bmbh (*)"
   - "quan he bmbh (*)"
   - "quan hệ bmbh"
+  # HSSV template — "Mối quan hệ với NĐBH"
+  - "mối quan hệ với nđbh"
+  - "moi quan he voi ndbh"
+  - "quan hệ với nđbh"
+  - "quan he voi ndbh"
+  - "mối quan hệ với người được bh"
+  - "moi quan he voi nguoi duoc bh"
 
 # -----------------------------------------------------------------------
 # THÔNG TIN HỢP ĐỒNG / HIỆU LỰC

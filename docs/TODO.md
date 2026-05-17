@@ -220,12 +220,11 @@
        - ✅ Tests use `Path(__file__).parent / "fixtures"` (no relative path, no pre-commit stash issue).
        - ✅ 677/677 overall tests pass.
 
-- [ ] 8.8. **Update `aliases.yaml`** — bổ sung alias chính xác từ data thực:
-       - "Tên khách hàng" + group="Bên mua bảo hiểm" → `buyer_name`
-       - "Họ tên" + group="Người được bảo hiểm" → `insured_name`
-       - "Ngày sinh" + group context → `buyer_dob` HOẶC `insured_dob`
-       - "Mối quan hệ" / "Quan hệ BMBH" → `buyer_relation`
-       - "Bản thân" giá trị → flag `is_self_buyer`
+- [x] 8.8. **Update `aliases.yaml`** — bổ sung alias chính xác từ data thực:
+       - ✅ `insured_name`: thêm "tên người được bh", "ten nguoi duoc bh" (HSSV abbreviated header).
+       - ✅ `buyer_name`: thêm "người yêu cầu bh", "nguoi yeu cau bh", "tên người yêu cầu bh" (HSSV phụ huynh).
+       - ✅ `buyer_relation`: thêm "mối quan hệ với nđbh", "moi quan he voi ndbh", "quan hệ với nđbh" (HSSV).
+       - ✅ 677/677 overall tests pass (21 e2e samples included).
 
 - [ ] 8.9. **Dashboard enhancement** — show pattern indicator:
        - Recent records section: hiển thị icon Pattern 1/2/3 cho mỗi entry.

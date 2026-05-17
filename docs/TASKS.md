@@ -7,7 +7,26 @@
 
 ## Đang làm
 
-Phase 8.1–8.5 ✅ done. Còn 8.6 → 8.10.
+Phase 8.1–8.8 ✅ done. Còn 8.9 → 8.10.
+
+---
+
+## Session Summary — 2026-05-18 (Phase 8.6–8.8: Filler, fixtures, aliases)
+
+| Task | File chính | Tests | Trạng thái |
+|------|-----------|-------|-----------|
+| 8.6 Pattern 3 filler | `filler/excel_filler.py`, `tests/test_excel_filler.py` | +6 tests | ✅ |
+| 8.7 Test fixtures | `tests/fixtures/sample_capdon/` (5 files), `tests/test_e2e_samples.py` | 21 e2e tests | ✅ |
+| 8.8 aliases.yaml | `mapper/aliases.yaml` | 677 pass | ✅ |
+
+**Aliases added (8.8):**
+- `insured_name`: "tên người được bh", "ten nguoi duoc bh" (HSSV abbreviated header).
+- `buyer_name`: "người yêu cầu bh", "nguoi yeu cau bh", "tên người yêu cầu bh", "ten nguoi yeu cau bh", "người yêu cầu bảo hiểm".
+- `buyer_relation`: "mối quan hệ với nđbh", "moi quan he voi ndbh", "quan hệ với nđbh", "quan he voi ndbh", "mối quan hệ với người được bh".
+
+**Note:** All 5 sample_capdon fixtures pass e2e pipeline (read → normalize → validate). Fuzzy threshold 85 too low for "ten nguoi duoc bh" vs "ten nguoi duoc bao hiem" → explicit aliases added.
+
+**Next:** Phase 8.9 — dashboard pattern indicator.
 
 ---
 
