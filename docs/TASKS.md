@@ -7,7 +7,8 @@
 
 ## Đang làm
 
-Phase 8.1–8.9 ✅ done. Còn 8.10 (tag).
+Phase 8 ✅ hoàn thành (8.1–8.10). Tag v0.8.0-mapper-refactor đã push.
+Backlog còn: Multi-tenant.
 
 ---
 

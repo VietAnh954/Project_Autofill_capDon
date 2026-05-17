@@ -232,7 +232,7 @@
        - ✅ `patternOf()` + `patternTitle()` + `filteredRecords` computed property (Alpine.js).
        - ✅ 12 dashboard route tests vẫn pass.
 
-- [ ] 8.10. Tag `v0.8.0-mapper-refactor`.
+- [x] 8.10. Tag `v0.8.0-mapper-refactor`. ✅ Pushed.
 
 ---
 
