@@ -203,10 +203,10 @@
        - ✅ Acceptance: `sample_du_lich.xlsx` gia đình Phạm Minh Cường → 4 rows cùng UUID; Nguyễn Văn An UUID khác.
        - ✅ 23 excel_reader tests pass + 641/641 overall.
 
-- [ ] 8.5. **Self-buyer normalizer** — `mapper/self_buyer.py`:
-       - Khi `buyer_relation == "Bản thân"` AND `buyer_name` trống → copy `insured_*` sang `buyer_*`.
-       - Reverse: khi chỉ có buyer fields + relation="Bản thân" → copy sang insured.
-       - Acceptance: `sample_suc_khoe.xlsx` case 1 → record có cả `buyer_name` và `insured_name` đều = "Nguyễn Thị Tuyết Linh".
+- [x] 8.5. **Self-buyer normalizer** — `mapper/self_buyer.py`:
+       - ✅ `normalize_self_buyer(record)`: khi `buyer_relation == "Bản thân"` → fill-up insured→buyer hoặc buyer→insured, whichever side is empty.
+       - ✅ Acceptance: 13 unit tests + sample_suc_khoe.xlsx case 1 (Bản thân) → buyer_name == insured_name = "Nguyễn Thị Tuyết Linh".
+       - ✅ 650/650 overall tests pass.
 
 - [ ] 8.6. **Excel filler — preserve BMBH-empty for Pattern 3**:
        - Khi append N rows cùng `source_buyer_group_id`: row 1 ghi BMBH đầy đủ, row 2..N để BMBH cells = None.

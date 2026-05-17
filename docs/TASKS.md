@@ -7,7 +7,30 @@
 
 ## Đang làm
 
-Phase 8.1, 8.2, 8.2b, 8.3, 8.4 ✅ done. Còn 8.5 → 8.10.
+Phase 8.1–8.5 ✅ done. Còn 8.6 → 8.10.
+
+---
+
+## Session Summary — 2026-05-18 (Phase 8.5: Self-buyer normalizer)
+
+| Task | File chính | Tests | Trạng thái |
+|------|-----------|-------|-----------|
+| 8.4 Pattern 3 UUID (fix commit) | `reader/excel_reader.py`, `mapper/aliases.yaml` | 23 passed | ✅ |
+| 8.5 self_buyer | `mapper/self_buyer.py`, `tests/test_self_buyer.py` | 13 passed | ✅ |
+
+**Full test suite: 650 passed**
+
+### Chi tiết 8.4 commit fix:
+- Pre-commit failed: aliases.yaml unstaged → "họ tên người mua" alias missing → buyer_name KeyError.
+- Fix: staged aliases.yaml together with excel_reader.py + test_excel_reader.py.
+
+### Chi tiết 8.5:
+- `normalize_self_buyer(record)`: no-mutation dict, handles NaN/empty string/None as empty.
+- Relations matched case-insensitively: "Bản thân", "ban than", "self", "chính mình".
+- Bidirectional: buyer empty + insured present → copy to buyer; insured empty + buyer present → copy to insured.
+- 13 unit tests + acceptance test against sample_suc_khoe.xlsx row 0 (Bản thân).
+
+**Next:** 8.6 — Excel filler preserve BMBH-empty for Pattern 3.
 
 ---
 
