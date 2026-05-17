@@ -163,6 +163,71 @@
 
 ---
 
+## Phase 8 — Mapper Refactor (từ data thực tế file master PTI v5 + sample files)
+
+> Phát sinh sau khi user upload `Danh sách cấp đơn Offline PTI (5).xlsx` + 5 sample file mẫu trong `sample_capdon/`.
+> Mục tiêu: pipeline KHÔNG cứng nhắc bắt buộc đủ data; phân biệt rõ NĐBH vs BMBH; xử lý 3 patterns (self/1-1/1-N).
+> Reference: `docs/DATABASE.md §2.2-§2.4`, `docs/MAPPING.md §1.1`.
+
+- [x] 8.1. **Validator refactor** — `mapper/validator.py`:
+       - ✅ Chỉ require **1 core field** per sheet (`insured_name` cho travel/health/bhyt/student, `insured_name` OR `plate_number` cho auto/motorbike).
+       - ✅ Soft fields thiếu → log warning, KHÔNG raise `ValidationError`.
+       - ✅ 24 unit tests pass + 193 tests overall green.
+       - ✅ Verified 6 records từ sample_du_lich.xlsx đều pass (trước fix: 1 fail vì `issued_date`).
+
+- [x] 8.2. **Normalizer + `_normalize_record` refactor** (was: Dual-DOB awareness — moved to 8.2b):
+       - ✅ `normalize_id_number`: float CCCD `12345678901.0` → `'012345678901'` (strip `.0` + pad CCCD 11→12 digits).
+       - ✅ `normalize_date`: thêm `yyyy/mm/dd`, `MM/dd/yyyy` (US fallback), `2026-05-15 00:00:00` (pandas Timestamp), `dd.mm.yyyy`.
+       - ✅ `_is_nan_like()` helper: detect NaN/None/NaT/'nan'/'NaT'/'na'/'n/a'.
+       - ✅ `_normalize_record` (in `__main__.py`): khi normalize fail HOẶC value là NaN → set field = None (thay vì để float lẫn lộn → validator báo sai type).
+       - ✅ 81 unit tests pass (28 cases mới cho NaN + float CCCD + multi-format date).
+       - ✅ End-to-end mock với row 6 sample_du_lich (NaN DOB + NaN ID + pandas Timestamp str trip_start) → validator PASS.
+
+- [x] 8.2b. **Dual-DOB column awareness** — `mapper/sheet_mapping.py`:
+       - ✅ Verify mapping `insured_dob` → đúng cột NĐBH (col 4 Sức khỏe, col 4 BHYTBHXH, col 3 HSSV).
+       - ✅ Verify mapping `buyer_dob` → đúng cột BMBH (col 12 Sức khỏe, col 11 BHYTBHXH, col 13 HSSV).
+       - ✅ Added missing buyer fields (buyer_relation/dob/id_number/phone/address/email) to HEALTH + STUDENT + BHYT_BHXH.
+       - ✅ 2 acceptance tests: Pattern 1 (same DOB both cols), Pattern 2 (child_dob=2018-12-12 col4, mother_dob=1988-08-30 col12).
+       - ✅ 49 sheet_mapping tests pass + 613 overall green.
+
+- [ ] 8.3. **Reverse-order mapper** — `mapper/header_detector.py`:
+       - Detect cấu trúc: input col 2-7 là BMBH (Affina submit) HAY input col 3-9 là NĐBH (master order).
+       - Dùng group header row 1 (merged cell "Bên mua bảo hiểm" / "Người được bảo hiểm") để phân biệt.
+       - Acceptance: cùng pipeline đọc được cả `sample_capdon/sample_suc_khoe.xlsx` (BMBH trái) và file copy của master (NĐBH trái).
+
+- [ ] 8.4. **Pattern 3 fill-down** — `reader/excel_reader.py`:
+       - Khi row N có BMBH cells trống nhưng có NĐBH data → fill-down BMBH info từ row gần nhất phía trên.
+       - Đánh dấu `source_buyer_group_id` (UUID) chung cho group rows.
+       - Acceptance: `sample_du_lich.xlsx` rows 3-5 (gia đình Phạm Minh Cường) → 3 record canonical đều có cùng `buyer_name="Phạm Minh Cường"`.
+
+- [ ] 8.5. **Self-buyer normalizer** — `mapper/self_buyer.py`:
+       - Khi `buyer_relation == "Bản thân"` AND `buyer_name` trống → copy `insured_*` sang `buyer_*`.
+       - Reverse: khi chỉ có buyer fields + relation="Bản thân" → copy sang insured.
+       - Acceptance: `sample_suc_khoe.xlsx` case 1 → record có cả `buyer_name` và `insured_name` đều = "Nguyễn Thị Tuyết Linh".
+
+- [ ] 8.6. **Excel filler — preserve BMBH-empty for Pattern 3**:
+       - Khi append N rows cùng `source_buyer_group_id`: row 1 ghi BMBH đầy đủ, row 2..N để BMBH cells = None.
+       - Acceptance: write `sample_hssv.xlsx` (gia đình 3 con Lê) vào master HSSV → 3 row liên tiếp, cols 11-17 row 2-3 trống.
+
+- [ ] 8.7. **Test fixtures** — copy `sample_capdon/` vào `tests/fixtures/sample_capdon/`:
+       - End-to-end test cho cả 5 sheet.
+       - Verify mỗi sample pass pipeline (read → classify → fill).
+
+- [ ] 8.8. **Update `aliases.yaml`** — bổ sung alias chính xác từ data thực:
+       - "Tên khách hàng" + group="Bên mua bảo hiểm" → `buyer_name`
+       - "Họ tên" + group="Người được bảo hiểm" → `insured_name`
+       - "Ngày sinh" + group context → `buyer_dob` HOẶC `insured_dob`
+       - "Mối quan hệ" / "Quan hệ BMBH" → `buyer_relation`
+       - "Bản thân" giá trị → flag `is_self_buyer`
+
+- [ ] 8.9. **Dashboard enhancement** — show pattern indicator:
+       - Recent records section: hiển thị icon Pattern 1/2/3 cho mỗi entry.
+       - Filter theo BMBH (group view).
+
+- [ ] 8.10. Tag `v0.8.0-mapper-refactor`.
+
+---
+
 ## Backlog (chưa ưu tiên)
 
 - [ ] Multi-tenant nếu mở rộng cho nhiều phòng ban.

@@ -7,7 +7,109 @@
 
 ## Đang làm
 
-(Phase 7 hoàn thành — 7.1–7.15 done, tag v0.7.0-mail-refinement pushed)
+Phase 8.1, 8.2, 8.2b ✅ done. Còn 8.3 → 8.10.
+
+---
+
+## Session Summary — 2026-05-18 (Phase 8.2b: Dual-DOB column awareness)
+
+**Trigger:** Auto-loop task 8.2b.
+
+**Root cause:** `sheet_mapping.py` HEALTH và STUDENT thiếu `buyer_dob` và các buyer fields còn lại.
+
+| Sheet | insured_dob (trước) | buyer_dob (trước) | buyer_dob (sau) | buyer fields bổ sung |
+|-------|:--:|:--:|:--:|------|
+| Sức khỏe | col 4 ✓ | MISSING | col 12 ✅ | buyer_relation(11), buyer_id_number(13), buyer_phone(14), buyer_address(15), buyer_email(16) |
+| BHYTBHXH | col 4 ✓ | col 11 ✓ | col 11 ✅ | buyer_address(14), buyer_phone(15), buyer_email(16) |
+| HSSV | col 3 ✓ | MISSING | col 13 ✅ | buyer_id_number(14), buyer_email(15), buyer_phone(16), buyer_address(17) |
+
+**Files thay đổi:**
+- `src/auto_fill/mapper/sheet_mapping.py` — thêm buyer fields vào HEALTH, BHYT_BHXH, STUDENT.
+- `tests/test_sheet_mapping.py` — thêm 20 tests: insured_dob col check, buyer_dob col check, dual-DOB distinct check, 2 acceptance tests (Pattern 1 self-buyer, Pattern 2 me-con).
+
+**Tests:** 49 sheet_mapping tests pass + 613/613 overall green.
+
+**Note:**
+- Pattern 1 test: insured_dob = buyer_dob = 1995-08-28 -> ca col 4 va col 12 nhan cung value.
+- Pattern 2 test: child_dob (2018-12-12) -> col 4, mother_dob (1988-08-30) -> col 12. KHAC NHAU.
+- BHYT_BHXH da dung tu truoc (buyer_dob col 11). Chi bo sung 3 buyer fields con thieu.
+
+**Next:** Phase 8.3 — Reverse-order mapper (header_detector.py).
+
+---
+
+## Session Summary — 2026-05-17 (Phase 8.2: Normalizer NaN + float CCCD + multi-format date)
+
+**Trigger:** User test lần 2 với `sample_du_lich_2.xlsx`:
+```
+[skip] sample_du_lich_2.xlsx: Sai kieu truong 'insured_dob': can date, nhan float;
+                              Sai kieu truong 'insured_id_number': can str, nhan float
+```
+5 rows OK, row 6 fail.
+
+**Root cause chuỗi:**
+1. Pandas đọc cell trống Excel → trả `NaN` (float).
+2. `_normalize_record` check `is not None` — NaN ≠ None → check PASS.
+3. Gọi `normalize_id_number(NaN)` / `normalize_date(NaN)` → raise `MappingError`.
+4. `contextlib.suppress(Exception)` nuốt error → field giữ nguyên `NaN` (float).
+5. Validator báo "can str, nhan float" / "can date, nhan float".
+
+**Refactor:**
+
+| Function | Trước | Sau |
+|----------|-------|-----|
+| `normalize_id_number` | `str(value).strip()` cho float → `"12345678901.0"` (sai) | Detect float → int → str (strip `.0`); pad CCCD 11→12 digits |
+| `normalize_date` | 8 format | 14 format (thêm `yyyy/mm/dd`, `MM/dd/yyyy`, `dd.mm.yyyy`, `pandas Timestamp str`) |
+| `_is_nan_like` | (chưa có) | Helper detect None/NaN/NaT/'nan'/'NaT'/'na'/'n/a' |
+| `_normalize_record` | `with suppress(Exception)` → giữ nguyên giá trị fail | Check NaN trước; normalize fail → set field = None |
+
+**Files thay đổi:**
+- `src/auto_fill/mapper/normalizer.py` (314 lines, refactor toàn bộ + thêm 6 date format).
+- `src/auto_fill/__main__.py` `_normalize_record()` — robust NaN-aware.
+- `tests/test_normalizer.py` (+ 28 test cases mới: NaN, float CCCD, yyyy/mm/dd, MM/dd/yyyy, pandas Timestamp).
+
+**Tests:**
+- 81/81 unit tests pass (53 cũ + 28 mới).
+- 193/193 integration tests pass.
+- End-to-end mock row 6 (NaN DOB + NaN ID + pandas Timestamp str) → validator PASS ✓.
+
+**Note:**
+- `_normalize_record` không còn dùng `contextlib.suppress`. Lỗi normalize → set None thay vì swallow im lặng.
+- Date format priority: VN `dd/mm/yyyy` ưu tiên TRƯỚC US `MM/dd/yyyy`. Ambiguous case như `05/01/2026` → 5 January (VN), không phải May 1 (US).
+
+**Next:** Phase 8.2b — verify mapper write đúng cột (2 cột "Ngày sinh" trong master).
+
+---
+
+## Session Summary — 2026-05-17 (Phase 8.1: Validator linh hoạt)
+
+**Trigger:** User test `python -m auto_fill run --dry-run` với `sample_du_lich.xlsx` → fail:
+`Thieu truong bat buoc: 'issued_date'`
+
+**Root cause:** `validator.py` cũ require 7 fields (issued_date, insured_name, insured_dob, insured_id_number, trip_start, trip_end, destination) — quá cứng nhắc với data thực tế từ sale.
+
+**Refactor:**
+
+| Trước | Sau |
+|-------|-----|
+| 7+ required fields per sheet | 1 CORE field per sheet (`insured_name`, hoặc `OR plate_number` cho auto/motorbike) |
+| Thiếu field → raise `ValidationError`, skip row | Thiếu soft field → log warning, vẫn ghi cell trống |
+| Chỉ schema `travel` | Schema cho 6 sheet MVP: travel, health, auto, motorbike, bhyt_bhxh, student |
+
+**Files thay đổi:**
+- `src/auto_fill/mapper/validator.py` (239 lines, refactor hoàn chỉnh).
+- `tests/test_validator.py` (154 lines, 24 tests cover CORE/SOFT logic + sub-classes per schema).
+
+**Tests:**
+- 24/24 unit test pass.
+- 193/193 integration test (validator + smoke + pipeline + classifier + normalizer + dedup + readers) pass.
+- Mock 6 records từ `sample_du_lich.xlsx` → 6/6 PASS (warnings = 3-10 soft fields trống nhưng vẫn ghi được).
+
+**Note kỹ thuật:**
+- Write tool có bug truncate file khi nội dung có nhiều Unicode/quote phức tạp → đã workaround bằng cách viết qua bash + python heredoc.
+- `expected_type` của FieldSpec đổi từ `type | None` → `Any` để chấp nhận tuple `(int, float)` cho premium fields.
+
+**Next:** Phase 8.2 — dual-DOB awareness (đảm bảo `insured_dob` ≠ `buyer_dob` khi ghi vào master).
 
 ---
 

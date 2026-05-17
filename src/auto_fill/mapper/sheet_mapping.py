@@ -113,6 +113,12 @@ HEALTH = SheetColumnMap(
         ("insured_id_number", 8),
         ("insured_address", 9),
         ("buyer_name", 10),
+        ("buyer_relation", 11),
+        ("buyer_dob", 12),
+        ("buyer_id_number", 13),
+        ("buyer_phone", 14),
+        ("buyer_address", 15),
+        ("buyer_email", 16),
     ),
     stt_col=2,
 )
@@ -136,6 +142,9 @@ BHYT_BHXH = SheetColumnMap(
         ("buyer_dob", 11),
         ("buyer_id_number", 12),
         ("buyer_relation", 13),
+        ("buyer_address", 14),
+        ("buyer_phone", 15),
+        ("buyer_email", 16),
     ),
     stt_col=2,
 )
@@ -158,6 +167,11 @@ STUDENT = SheetColumnMap(
         ("class_name", 10),
         ("buyer_name", 11),
         ("buyer_relation", 12),
+        ("buyer_dob", 13),
+        ("buyer_id_number", 14),
+        ("buyer_email", 15),
+        ("buyer_phone", 16),
+        ("buyer_address", 17),
     ),
     stt_col=None,  # HSSV khong co cot STT trong mapping hien tai
 )
