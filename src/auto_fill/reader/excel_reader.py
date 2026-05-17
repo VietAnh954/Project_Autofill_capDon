@@ -8,12 +8,26 @@ Alias mapping: xem MAPPING.md §4. Full aliases.yaml ở task 2.3.
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 
 import pandas as pd
 from rapidfuzz import fuzz
 
+from auto_fill.mapper.header_detector import (
+    GroupLayout,
+    build_group_aware_col_map,
+    detect_group_layout,
+)
 from auto_fill.utils.errors import ReaderError
+
+_DATE_LIKE_RE = re.compile(
+    r"^\s*("
+    r"\d{1,2}[/\-.]\d{1,2}[/\-.]\d{2,4}"  # 18/5/2026, 22-11-1988
+    r"|\d{4}[/\-]\d{1,2}[/\-]\d{1,2}(\s+\d{1,2}:\d{2}(:\d{2})?)?"  # 2026-12-06 [00:00:00]
+    r")\s*$"
+)
+_ID_LIKE_RE = re.compile(r"^[A-Z]{1,3}\d{6,}$")  # P00987499, B12345678
 
 logger = logging.getLogger(__name__)
 
@@ -77,8 +91,16 @@ def read_excel(
     data_df.columns = pd.Index(headers)
     data_df = data_df.dropna(how="all").reset_index(drop=True)
 
-    rename_map = _build_rename_map(headers, aliases)
-    data_df = data_df.rename(columns=rename_map)
+    group_layout: GroupLayout = detect_group_layout(raw_df)
+    if group_layout.order != "unknown":
+        col_map = build_group_aware_col_map(headers, aliases, group_layout)
+        new_cols = [col_map.get(i + 1, h) for i, h in enumerate(headers)]
+        data_df.columns = pd.Index(new_cols)
+        logger.debug("group_aware_rename", extra={"file": path.name, "order": group_layout.order})
+    else:
+        rename_map = _build_rename_map(headers, aliases)
+        data_df = data_df.rename(columns=rename_map)
+    data_df = _dedupe_columns(data_df, path.name)
     data_df = _filldown_buyer(data_df)
 
     logger.info(
@@ -91,6 +113,41 @@ def read_excel(
         },
     )
     return data_df
+
+
+def _dedupe_columns(df: pd.DataFrame, source_name: str) -> pd.DataFrame:
+    """Suffix cot canonical bi trung de tranh pandas gop thanh Series.
+
+    Khi nhieu header raw map ve cung 1 canonical (vd 2 cot 'Ngay sinh'),
+    pandas tao MultiIndex/Series → validator fail. Giai phap: giu cot dau,
+    cot sau them suffix '_dup2', '_dup3'… va log warning.
+    """
+    seen: dict[str, int] = {}
+    new_cols: list[str] = []
+    duplicates: list[str] = []
+    for c in df.columns:
+        if c in seen:
+            seen[c] += 1
+            new_name = f"{c}_dup{seen[c]}"
+            duplicates.append(c)
+        else:
+            seen[c] = 1
+            new_name = c
+        new_cols.append(new_name)
+    if duplicates:
+        logger.warning(
+            "duplicate_canonical_columns",
+            extra={"file": source_name, "duplicates": duplicates},
+        )
+        import click
+
+        click.echo(
+            f"[warn] {source_name}: cot canonical bi trung header → "
+            f"{duplicates}. Pipeline giu cot dau, cot sau suffix '_dup'. "
+            f"Hay sua header trong Excel cho khac nhau."
+        )
+    df.columns = pd.Index(new_cols)
+    return df
 
 
 def _filldown_buyer(df: pd.DataFrame) -> pd.DataFrame:
@@ -134,17 +191,22 @@ def _detect_header_row(df: pd.DataFrame) -> int:
         text_count = sum(1 for v in row if isinstance(v, str) and v.strip())
         scores.append(text_count * 2 + non_null)
 
-        # A row is "data" if >30% of its filled cells parse as float
-        numeric_count = 0
+        # A row is "data" if >20% of its filled cells look like data values:
+        # numeric, date-like (dd/mm/yyyy, yyyy-mm-dd HH:MM:SS), or ID-like (P12345678).
+        data_like_count = 0
         filled_count = max(1, non_null)
         for v in row:
             if isinstance(v, str) and v.strip():
+                s = v.strip()
                 try:
-                    float(v.replace(",", "."))
-                    numeric_count += 1
+                    float(s.replace(",", "."))
+                    data_like_count += 1
+                    continue
                 except ValueError:
                     pass
-        is_data_row.append(numeric_count / filled_count > _DATA_ROW_NUMERIC_RATIO)
+                if _DATE_LIKE_RE.match(s) or _ID_LIKE_RE.match(s):
+                    data_like_count += 1
+        is_data_row.append(data_like_count / filled_count > _DATA_ROW_NUMERIC_RATIO)
 
     if not scores or max(scores) <= 0:
         raise ReaderError("Không tìm được hàng header hợp lệ trong file.")

@@ -7,7 +7,34 @@
 
 ## Đang làm
 
-Phase 8.1, 8.2, 8.2b ✅ done. Còn 8.3 → 8.10.
+Phase 8.1, 8.2, 8.2b, 8.3 ✅ done. Còn 8.4 → 8.10.
+
+---
+
+## Session Summary — 2026-05-18 (Phase 8.3: Reverse-order mapper)
+
+**Trigger:** Auto-loop task 8.3.
+
+**Root cause:** Pipeline dùng `{header_string: canonical}` rename map → khi 2 cột cùng tên "Ngày sinh" (BMBH + NDBH), dict key collision → cả 2 map về `insured_dob`. Column BMBH không có `buyer_dob`.
+
+**Thiết kế:**
+1. `_norm(s)`: strip accents + đổi đ→d trước khi regex → tránh lỗi Unicode với "Người được" (ờ, đ không phân rã qua NFD).
+2. `detect_group_layout(raw_df)`: scan first 5 rows tìm "ben mua"/"nguoi duoc" → trả về `GroupLayout` với bmbh_cols + insured_cols (frozenset 1-indexed).
+3. `build_group_aware_col_map(headers, aliases, layout)`: trả `{1-indexed_col: canonical}` (key = position, không phải header string) → không bị duplicate key.
+4. `excel_reader.read_excel`: nếu group detected → dùng col_map, set `data_df.columns` trực tiếp.
+
+**Files thay đổi:**
+- `src/auto_fill/mapper/header_detector.py` — mới tạo: 110 lines.
+- `src/auto_fill/reader/excel_reader.py` — tích hợp group-aware rename.
+- `tests/test_header_detector.py` — 18 tests: detect_group_layout, build_group_aware_col_map, 5 acceptance tests với sample_suc_khoe.xlsx.
+
+**Tests:** 18 new + 631/631 overall green.
+
+**Kết quả sample_suc_khoe.xlsx:**
+- Phúc (con): insured_dob=2018-12-12, buyer_dob=1988-08-30 (mẹ Thuận). KHÁC NHAU ✓
+- Tuyết Linh (bản thân): insured_dob = buyer_dob = 1995-08-28. GIỐNG NHAU ✓
+
+**Next:** Phase 8.4 — Pattern 3 fill-down (reader/excel_reader.py).
 
 ---
 

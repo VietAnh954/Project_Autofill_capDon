@@ -190,10 +190,12 @@
        - ✅ 2 acceptance tests: Pattern 1 (same DOB both cols), Pattern 2 (child_dob=2018-12-12 col4, mother_dob=1988-08-30 col12).
        - ✅ 49 sheet_mapping tests pass + 613 overall green.
 
-- [ ] 8.3. **Reverse-order mapper** — `mapper/header_detector.py`:
-       - Detect cấu trúc: input col 2-7 là BMBH (Affina submit) HAY input col 3-9 là NĐBH (master order).
-       - Dùng group header row 1 (merged cell "Bên mua bảo hiểm" / "Người được bảo hiểm") để phân biệt.
-       - Acceptance: cùng pipeline đọc được cả `sample_capdon/sample_suc_khoe.xlsx` (BMBH trái) và file copy của master (NĐBH trái).
+- [x] 8.3. **Reverse-order mapper** — `mapper/header_detector.py`:
+       - ✅ Detect cấu trúc: scan group header row cho "Bên mua bảo hiểm" / "Người được bảo hiểm" → order bmbh_first | insured_first | unknown.
+       - ✅ `build_group_aware_col_map`: position-indexed rename (key=1-indexed col) → tránh duplicate key khi 2 cột "Ngày sinh" cùng header.
+       - ✅ `excel_reader.py` tích hợp: nếu detect được group layout → dùng group-aware, else → standard alias.
+       - ✅ Acceptance: sample_suc_khoe.xlsx (BMBH trái) → insured_dob=2018-12-12 (Phúc), buyer_dob=1988-08-30 (Thuận) KHÁC NHAU.
+       - ✅ 18 tests pass + 631/631 overall.
 
 - [ ] 8.4. **Pattern 3 fill-down** — `reader/excel_reader.py`:
        - Khi row N có BMBH cells trống nhưng có NĐBH data → fill-down BMBH info từ row gần nhất phía trên.
