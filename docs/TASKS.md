@@ -30,7 +30,7 @@ Phase 8.1–8.5 ✅ done. Còn 8.6 → 8.10.
 - Bidirectional: buyer empty + insured present → copy to buyer; insured empty + buyer present → copy to insured.
 - 13 unit tests + acceptance test against sample_suc_khoe.xlsx row 0 (Bản thân).
 
-**Next:** 8.7 — Copy sample_capdon/ to tests/fixtures/ + end-to-end tests for all 5 sheets.
+**Next:** 8.8 — Update aliases.yaml with accurate aliases from real data.
 
 ---
 

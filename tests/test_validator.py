@@ -1,4 +1,7 @@
-"""Unit tests cho Validator."""
+"""Unit tests cho Validator (refactored 2026-05-17, Phase 8.1).
+
+Philosophy: chi 1 CORE field per sheet bat buoc. Soft field thieu -> warning, KHONG fail.
+"""
 
 from __future__ import annotations
 
@@ -26,59 +29,105 @@ class TestValidateRecord:
         assert result.is_valid is True
         assert result.errors == []
 
-    def test_missing_required_field_fails(self) -> None:
-        record = {**_VALID_TRAVEL}
-        del record["insured_name"]
-        result = validate_record(record, "travel")
-        assert result.is_valid is False
-        assert any("insured_name" in e for e in result.errors)
+    def test_only_core_field_passes(self) -> None:
+        result = validate_record({"insured_name": "NGUYEN VAN A"}, "travel")
+        assert result.is_valid is True
+        assert result.errors == []
+        assert len(result.warnings) > 0
 
-    def test_multiple_missing_fields_all_reported(self) -> None:
+    def test_missing_core_field_fails(self) -> None:
         record = {**_VALID_TRAVEL}
         del record["insured_name"]
-        del record["insured_id_number"]
         result = validate_record(record, "travel")
         assert result.is_valid is False
-        assert len(result.errors) >= 2
+        assert any("CORE" in e for e in result.errors)
+
+    def test_missing_soft_issued_date_passes(self) -> None:
+        record = {**_VALID_TRAVEL}
+        del record["issued_date"]
+        result = validate_record(record, "travel")
+        assert result.is_valid is True
+
+    def test_missing_destination_passes(self) -> None:
+        record = {**_VALID_TRAVEL}
+        del record["destination"]
+        result = validate_record(record, "travel")
+        assert result.is_valid is True
 
     def test_wrong_type_for_date_field_fails(self) -> None:
-        record = {**_VALID_TRAVEL, "issued_date": "2026-05-14"}  # str, not date
+        record = {**_VALID_TRAVEL, "issued_date": "2026-05-14"}
         result = validate_record(record, "travel")
         assert result.is_valid is False
         assert any("issued_date" in e for e in result.errors)
 
     def test_wrong_type_for_name_field_fails(self) -> None:
-        record = {**_VALID_TRAVEL, "insured_name": 12345}  # int, not str
+        record = {**_VALID_TRAVEL, "insured_name": 12345}
         result = validate_record(record, "travel")
         assert result.is_valid is False
-
-    def test_optional_field_absent_passes(self) -> None:
-        record = {**_VALID_TRAVEL}
-        result = validate_record(record, "travel")
-        assert result.is_valid is True
 
     def test_optional_field_with_wrong_type_fails(self) -> None:
         record = {**_VALID_TRAVEL, "effective_from": "not-a-date"}
         result = validate_record(record, "travel")
         assert result.is_valid is False
 
-    def test_empty_string_required_field_fails(self) -> None:
-        record = {**_VALID_TRAVEL, "destination": ""}
+    def test_empty_string_core_field_fails(self) -> None:
+        record = {**_VALID_TRAVEL, "insured_name": ""}
         result = validate_record(record, "travel")
         assert result.is_valid is False
 
-    def test_none_required_field_fails(self) -> None:
+    def test_empty_string_soft_field_passes(self) -> None:
+        record = {**_VALID_TRAVEL, "destination": ""}
+        result = validate_record(record, "travel")
+        assert result.is_valid is True
+
+    def test_none_soft_field_passes(self) -> None:
         record = {**_VALID_TRAVEL, "trip_start": None}
         result = validate_record(record, "travel")
-        assert result.is_valid is False
+        assert result.is_valid is True
 
     def test_unknown_sheet_alias_passes(self) -> None:
         result = validate_record(_VALID_TRAVEL, "unknown_sheet")
-        assert result.is_valid is True  # no schema = no validation
+        assert result.is_valid is True
 
-    def test_optional_field_none_passes(self) -> None:
-        record = {**_VALID_TRAVEL, "premium": None}
+    def test_premium_int_passes(self) -> None:
+        record = {**_VALID_TRAVEL, "premium": 1500000}
         result = validate_record(record, "travel")
+        assert result.is_valid is True
+
+    def test_premium_float_passes(self) -> None:
+        record = {**_VALID_TRAVEL, "premium": 1500000.0}
+        result = validate_record(record, "travel")
+        assert result.is_valid is True
+
+
+class TestAutoSchema:
+    def test_only_insured_name_passes(self) -> None:
+        result = validate_record({"insured_name": "Nguyen Van B"}, "auto")
+        assert result.is_valid is True
+
+    def test_only_plate_number_passes(self) -> None:
+        result = validate_record({"plate_number": "51A-12345"}, "auto")
+        assert result.is_valid is True
+
+    def test_both_missing_fails(self) -> None:
+        result = validate_record({"vehicle_brand": "Mazda"}, "auto")
+        assert result.is_valid is False
+        assert any("CORE" in e for e in result.errors)
+
+
+class TestHealthSchema:
+    def test_only_insured_name_passes(self) -> None:
+        result = validate_record({"insured_name": "Pham Thi Lien"}, "health")
+        assert result.is_valid is True
+
+    def test_buyer_dob_distinct_from_insured_dob(self) -> None:
+        record = {
+            "insured_name": "Do Danh Minh Phuc",
+            "insured_dob": date(2018, 12, 12),
+            "buyer_name": "Do Thi Thuan",
+            "buyer_dob": date(1988, 8, 30),
+        }
+        result = validate_record(record, "health")
         assert result.is_valid is True
 
 
@@ -86,14 +135,20 @@ class TestValidateAndRaise:
     def test_valid_record_does_not_raise(self) -> None:
         validate_and_raise(_VALID_TRAVEL, "travel")
 
-    def test_invalid_record_raises_validation_error(self) -> None:
+    def test_minimal_record_does_not_raise(self) -> None:
+        validate_and_raise({"insured_name": "X"}, "travel")
+
+    def test_missing_core_raises(self) -> None:
         record = {**_VALID_TRAVEL}
         del record["insured_name"]
-        with pytest.raises(ValidationError, match="insured_name"):
+        with pytest.raises(ValidationError, match="CORE"):
+            validate_and_raise(record, "travel")
+
+    def test_wrong_type_raises(self) -> None:
+        record = {**_VALID_TRAVEL, "premium": "not-a-number"}
+        with pytest.raises(ValidationError):
             validate_and_raise(record, "travel")
 
     def test_error_message_contains_sheet_alias(self) -> None:
-        record = {**_VALID_TRAVEL}
-        del record["destination"]
         with pytest.raises(ValidationError, match="travel"):
-            validate_and_raise(record, "travel")
+            validate_and_raise({}, "travel")

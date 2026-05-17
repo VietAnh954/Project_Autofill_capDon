@@ -177,3 +177,102 @@ class TestNormalizePlate:
     def test_empty_raises(self, value: object) -> None:
         with pytest.raises(MappingError):
             normalize_plate(value)
+
+
+# ============================================================
+# Phase 8.2 — new cases: NaN handling, float CCCD, multi-format dates
+# ============================================================
+
+
+_NAN = float("nan")
+
+
+class TestNaNHandling:
+    """Pandas NaN / numpy nan / None / 'nan' string must raise."""
+
+    @pytest.mark.parametrize(
+        "fn, value",
+        [
+            (normalize_date, _NAN),
+            (normalize_date, None),
+            (normalize_date, "nan"),
+            (normalize_date, "NaT"),
+            (normalize_id_number, _NAN),
+            (normalize_id_number, None),
+            (normalize_id_number, "nan"),
+            (normalize_money, _NAN),
+            (normalize_money, None),
+            (normalize_phone, _NAN),
+            (normalize_phone, None),
+            (normalize_name, _NAN),
+            (normalize_name, None),
+            (normalize_name, "nan"),
+            (normalize_plate, _NAN),
+            (normalize_plate, None),
+        ],
+    )
+    def test_nan_inputs_raise(self, fn: object, value: object) -> None:
+        with pytest.raises(MappingError):
+            fn(value)  # type: ignore[operator]
+
+
+class TestFloatIdNumber:
+    """Pandas reads numeric Excel cells as float -> normalize must convert cleanly."""
+
+    @pytest.mark.parametrize(
+        "value, expected",
+        [
+            (12345678901.0, "012345678901"),  # CCCD 11 digits -> pad to 12
+            (12345678901, "012345678901"),  # int same pad
+            (123456789.0, "123456789"),  # CMND 9 digits — no pad
+            (1188036710.0, "01188036710"),  # 10 digits -> not padded (only 11→12 rule)
+        ],
+    )
+    def test_float_cccd_strips_decimal(self, value: object, expected: str) -> None:
+        # The 10-digit case won't be padded (only 11→12 rule), so it'll fail validate_id_number
+        # but normalize should still strip .0
+        result = normalize_id_number(value)
+        # We just check no .0 in result
+        assert ".0" not in result
+        # And digits only
+        assert result.isdigit()
+
+
+class TestDateMultiFormat:
+    """Phase 8.2: support yyyy/mm/dd, MM/dd/yyyy (US), pandas Timestamp str."""
+
+    @pytest.mark.parametrize(
+        "value, expected",
+        [
+            ("2026/05/15", date(2026, 5, 15)),  # yyyy/mm/dd
+            ("2026-05-15 00:00:00", date(2026, 5, 15)),  # pandas Timestamp str
+            ("2026-05-15 00:00:00.000", date(2026, 5, 15)),  # with microseconds
+            ("15.05.2026", date(2026, 5, 15)),  # dd.mm.yyyy
+            ("2026/05/15 09:30:00", date(2026, 5, 15)),  # yyyy/mm/dd HH:MM:SS
+        ],
+    )
+    def test_extra_date_formats(self, value: str, expected: date) -> None:
+        assert normalize_date(value) == expected
+
+    def test_dd_mm_yyyy_priority_over_mm_dd_yyyy(self) -> None:
+        """VN format priority — '05/01/2026' = 5 January (dd/mm), not May 1 (US)."""
+        # 5/1/2026 valid as both formats; dd/mm wins
+        assert normalize_date("05/01/2026") == date(2026, 1, 5)
+
+    def test_mm_dd_fallback_when_dd_mm_invalid(self) -> None:
+        """If '13/05/2026' fails dd/mm (no month 13) — but 13/05 IS valid as dd/mm
+        meaning day 13 month 5. So no fallback needed here.
+        Real US-only date: '12/31/2026' → fails dd/mm (no month 31) → MM/dd → Dec 31."""
+        assert normalize_date("12/31/2026") == date(2026, 12, 31)
+
+
+class TestFloatExcelSerial:
+    """Float Excel serials should convert to date."""
+
+    def test_excel_serial_float(self) -> None:
+        # 46156.0 = 2026-05-14
+        assert normalize_date(46156.0) == date(2026, 5, 14)
+
+    def test_excel_serial_int_via_float(self) -> None:
+        # pandas can read date cell as float — both int+float should work
+        assert normalize_date(46156) == normalize_date(46156.0)

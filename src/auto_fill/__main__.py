@@ -244,7 +244,14 @@ def _process_file(
     else:
         raise ValueError(f"Dinh dang khong ho tro: {suffix}")
 
-    wrote_any = False
+    click.echo(
+        f"[read] {file_path.name}: {len(df)} dong data, sheet={sheet_info.excel_name}, "
+        f"cols={list(df.columns)[:6]}{'...' if len(df.columns) > 6 else ''}"
+    )
+    if df.empty:
+        click.echo(f"[warn] {file_path.name}: DataFrame rong (khong co data row nao sau header)")
+        return None
+
     for _, row in df.iterrows():
         record: dict[str, Any] = dict(row)
         _normalize_record(
@@ -268,12 +275,28 @@ def _process_file(
             append_travel_rows(
                 [record], settings.master_file_path, sheet_name=sheet_info.excel_name
             )
-            wrote_any = True
+            stats.add_written(sheet_info.alias)  # count per-row
         else:
             click.echo(f"[dry-run] Se ghi: {record.get('insured_name')}")
-            wrote_any = True
+            stats.add_written(sheet_info.alias)  # count per-row in dry-run too
 
-    return sheet_info.alias if wrote_any else None
+    # Trả về None để caller KHÔNG add_written lần nữa (đã count trong loop)
+    return None
+
+
+def _apply_normalizer(record: dict[str, Any], fields: tuple[str, ...], fn: Any) -> None:
+    """Apply fn to each field in record, setting to None on error or NaN."""
+    from auto_fill.mapper.normalizer import _is_nan_like
+
+    for f in fields:
+        v = record.get(f)
+        if v is None or _is_nan_like(v):
+            record[f] = None
+        else:
+            try:
+                record[f] = fn(v)
+            except Exception:
+                record[f] = None
 
 
 def _normalize_record(
@@ -283,25 +306,33 @@ def _normalize_record(
     normalize_money: Any,
     normalize_name: Any,
 ) -> None:
-    date_fields = ("issued_date", "insured_dob", "trip_start", "trip_end", "effective_from")
-    for f in date_fields:
-        if record.get(f) is not None:
-            with contextlib.suppress(Exception):
-                record[f] = normalize_date(record[f])
-
-    str_fields = ("insured_name", "destination", "scope", "plan", "buyer_name")
-    for f in str_fields:
-        if record.get(f) is not None:
-            with contextlib.suppress(Exception):
-                record[f] = normalize_name(str(record[f]))
-
-    if record.get("insured_id_number") is not None:
-        with contextlib.suppress(Exception):
-            record["insured_id_number"] = normalize_id_number(record["insured_id_number"])
-
-    if record.get("premium") is not None:
-        with contextlib.suppress(Exception):
-            record["premium"] = normalize_money(record["premium"])
+    """Normalize tat ca field. Khi normalize fail (NaN, empty, sai format)
+    -> set field = None de validator coi nhu empty (soft field, vi the pass).
+    Refactor 2026-05-17 Phase 8.2: ho tro pandas NaN + float CCCD.
+    """
+    _apply_normalizer(
+        record,
+        (
+            "issued_date",
+            "insured_dob",
+            "trip_start",
+            "trip_end",
+            "effective_from",
+            "effective_to",
+            "buyer_dob",
+            "payment_date",
+            "start_date",
+            "end_date",
+        ),
+        normalize_date,
+    )
+    _apply_normalizer(
+        record,
+        ("insured_name", "destination", "scope", "plan", "buyer_name", "buyer_relation"),
+        lambda v: normalize_name(str(v)),
+    )
+    _apply_normalizer(record, ("insured_id_number", "buyer_id_number"), normalize_id_number)
+    _apply_normalizer(record, ("premium",), normalize_money)
 
 
 @cli.command()

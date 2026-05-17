@@ -214,9 +214,11 @@
        - ✅ 6 new tests cover Pattern 3 buyer-empty: first row full, continuation rows cols 11-17 empty.
        - ✅ 656/656 overall tests pass.
 
-- [ ] 8.7. **Test fixtures** — copy `sample_capdon/` vào `tests/fixtures/sample_capdon/`:
-       - End-to-end test cho cả 5 sheet.
-       - Verify mỗi sample pass pipeline (read → classify → fill).
+- [x] 8.7. **Test fixtures** — copy `sample_capdon/` vào `tests/fixtures/sample_capdon/`:
+       - ✅ 5 fixture files copied: sample_du_lich, suc_khoe, oto, xe_may, hssv.
+       - ✅ `tests/test_e2e_samples.py` — 21 tests cover read→normalize→validate for all 5 sheets.
+       - ✅ Tests use `Path(__file__).parent / "fixtures"` (no relative path, no pre-commit stash issue).
+       - ✅ 677/677 overall tests pass.
 
 - [ ] 8.8. **Update `aliases.yaml`** — bổ sung alias chính xác từ data thực:
        - "Tên khách hàng" + group="Bên mua bảo hiểm" → `buyer_name`

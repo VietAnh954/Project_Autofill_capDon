@@ -7,11 +7,22 @@ Tra True neu da ton tai, False neu moi.
 from __future__ import annotations
 
 import logging
+import warnings
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+
+# Suppress openpyxl warning ve cell co serial date ngoai pham vi
+# (vd master file co cell F479 voi serial 6693508 - data cu, vo hai).
+# Mac dinh warning xuat hien moi lan dedup load master -> spam log.
+warnings.filterwarnings(
+    "ignore",
+    message=r".*serial value .* is outside the limits.*",
+    category=UserWarning,
+    module=r"openpyxl\..*",
+)
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +64,9 @@ def is_duplicate(
 
     missing = [k for k in _DEDUP_KEY if k not in df.columns]
     if missing:
-        logger.warning("dedup_columns_missing", extra={"missing": missing})
+        # DEBUG — informational only. Reader đã ghi warning 1 lần khi load file.
+        # Mỗi row gọi dedup → spam log nếu là WARNING (xem Phase 8 bug fix).
+        logger.debug("dedup_columns_missing", extra={"missing": missing})
         return False
 
     return _check_match(df, record)
