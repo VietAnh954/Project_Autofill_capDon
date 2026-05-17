@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from datetime import date
 from pathlib import Path
+from typing import ClassVar
 
 import openpyxl
 import pytest
 
-from auto_fill.filler.excel_filler import _next_stt, append_travel_rows
+from auto_fill.filler.excel_filler import _next_stt, append_rows, append_travel_rows
+from auto_fill.mapper.sheet_mapping import STUDENT
 
 _SHEET = "Du lịch"
 _HEADERS = [
@@ -161,6 +163,127 @@ class TestAppendTravelRows:
         ws = wb[_SHEET]
         row = ws.max_row
         assert ws.cell(row=row, column=14).value == 1500000.0
+
+
+class TestPattern3BuyerEmpty:
+    """8.6: buyer cols empty on continuation rows sharing source_buyer_group_id."""
+
+    _HSSV_HEADERS: ClassVar[list[str]] = [
+        "Ngày",  # col 1 issued_date
+        "Họ tên NĐBH",  # col 2 insured_name
+        "Ngày sinh NĐBH",  # col 3 insured_dob
+        "Giới tính",  # col 4
+        "CCCD/CMND",  # col 5
+        "Email",  # col 6
+        "SĐT",  # col 7
+        "Địa chỉ",  # col 8
+        "Trường",  # col 9
+        "Lớp",  # col 10
+        "Họ tên BMBH",  # col 11 buyer_name
+        "Quan hệ",  # col 12 buyer_relation
+        "Ngày sinh BMBH",  # col 13 buyer_dob
+        "CCCD BMBH",  # col 14 buyer_id_number
+        "Email BMBH",  # col 15 buyer_email
+        "SĐT BMBH",  # col 16 buyer_phone
+        "Địa chỉ BMBH",  # col 17 buyer_address
+    ]
+
+    _GROUP_ID = "test-group-uuid-1234"
+
+    _BASE_BUYER: ClassVar[dict[str, str]] = {
+        "buyer_name": "Lê Thị Hoa",
+        "buyer_relation": "Mẹ",
+        "buyer_dob": "1980-01-01",
+        "buyer_id_number": "011111111111",
+        "buyer_email": "hoa@example.com",
+        "buyer_phone": "0901111111",
+        "buyer_address": "HCM",
+    }
+
+    def _make_hssv_workbook(self, tmp_path: Path) -> Path:
+        path = tmp_path / "master_hssv.xlsx"
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "HSSV"
+        ws.append(self._HSSV_HEADERS)
+        wb.save(path)
+        return path
+
+    def test_first_row_has_buyer_name(self, tmp_path: Path) -> None:
+        path = self._make_hssv_workbook(tmp_path)
+        records = [
+            {"insured_name": "Con 1", "source_buyer_group_id": self._GROUP_ID, **self._BASE_BUYER},
+            {"insured_name": "Con 2", "source_buyer_group_id": self._GROUP_ID},
+        ]
+        append_rows(records, STUDENT, path, "HSSV")
+        wb = openpyxl.load_workbook(path)
+        ws = wb["HSSV"]
+        assert ws.cell(row=2, column=11).value == "Lê Thị Hoa"
+
+    def test_continuation_row_has_empty_buyer_name(self, tmp_path: Path) -> None:
+        path = self._make_hssv_workbook(tmp_path)
+        records = [
+            {"insured_name": "Con 1", "source_buyer_group_id": self._GROUP_ID, **self._BASE_BUYER},
+            {"insured_name": "Con 2", "source_buyer_group_id": self._GROUP_ID},
+        ]
+        append_rows(records, STUDENT, path, "HSSV")
+        wb = openpyxl.load_workbook(path)
+        ws = wb["HSSV"]
+        assert ws.cell(row=3, column=11).value is None
+
+    def test_all_buyer_cols_empty_for_continuation(self, tmp_path: Path) -> None:
+        path = self._make_hssv_workbook(tmp_path)
+        records = [
+            {"insured_name": "Con 1", "source_buyer_group_id": self._GROUP_ID, **self._BASE_BUYER},
+            {"insured_name": "Con 2", "source_buyer_group_id": self._GROUP_ID},
+            {"insured_name": "Con 3", "source_buyer_group_id": self._GROUP_ID},
+        ]
+        append_rows(records, STUDENT, path, "HSSV")
+        wb = openpyxl.load_workbook(path)
+        ws = wb["HSSV"]
+        # rows 3 and 4 are continuation rows; buyer cols 11-17 must all be None
+        for row_idx in (3, 4):
+            for col_idx in range(11, 18):
+                val = ws.cell(row=row_idx, column=col_idx).value
+                assert val is None, f"Row {row_idx} col {col_idx}: expected None, got {val!r}"
+
+    def test_independent_rows_each_write_buyer(self, tmp_path: Path) -> None:
+        path = self._make_hssv_workbook(tmp_path)
+        records = [
+            {"insured_name": "A", "source_buyer_group_id": "group-1", **self._BASE_BUYER},
+            {"insured_name": "B", "source_buyer_group_id": "group-2", "buyer_name": "Other Buyer"},
+        ]
+        append_rows(records, STUDENT, path, "HSSV")
+        wb = openpyxl.load_workbook(path)
+        ws = wb["HSSV"]
+        assert ws.cell(row=2, column=11).value == "Lê Thị Hoa"
+        assert ws.cell(row=3, column=11).value == "Other Buyer"
+
+    def test_no_group_id_always_writes_buyer(self, tmp_path: Path) -> None:
+        path = self._make_hssv_workbook(tmp_path)
+        records = [
+            {"insured_name": "A", **self._BASE_BUYER},
+            {"insured_name": "B", **self._BASE_BUYER},
+        ]
+        append_rows(records, STUDENT, path, "HSSV")
+        wb = openpyxl.load_workbook(path)
+        ws = wb["HSSV"]
+        assert ws.cell(row=2, column=11).value == "Lê Thị Hoa"
+        assert ws.cell(row=3, column=11).value == "Lê Thị Hoa"
+
+    def test_travel_pattern3_skips_buyer_name_on_continuation(self, tmp_path: Path) -> None:
+        path = _make_workbook(tmp_path)
+        records = [
+            {**_RECORD, "source_buyer_group_id": "grp", "buyer_name": "Parent"},
+            {**_RECORD, "source_buyer_group_id": "grp", "insured_name": "Child"},
+        ]
+        append_travel_rows(records, path)
+        wb = openpyxl.load_workbook(path)
+        ws = wb[_SHEET]
+        # row 2 = first record (buyer_name col 15 = "Parent")
+        assert ws.cell(row=2, column=15).value == "Parent"
+        # row 3 = continuation (buyer_name col 15 = None)
+        assert ws.cell(row=3, column=15).value is None
 
 
 class TestNextStt:

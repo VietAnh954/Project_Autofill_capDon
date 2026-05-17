@@ -2,6 +2,7 @@
 
 Mapping canonical → column index theo MAPPING.md §6.1.
 STT tu dong tang, date format dd/mm/yyyy, money format so.
+Pattern 3: rows sharing source_buyer_group_id → only first row writes buyer fields.
 """
 
 from __future__ import annotations
@@ -14,6 +15,8 @@ from typing import Any
 import openpyxl
 from openpyxl.styles import Alignment
 from openpyxl.worksheet.worksheet import Worksheet
+
+from auto_fill.mapper.sheet_mapping import SheetColumnMap
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +40,20 @@ _TRAVEL_COL_MAP: list[tuple[str | None, int]] = [
 ]
 
 _DATE_NUMBER_FORMAT = "DD/MM/YYYY"
+
+# Canonical buyer field names — skipped for Pattern 3 continuation rows
+_BUYER_FIELDS: frozenset[str] = frozenset(
+    {
+        "buyer_name",
+        "buyer_id_number",
+        "buyer_dob",
+        "buyer_phone",
+        "buyer_email",
+        "buyer_address",
+        "buyer_gender",
+        "buyer_relation",
+    }
+)
 
 
 def append_travel_rows(
@@ -70,9 +87,14 @@ def append_travel_rows(
     ws: Worksheet = wb[sheet_name]
     next_stt = _next_stt(ws, col_idx=2, header_row=header_row)
 
+    seen_group_ids: set[str] = set()
     written = 0
     for record in records:
-        _write_row(ws, record, next_stt)
+        group_id = record.get("source_buyer_group_id")
+        skip_buyer = bool(group_id and group_id in seen_group_ids)
+        if group_id:
+            seen_group_ids.add(str(group_id))
+        _write_row(ws, record, next_stt, skip_buyer=skip_buyer)
         next_stt += 1
         written += 1
         logger.info(
@@ -81,6 +103,67 @@ def append_travel_rows(
                 "sheet": sheet_name,
                 "id": record.get("insured_id_number", ""),
                 "stt": next_stt - 1,
+            },
+        )
+
+    wb.save(master_path)
+    logger.info("workbook_saved", extra={"path": str(master_path), "rows_written": written})
+    return written
+
+
+def append_rows(
+    records: list[dict[str, Any]],
+    col_map: SheetColumnMap,
+    master_path: Path,
+    sheet_name: str,
+    header_row: int = 1,
+) -> int:
+    """Generic append for any sheet with Pattern 3 buyer-empty preservation.
+
+    Records sharing the same source_buyer_group_id: only the first row writes
+    buyer fields (cols mapped to buyer_* canonicals). Subsequent rows in the
+    group leave those cells empty, matching the original Excel source pattern.
+
+    Args:
+        records: Canonical dicts from normalizer/validator.
+        col_map: SheetColumnMap for target sheet.
+        master_path: Path to master workbook (must exist).
+        sheet_name: Sheet name within workbook.
+        header_row: 1-based header row index.
+
+    Returns:
+        Number of rows written.
+    """
+    if not master_path.exists():
+        raise FileNotFoundError(f"File tong khong ton tai: {master_path}")
+
+    wb = openpyxl.load_workbook(master_path)
+    if sheet_name not in wb.sheetnames:
+        raise KeyError(f"Sheet {sheet_name!r} khong ton tai trong {master_path.name}")
+
+    ws: Worksheet = wb[sheet_name]
+    next_stt = (
+        _next_stt(ws, col_idx=col_map.stt_col, header_row=header_row) if col_map.stt_col else None
+    )
+
+    seen_group_ids: set[str] = set()
+    written = 0
+    for record in records:
+        group_id = record.get("source_buyer_group_id")
+        skip_buyer = bool(group_id and group_id in seen_group_ids)
+        if group_id:
+            seen_group_ids.add(str(group_id))
+
+        _write_row_generic(ws, record, col_map, stt=next_stt, skip_buyer=skip_buyer)
+        if next_stt is not None:
+            next_stt += 1
+        written += 1
+        logger.info(
+            "row_appended",
+            extra={
+                "sheet": sheet_name,
+                "id": record.get("insured_id_number", ""),
+                "skip_buyer": skip_buyer,
             },
         )
 
@@ -104,8 +187,10 @@ def _next_stt(ws: Worksheet, col_idx: int, header_row: int) -> int:
     return max_stt + 1
 
 
-def _write_row(ws: Worksheet, record: dict[str, Any], stt: int) -> None:
-    """Ghi 1 record vao dong moi cuoi ws."""
+def _write_row(
+    ws: Worksheet, record: dict[str, Any], stt: int, *, skip_buyer: bool = False
+) -> None:
+    """Ghi 1 record vao dong moi cuoi ws (travel sheet)."""
     next_row = ws.max_row + 1
 
     # STT
@@ -122,6 +207,8 @@ def _write_row(ws: Worksheet, record: dict[str, Any], stt: int) -> None:
     for field, col_idx in _TRAVEL_COL_MAP:
         if field is None:
             continue  # handled separately (STT, trip_days)
+        if skip_buyer and field in _BUYER_FIELDS:
+            continue
         value = record.get(field)
         if value is None:
             continue
@@ -129,6 +216,52 @@ def _write_row(ws: Worksheet, record: dict[str, Any], stt: int) -> None:
         if isinstance(value, date):
             cell.number_format = _DATE_NUMBER_FORMAT
             cell.alignment = Alignment(horizontal="center")
+
+
+def _write_row_generic(
+    ws: Worksheet,
+    record: dict[str, Any],
+    col_map: SheetColumnMap,
+    stt: int | None,
+    *,
+    skip_buyer: bool = False,
+) -> None:
+    """Ghi 1 record dung SheetColumnMap bat ky."""
+    next_row = ws.max_row + 1
+
+    if stt is not None and col_map.stt_col is not None:
+        ws.cell(row=next_row, column=col_map.stt_col, value=stt)
+
+    _maybe_write_trip_days(ws, record, col_map, next_row)
+
+    for field, col_idx in col_map.col_map:
+        if field is None:
+            continue
+        if skip_buyer and field in _BUYER_FIELDS:
+            continue
+        value = record.get(field)
+        if value is None:
+            continue
+        cell = ws.cell(row=next_row, column=col_idx, value=_coerce(value))
+        if isinstance(value, date):
+            cell.number_format = _DATE_NUMBER_FORMAT
+            cell.alignment = Alignment(horizontal="center")
+
+
+def _maybe_write_trip_days(
+    ws: Worksheet, record: dict[str, Any], col_map: SheetColumnMap, next_row: int
+) -> None:
+    if "trip_days" not in col_map.computed_fields:
+        return
+    trip_start = record.get("trip_start")
+    trip_end = record.get("trip_end")
+    if not (isinstance(trip_start, date) and isinstance(trip_end, date)):
+        return
+    trip_days = (trip_end - trip_start).days
+    for f, col_idx in col_map.col_map:
+        if f is None and col_idx == 9:
+            ws.cell(row=next_row, column=col_idx, value=trip_days)
+            break
 
 
 def _coerce(value: Any) -> Any:

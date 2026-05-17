@@ -208,9 +208,11 @@
        - ✅ Acceptance: 13 unit tests + sample_suc_khoe.xlsx case 1 (Bản thân) → buyer_name == insured_name = "Nguyễn Thị Tuyết Linh".
        - ✅ 650/650 overall tests pass.
 
-- [ ] 8.6. **Excel filler — preserve BMBH-empty for Pattern 3**:
-       - Khi append N rows cùng `source_buyer_group_id`: row 1 ghi BMBH đầy đủ, row 2..N để BMBH cells = None.
-       - Acceptance: write `sample_hssv.xlsx` (gia đình 3 con Lê) vào master HSSV → 3 row liên tiếp, cols 11-17 row 2-3 trống.
+- [x] 8.6. **Excel filler — preserve BMBH-empty for Pattern 3**:
+       - ✅ `append_rows(records, col_map, master_path, sheet_name)` generic filler với `source_buyer_group_id` tracking.
+       - ✅ `append_travel_rows` cũng hỗ trợ skip_buyer cho continuation rows.
+       - ✅ 6 new tests cover Pattern 3 buyer-empty: first row full, continuation rows cols 11-17 empty.
+       - ✅ 656/656 overall tests pass.
 
 - [ ] 8.7. **Test fixtures** — copy `sample_capdon/` vào `tests/fixtures/sample_capdon/`:
        - End-to-end test cho cả 5 sheet.
