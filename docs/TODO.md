@@ -197,10 +197,11 @@
        - ✅ Acceptance: sample_suc_khoe.xlsx (BMBH trái) → insured_dob=2018-12-12 (Phúc), buyer_dob=1988-08-30 (Thuận) KHÁC NHAU.
        - ✅ 18 tests pass + 631/631 overall.
 
-- [ ] 8.4. **Pattern 3 fill-down** — `reader/excel_reader.py`:
-       - Khi row N có BMBH cells trống nhưng có NĐBH data → fill-down BMBH info từ row gần nhất phía trên.
-       - Đánh dấu `source_buyer_group_id` (UUID) chung cho group rows.
-       - Acceptance: `sample_du_lich.xlsx` rows 3-5 (gia đình Phạm Minh Cường) → 3 record canonical đều có cùng `buyer_name="Phạm Minh Cường"`.
+- [x] 8.4. **Pattern 3 fill-down** — `reader/excel_reader.py`:
+       - ✅ `_filldown_buyer` mở rộng: thêm `source_buyer_group_id` UUID — new UUID khi row có buyer data, fill-down UUID cùng group.
+       - ✅ Fill-down đã có từ trước (ffill); task 8.4 thêm UUID tagging.
+       - ✅ Acceptance: `sample_du_lich.xlsx` gia đình Phạm Minh Cường → 4 rows cùng UUID; Nguyễn Văn An UUID khác.
+       - ✅ 23 excel_reader tests pass + 641/641 overall.
 
 - [ ] 8.5. **Self-buyer normalizer** — `mapper/self_buyer.py`:
        - Khi `buyer_relation == "Bản thân"` AND `buyer_name` trống → copy `insured_*` sang `buyer_*`.

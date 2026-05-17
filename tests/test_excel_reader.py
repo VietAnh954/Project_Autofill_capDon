@@ -211,6 +211,53 @@ class TestFilldownBuyer:
         result = _filldown_buyer(df)
         assert result.iloc[1]["buyer_name"] == "Alice"
 
+    def test_source_buyer_group_id_added(self) -> None:
+        df = pd.DataFrame({"buyer_name": ["Alice", None, None], "insured_name": ["X", "Y", "Z"]})
+        result = _filldown_buyer(df)
+        assert "source_buyer_group_id" in result.columns
+
+    def test_pattern3_group_shares_same_uuid(self) -> None:
+        df = pd.DataFrame({"buyer_name": ["Alice", None, None], "insured_name": ["X", "Y", "Z"]})
+        result = _filldown_buyer(df)
+        ids = result["source_buyer_group_id"].tolist()
+        assert ids[0] == ids[1] == ids[2]
+
+    def test_independent_rows_get_different_uuids(self) -> None:
+        df = pd.DataFrame({"buyer_name": ["Alice", "Bob"], "insured_name": ["X", "Y"]})
+        result = _filldown_buyer(df)
+        ids = result["source_buyer_group_id"].tolist()
+        assert ids[0] != ids[1]
+
+    def test_buyer_name_filled_after_uuid_tagging(self) -> None:
+        df = pd.DataFrame({"buyer_name": ["Alice", None, None], "insured_name": ["X", "Y", "Z"]})
+        result = _filldown_buyer(df)
+        assert result["buyer_name"].tolist() == ["Alice", "Alice", "Alice"]
+
+
+class TestPattern3Acceptance:
+    """8.4 acceptance: sample_du_lich.xlsx gia dinh Pham Minh Cuong share same group id."""
+
+    SAMPLE_PATH = Path("sample_capdon/sample_du_lich.xlsx")
+
+    def test_pham_minh_cuong_rows_share_group_id(self) -> None:
+        from auto_fill.mapper.aliases_loader import load_aliases
+
+        aliases = load_aliases()
+        df = read_excel(self.SAMPLE_PATH, aliases)
+        group = df[df["buyer_name"] == "Phạm Minh Cường"]
+        assert len(group) >= 3, "Expected at least 3 rows for Pham Minh Cuong group"
+        group_ids = group["source_buyer_group_id"].unique()
+        assert len(group_ids) == 1, f"Expected 1 unique group ID, got {len(group_ids)}"
+
+    def test_different_buyers_have_different_group_ids(self) -> None:
+        from auto_fill.mapper.aliases_loader import load_aliases
+
+        aliases = load_aliases()
+        df = read_excel(self.SAMPLE_PATH, aliases)
+        cuong_id = df[df["buyer_name"] == "Phạm Minh Cường"]["source_buyer_group_id"].iloc[0]
+        an_id = df[df["buyer_name"] == "Nguyễn Văn An"]["source_buyer_group_id"].iloc[0]
+        assert cuong_id != an_id
+
 
 class TestBuildRenameMap:
     def test_exact_match_case_insensitive(self) -> None:

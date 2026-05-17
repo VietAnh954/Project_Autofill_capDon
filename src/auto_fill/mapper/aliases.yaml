@@ -137,6 +137,10 @@ buyer_name:
   - "người mua"
   - "nguoi mua"
   - "policyholder"
+  - "họ tên người mua"
+  - "ho ten nguoi mua"
+  - "tên người mua"
+  - "ten nguoi mua"
   # Affina Care row 3 (BMBH section)
   - "tên người mua (*)"
   - "ten nguoi mua (*)"
@@ -148,6 +152,8 @@ buyer_dob:
   - "ngay sinh bmbh"
   - "ngày sinh bên mua"
   - "dob bmbh"
+  - "ngày sinh người mua"
+  - "ngay sinh nguoi mua"
   # Affina Care row 3
   - "ngày sinh người mua (*)"
   - "ngay sinh nguoi mua (*)"
@@ -158,6 +164,10 @@ buyer_id_number:
   - "cccd/cmnd bmbh"
   - "số cccd bmbh"
   - "giấy tờ bmbh"
+  - "cccd/cmnd/paspost id người mua"
+  - "cccd/cmnd/passport id người mua"
+  - "cccd người mua"
+  - "cmnd người mua"
   # Affina Care row 3
   - "cmnd người mua (*)"
   - "cmnd nguoi mua (*)"
@@ -169,6 +179,8 @@ buyer_phone:
   - "điện thoại bmbh"
   - "số điện thoại bmbh"
   - "phone bmbh"
+  - "số điện thoại người mua"
+  - "so dien thoai nguoi mua"
   # Affina Care row 3
   - "số điện thoại người mua (*)"
   - "so dien thoai nguoi mua (*)"
@@ -226,9 +238,11 @@ effective_from:
   - "hiệu lực từ"
   - "hieu luc tu"
   - "có hiệu lực từ"
-  # Affina Care row 3
+  # Affina Care row 3 (multi-line header normalized to single line)
   - "ngày bắt đầu (*)"
   - "ngay bat dau (*)"
+  - "ngày bắt đầu(*) (dd/mm/yyyy)"
+  - "ngay bat dau(*) (dd/mm/yyyy)"
   - "ngày bắt đầu hiệu lực "
   - "quyền lợi chính "
 

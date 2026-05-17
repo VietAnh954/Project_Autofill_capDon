@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import re
+import uuid
 from pathlib import Path
 
 import pandas as pd
@@ -151,18 +152,27 @@ def _dedupe_columns(df: pd.DataFrame, source_name: str) -> pd.DataFrame:
 
 
 def _filldown_buyer(df: pd.DataFrame) -> pd.DataFrame:
-    """Forward-fill BMBH columns when buyer cells are empty but insured row has data.
+    """Forward-fill BMBH columns and tag buyer groups with source_buyer_group_id.
 
-    Common pattern: 1 BMBH buys insurance for multiple NĐBH — Excel has buyer
-    info only on the first row for each group, leaving subsequent rows blank.
+    Pattern 3: 1 BMBH buys for N NDBH — Excel has buyer info only on the first
+    row per group; subsequent rows are empty. After fill-down, all N rows share
+    the same canonical buyer fields AND the same source_buyer_group_id UUID.
+
+    Pattern 1/2 (single buyer per row): each row gets its own UUID.
     """
     cols = [c for c in _BUYER_FILLDOWN_COLS if c in df.columns]
     if not cols:
         return df
     df = df.copy()
-    # Treat empty strings as missing so ffill propagates correctly
     df[cols] = df[cols].replace("", pd.NA).replace("nan", pd.NA)
+
+    # Assign a new UUID to every row that has original buyer data; continuation
+    # rows (all BMBH cols empty) get None and will inherit via ffill.
+    is_group_start = df[cols].notna().any(axis=1)
+    df["source_buyer_group_id"] = [str(uuid.uuid4()) if start else None for start in is_group_start]
+
     df[cols] = df[cols].ffill()
+    df["source_buyer_group_id"] = df["source_buyer_group_id"].ffill()
     return df
 
 
