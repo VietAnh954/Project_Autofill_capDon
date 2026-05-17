@@ -7,7 +7,7 @@
 
 ## Đang làm
 
-Phase 8.1–8.8 ✅ done. Còn 8.9 → 8.10.
+Phase 8.1–8.9 ✅ done. Còn 8.10 (tag).
 
 ---
 

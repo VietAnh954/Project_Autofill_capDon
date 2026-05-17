@@ -226,9 +226,11 @@
        - ✅ `buyer_relation`: thêm "mối quan hệ với nđbh", "moi quan he voi ndbh", "quan hệ với nđbh" (HSSV).
        - ✅ 677/677 overall tests pass (21 e2e samples included).
 
-- [ ] 8.9. **Dashboard enhancement** — show pattern indicator:
-       - Recent records section: hiển thị icon Pattern 1/2/3 cho mỗi entry.
-       - Filter theo BMBH (group view).
+- [x] 8.9. **Dashboard enhancement** — show pattern indicator:
+       - ✅ Recent records: thêm badge P1/P2/P3 (info/success/warning) cho mỗi entry.
+       - ✅ BMBH filter input lọc theo buyer_name hoặc insured_name.
+       - ✅ `patternOf()` + `patternTitle()` + `filteredRecords` computed property (Alpine.js).
+       - ✅ 12 dashboard route tests vẫn pass.
 
 - [ ] 8.10. Tag `v0.8.0-mapper-refactor`.
 

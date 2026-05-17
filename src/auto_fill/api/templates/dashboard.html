@@ -111,26 +111,44 @@
           <h2 class="font-semibold text-sm">📄 Hồ sơ gần nhất</h2>
           <a href="/dashboard/records" class="btn btn-ghost btn-xs">Xem tất cả →</a>
         </div>
+        <!-- BMBH filter -->
+        <div class="mb-2 shrink-0">
+          <input type="text" x-model="buyerFilter"
+                 placeholder="Lọc theo Bên mua BH…"
+                 class="input input-bordered input-xs w-full max-w-xs" />
+        </div>
         <div class="overflow-x-auto flex-1">
           <table class="table table-xs w-full">
             <thead>
               <tr>
                 <th class="whitespace-nowrap">Sheet</th>
-                <th class="whitespace-nowrap">Tên người được BH</th>
+                <th class="whitespace-nowrap">Tên NĐBH</th>
+                <th class="whitespace-nowrap hidden sm:table-cell">Pattern</th>
                 <th class="whitespace-nowrap hidden sm:table-cell">Ngày tạo</th>
               </tr>
             </thead>
             <tbody>
-              <template x-if="recentRecords.length === 0">
-                <tr><td colspan="3" class="text-center opacity-40 italic">Chưa có dữ liệu</td></tr>
+              <template x-if="filteredRecords.length === 0">
+                <tr><td colspan="4" class="text-center opacity-40 italic">Chưa có dữ liệu</td></tr>
               </template>
-              <template x-for="r in recentRecords" :key="r.id + r.sheet">
+              <template x-for="r in filteredRecords" :key="r.id + r.sheet">
                 <tr class="hover">
                   <td>
                     <span class="badge badge-ghost badge-sm whitespace-nowrap" x-text="sheetLabel(r.sheet)"></span>
                   </td>
                   <td class="max-w-[140px] sm:max-w-xs truncate"
                       x-text="r.data.insured_name || r.data.customer_name || '—'"></td>
+                  <td class="hidden sm:table-cell">
+                    <span class="badge badge-sm font-mono"
+                          :class="{
+                            'badge-info':    patternOf(r) === '1',
+                            'badge-success': patternOf(r) === '2',
+                            'badge-warning': patternOf(r) === '3'
+                          }"
+                          :title="patternTitle(r)"
+                          x-text="'P' + patternOf(r)">
+                    </span>
+                  </td>
                   <td class="text-xs opacity-60 whitespace-nowrap hidden sm:table-cell"
                       x-text="r.data.created_at ? r.data.created_at.slice(0,16) : '—'"></td>
                 </tr>
@@ -281,6 +299,7 @@ function dashboard() {
     lastRunTime: '',
     logs: [],
     recentRecords: [],
+    buyerFilter: '',
     sseConnected: false,
     sseSource: null,
 
@@ -379,6 +398,28 @@ function dashboard() {
 
     sheetLabel(key) {
       return (this.sheetList.find(s => s.key === key) || {}).label || key;
+    },
+
+    patternOf(r) {
+      const buyer = r.data.buyer_name;
+      const insured = r.data.insured_name;
+      if (!buyer) return '3';
+      if (buyer === insured) return '1';
+      return '2';
+    },
+
+    patternTitle(r) {
+      return { '1': 'P1: Bản thân (BMBH = NĐBH)', '2': 'P2: Người mua khác', '3': 'P3: Nhóm gia đình (BMBH ở dòng trước)' }[this.patternOf(r)] || '';
+    },
+
+    get filteredRecords() {
+      if (!this.buyerFilter.trim()) return this.recentRecords;
+      const q = this.buyerFilter.trim().toLowerCase();
+      return this.recentRecords.filter(r => {
+        const buyer = (r.data.buyer_name || '').toLowerCase();
+        const insured = (r.data.insured_name || '').toLowerCase();
+        return buyer.includes(q) || insured.includes(q);
+      });
     },
   };
 }
